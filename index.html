@@ -6,7 +6,7 @@
   <title>ELITSERIEN – Svenska Puckligan</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Barlow Condensed (Athletic SHL-style headers) & Inter (Clean UI) -->
+  <!-- Google Fonts: Barlow Condensed & Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;0,900;1,700;1,800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -49,7 +49,6 @@
       letter-spacing: 0.02em;
     }
 
-    /* Custom Scrollbar for Score Ticker */
     .ticker-scroll::-webkit-scrollbar {
       height: 0px;
       display: none;
@@ -59,18 +58,14 @@
       scrollbar-width: none;
     }
 
-    /* Hero Arena Bokeh Background */
     .hero-arena-bg {
       background: 
-        radial-gradient(circle at 18% 35%, rgba(110, 215, 215, 0.28) 0%, rgba(110, 215, 215, 0) 18%),
-        radial-gradient(circle at 32% 72%, rgba(96, 165, 250, 0.22) 0%, rgba(96, 165, 250, 0) 22%),
-        radial-gradient(circle at 60% 25%, rgba(125, 211, 252, 0.25) 0%, rgba(125, 211, 252, 0) 16%),
-        radial-gradient(circle at 92% 45%, rgba(110, 215, 215, 0.25) 0%, rgba(110, 215, 215, 0) 18%),
-        radial-gradient(circle at 5% 65%, rgba(147, 197, 253, 0.2) 0%, rgba(147, 197, 253, 0) 15%),
+        radial-gradient(circle at 18% 35%, rgba(110, 215, 215, 0.25) 0%, rgba(110, 215, 215, 0) 18%),
+        radial-gradient(circle at 32% 72%, rgba(96, 165, 250, 0.20) 0%, rgba(96, 165, 250, 0) 22%),
+        radial-gradient(circle at 60% 25%, rgba(125, 211, 252, 0.22) 0%, rgba(125, 211, 252, 0) 16%),
         linear-gradient(115deg, #0d1b2a 0%, #1b3a4b 48%, #0f172a 100%);
     }
 
-    /* SHL Profile Top Dark Backdrop */
     .profile-hero-bg {
       background:
         radial-gradient(circle at 38% 30%, rgba(56, 189, 248, 0.14) 0%, transparent 45%),
@@ -78,12 +73,10 @@
         linear-gradient(180deg, #161920 0%, #090b0e 100%);
     }
 
-    /* SHL Career Gradient Bar */
     .shl-career-gradient {
       background: linear-gradient(90deg, #131c2e 0%, #25416b 45%, #4a8af4 100%);
     }
 
-    /* Realistic Scratched Hockey Puck Surface */
     .puck-3d {
       background: 
         radial-gradient(circle at 30% 28%, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 45%),
@@ -95,7 +88,6 @@
       position: relative;
     }
 
-    /* Subtle hover animations */
     .match-card-hover {
       transition: all 0.18s ease;
     }
@@ -104,7 +96,6 @@
       box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
     }
 
-    /* Floating animation for Puck character */
     @keyframes floatSlow {
       0%, 100% { transform: translateY(0px); }
       50% { transform: translateY(-5px); }
@@ -117,69 +108,41 @@
 <body class="min-h-screen flex flex-col selection:bg-shl-blue selection:text-white">
 
   <!-- ===================================================================== -->
-  <!-- 1. TOP UTILITY BAR & ROLE SWITCHER (STEAM / ADMIN / GUEST)            -->
+  <!-- 1. TOP UTILITY BAR                                                    -->
   <!-- ===================================================================== -->
   <div class="bg-[#080b11] text-gray-300 text-xs border-b border-white/10">
     <div class="max-w-[1360px] mx-auto px-4 h-10 flex items-center justify-between gap-4">
-      
-      <!-- Left: Server Status & Quick Badges -->
       <div class="flex items-center gap-4 overflow-x-auto whitespace-nowrap">
         <div class="flex items-center gap-2 bg-white/5 px-2.5 py-1 rounded border border-white/10">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span class="font-semibold text-white">PUCK SERVER:</span>
-          <span class="text-emerald-400 font-mono" id="topServerStatusText">ELITSERIEN Ligaspel 1 (12/12 Online)</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span class="font-semibold text-white">ELITSERIEN</span>
+          <span class="text-gray-400 font-mono" id="topStatsCounter">Laddar ligadata...</span>
         </div>
-        <span class="hidden md:inline text-white/20">|</span>
-        <button onclick="switchView('teams')" class="hidden md:inline-flex items-center gap-1.5 hover:text-white transition">
-          <i class="fa-solid fa-trophy text-amber-400"></i> SM-Slutspelsträd
-        </button>
         <button onclick="openTeamApplicationModal()" class="hidden sm:inline-flex items-center gap-1.5 hover:text-white transition">
           <i class="fa-solid fa-shield-halved text-shl-lightBlue"></i> Ansök med ditt lag
         </button>
-        <a href="#discord" onclick="showToast('Öppnar inbjudan till Elitseriens officiella Discord!', 'info'); return false;" class="inline-flex items-center gap-1.5 text-indigo-400 hover:text-indigo-300 font-medium transition">
-          <i class="fa-brands fa-discord"></i> Discord
-        </a>
       </div>
 
-      <!-- Right: Interactive Role Switcher (For testing User vs Admin vs Guest) -->
-      <div class="flex items-center gap-2 shrink-0">
-        <span class="text-[11px] uppercase tracking-wider text-gray-400 hidden lg:inline font-semibold">Testa roll:</span>
-        <div class="inline-flex bg-[#121824] p-0.5 rounded border border-white/15">
-          <button id="roleBtnPlayer" onclick="setRole('player')" class="px-2.5 py-1 rounded text-[11px] font-semibold transition flex items-center gap-1.5 bg-shl-blue text-white">
-            <i class="fa-brands fa-steam"></i> Spelare (sidde #12)
-          </button>
-          <button id="roleBtnAdmin" onclick="setRole('admin')" class="px-2.5 py-1 rounded text-[11px] font-semibold transition flex items-center gap-1.5 text-gray-300 hover:text-white">
-            <i class="fa-solid fa-user-shield text-amber-400"></i> Liga-Admin
-            <span id="topAdminBadge" class="bg-rose-600 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">2</span>
-          </button>
-          <button id="roleBtnGuest" onclick="setRole('guest')" class="px-2.5 py-1 rounded text-[11px] font-semibold transition flex items-center gap-1.5 text-gray-300 hover:text-white">
-            Gäst
-          </button>
-        </div>
+      <div class="flex items-center gap-4 shrink-0 text-[11px] text-gray-400">
+        <span id="topAuthHint">Inte inloggad</span>
       </div>
-
     </div>
   </div>
 
   <!-- ===================================================================== -->
-  <!-- 2. MAIN SHL-INSPIRED NAVIGATION BAR                                   -->
+  <!-- 2. MAIN NAVIGATION BAR                                                -->
   <!-- ===================================================================== -->
   <header class="bg-[#0e1420] text-white sticky top-0 z-40 shadow-lg border-b border-white/10">
     <div class="max-w-[1360px] mx-auto px-4 h-16 flex items-center justify-between gap-6">
       
-      <!-- Left: Transparent Vector ELITSERIEN Logo (PNG-style) -->
       <div class="flex items-center gap-8">
         <button onclick="switchView('home')" class="flex items-center gap-3 group focus:outline-none text-left" title="Till Startsidan">
-          <!-- Crisp Transparent SVG recreation of the uploaded Elitserien logo -->
           <div class="w-36 h-12 flex items-center">
             <svg viewBox="0 0 320 110" class="w-full h-full drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)] group-hover:scale-105 transition duration-200">
-              <!-- Top Swoosh Arc (Black fill with crisp white border) -->
               <path d="M 65 44 C 105 18, 205 12, 248 26 C 253 35, 255 42, 254 49 C 205 36, 115 40, 74 62 Z" 
                     fill="#080a0f" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" />
-              <!-- Inner White Wave Hook -->
               <path d="M 82 67 C 118 47, 172 45, 190 50 C 170 55, 165 68, 178 72 C 194 76, 226 67, 248 56 C 226 80, 172 90, 112 82 C 90 79, 78 72, 82 67 Z" 
                     fill="#ffffff" stroke="#ffffff" stroke-width="2" stroke-linejoin="round" />
-              <!-- Curved ELITSERIEN Banner Text Effect -->
               <defs>
                 <path id="elitArc" d="M 22 86 Q 160 118 298 84" />
               </defs>
@@ -190,7 +153,6 @@
           </div>
         </button>
 
-        <!-- Navigation Links -->
         <nav class="hidden lg:flex items-center gap-1 text-sm font-medium">
           <button onclick="switchView('home')" id="nav-home" class="nav-link px-3.5 py-2 rounded hover:bg-white/10 transition text-shl-lightBlue font-semibold">
             Start
@@ -207,20 +169,19 @@
           <button onclick="switchView('teams')" id="nav-teams" class="nav-link px-3.5 py-2 rounded hover:bg-white/10 transition text-gray-200">
             Lagen
           </button>
-          <button onclick="openPlayerProfile('p1')" id="nav-profile" class="nav-link px-3.5 py-2 rounded hover:bg-white/10 transition text-gray-200 flex items-center gap-1.5">
-            <i class="fa-solid fa-Hockey-puck text-xs text-shl-lightBlue"></i> Min Puck-Profil
+          <button onclick="openMyProfile()" id="nav-profile" class="nav-link px-3.5 py-2 rounded hover:bg-white/10 transition text-gray-200 flex items-center gap-1.5">
+            <i class="fa-solid fa-hockey-puck text-xs text-shl-lightBlue"></i> Spelarprofil
           </button>
-          <button onclick="switchView('admin')" id="nav-admin" class="nav-link px-3.5 py-2 rounded bg-amber-500/15 border border-amber-400/30 hover:bg-amber-500/25 transition text-amber-300 font-semibold flex items-center gap-2 ml-2">
+          <button onclick="switchView('admin')" id="nav-admin" class="hidden nav-link px-3.5 py-2 rounded bg-amber-500/15 border border-amber-400/30 hover:bg-amber-500/25 transition text-amber-300 font-semibold items-center gap-2 ml-2">
             <i class="fa-solid fa-screwdriver-wrench text-xs"></i>
-            <span>Admin & Server-Sim</span>
-            <span id="navAdminCount" class="bg-rose-600 text-white text-[11px] px-1.5 py-0.2 rounded-full font-bold">2</span>
+            <span>Admin</span>
+            <span id="navAdminCount" class="bg-rose-600 text-white text-[11px] px-1.5 py-0.2 rounded-full font-bold">0</span>
           </button>
         </nav>
       </div>
 
-      <!-- Right: User Profile Mini Card or Steam Login CTA -->
+      <!-- Right: Search & Steam Login -->
       <div class="flex items-center gap-3">
-        <!-- Search Player Quick Input -->
         <div class="relative hidden sm:block">
           <input 
             type="text" 
@@ -230,14 +191,11 @@
             class="bg-white/10 text-sm text-white placeholder-gray-400 pl-8 pr-3 py-1.5 rounded border border-white/15 focus:outline-none focus:border-shl-lightBlue w-44 lg:w-56 transition"
           />
           <i class="fa-solid fa-magnifying-glass text-gray-400 text-xs absolute left-3 top-1/2 -translate-y-1/2"></i>
-          <!-- Quick Search Dropdown -->
           <div id="quickSearchResults" class="hidden absolute right-0 mt-1 w-72 bg-[#131c2e] border border-white/15 rounded-lg shadow-2xl py-2 z-50 text-sm"></div>
         </div>
 
-        <!-- Dynamic Auth Status Area -->
         <div id="headerAuthArea"></div>
 
-        <!-- Mobile Menu Button -->
         <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded bg-white/10 hover:bg-white/20 text-white">
           <i class="fa-solid fa-bars"></i>
         </button>
@@ -245,40 +203,30 @@
 
     </div>
 
-    <!-- Mobile Navigation Drawer -->
     <div id="mobileMenuDrawer" class="hidden lg:hidden bg-[#0a0f18] border-t border-white/10 px-4 py-3 space-y-1">
       <button onclick="switchView('home'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm font-semibold">Start</button>
       <button onclick="switchView('schedule'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Spelschema</button>
       <button onclick="switchView('standings'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Tabellen</button>
       <button onclick="switchView('stats'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Statistik</button>
       <button onclick="switchView('teams'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm">Lagen</button>
-      <button onclick="openPlayerProfile('p1'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm text-shl-lightBlue font-semibold">Min Puck-Profil</button>
-      <button onclick="switchView('admin'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded bg-amber-500/20 text-amber-300 text-sm font-semibold">Adminpanel & Server-Sim</button>
+      <button onclick="openMyProfile(); toggleMobileMenu()" class="block w-full text-left px-3 py-2 rounded hover:bg-white/10 text-sm text-shl-lightBlue font-semibold">Spelarprofil</button>
+      <button id="mobileAdminBtn" onclick="switchView('admin'); toggleMobileMenu()" class="hidden block w-full text-left px-3 py-2 rounded bg-amber-500/20 text-amber-300 text-sm font-semibold">Adminpanel</button>
     </div>
   </header>
 
   <!-- ===================================================================== -->
-  <!-- 3. SHL SCORE TICKER RIBBON (HORIZONTAL MATCH BAR)                     -->
+  <!-- 3. SCORE TICKER RIBBON                                                -->
   <!-- ===================================================================== -->
   <div class="bg-[#0e1420] pb-2 pt-1 select-none border-b border-gray-200">
     <div class="max-w-[1220px] mx-auto px-2 sm:px-4">
       <div class="bg-[#f3f4f6] rounded-sm shadow-md flex items-stretch overflow-hidden border border-gray-300 h-[58px]">
-        
-        <!-- Scroll Left Button -->
         <button onclick="scrollTicker(-320)" class="w-8 bg-[#e5e7eb] hover:bg-gray-300 text-gray-700 flex items-center justify-center shrink-0 border-r border-gray-300 transition">
           <i class="fa-solid fa-chevron-left text-xs"></i>
         </button>
-
-        <!-- Ticker Items Container -->
-        <div id="scoreTickerContainer" class="flex items-stretch overflow-x-auto ticker-scroll divide-x divide-gray-300 flex-1">
-          <!-- Populated dynamically via JS -->
-        </div>
-
-        <!-- Scroll Right Button -->
+        <div id="scoreTickerContainer" class="flex items-stretch overflow-x-auto ticker-scroll divide-x divide-gray-300 flex-1"></div>
         <button onclick="scrollTicker(320)" class="w-8 bg-[#e5e7eb] hover:bg-gray-300 text-gray-700 flex items-center justify-center shrink-0 border-l border-gray-300 transition">
           <i class="fa-solid fa-chevron-right text-xs"></i>
         </button>
-
       </div>
     </div>
   </div>
@@ -289,60 +237,46 @@
   <main class="flex-1 flex flex-col">
 
     <!-- =================================================================== -->
-    <!-- VIEW 1: START / SHL.SE HOMEPAGE                                     -->
+    <!-- VIEW 1: START                                                       -->
     <!-- =================================================================== -->
     <section id="view-home" class="flex-1">
-      
-      <!-- SHL HERO BANNER WITH REALISTIC 3D ELITSERIEN PUCK -->
       <div class="hero-arena-bg relative overflow-hidden border-b border-gray-200">
-        <!-- Decorative Bokeh Circles -->
-        <div class="max-w-[1220px] mx-auto px-6 py-10 md:py-14 flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
+        <div class="max-w-[1220px] mx-auto px-6 py-10 md:py-12 flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
           
-          <!-- Left Text Column -->
           <div class="max-w-xl text-white space-y-3 text-center md:text-left">
-            <div class="inline-flex items-center gap-2 bg-shl-blue/25 border border-shl-lightBlue/40 text-shl-lightBlue text-xs font-bold uppercase tracking-widest px-3 py-1 rounded">
-              <span class="w-2 h-2 rounded-full bg-shl-lightBlue"></span> SÄSONGEN 2026/2027 ÄR IGÅNG
-            </div>
             <h1 class="font-shl text-5xl sm:text-6xl font-black uppercase tracking-tight leading-none drop-shadow">
-              SPELSCHEMA 2026/2027!
+              ELITSERIEN
             </h1>
             <p class="text-lg sm:text-xl font-bold text-gray-100">
-              Svenska Elitserien i Puck – Live-synkad statistik & officiella SHL-brackets
+              Svenska community-ligan i Puck
             </p>
             <p class="text-sm text-gray-300 leading-relaxed max-w-lg">
-              Alla matcher spelas på våra dedikerade svenska Puck-servrar med automatisk C#-loggning av mål, passningsprocent, skotthastighet och puckinnehav direkt till din spelarprofil.
+              Logga in med ditt Steam-konto för att skapa och anpassa din Puck-karaktär, registrera ditt lag och följa tabell, spelschema och individuell matchstatistik.
             </p>
             <div class="pt-3 flex flex-wrap items-center justify-center md:justify-start gap-3">
-              <button onclick="switchView('schedule')" class="bg-[#649eff] hover:bg-[#4e8df5] text-white font-bold text-xs uppercase tracking-wider px-7 py-3.5 rounded-sm shadow-lg transition">
-                LÄS MER & SPELSCHEMA
+              <button onclick="openMyProfile()" class="bg-[#649eff] hover:bg-[#4e8df5] text-white font-bold text-xs uppercase tracking-wider px-6 py-3.5 rounded-sm shadow-lg transition flex items-center gap-2">
+                <i class="fa-solid fa-user-pen"></i> Min Puck-Profil
               </button>
-              <button onclick="openPlayerProfile('p1')" class="bg-white/10 hover:bg-white/20 border border-white/25 text-white font-bold text-xs uppercase tracking-wider px-6 py-3.5 rounded-sm transition flex items-center gap-2">
-                <i class="fa-solid fa-user-pen"></i> Skapa din Puck-karaktär
+              <button onclick="openTeamApplicationModal()" class="bg-white/10 hover:bg-white/20 border border-white/25 text-white font-bold text-xs uppercase tracking-wider px-6 py-3.5 rounded-sm transition flex items-center gap-2">
+                <i class="fa-solid fa-shield-halved"></i> Ansök med lag
               </button>
             </div>
           </div>
 
-          <!-- Right 3D Scratched Hockey Puck with Transparent ELITSERIEN Emblem -->
+          <!-- 3D Hockey Puck Emblem -->
           <div class="relative flex items-center justify-center">
-            <div class="w-64 h-64 sm:w-80 sm:h-80 rounded-full puck-3d flex items-center justify-center p-6 border-4 border-[#272b33] select-none group">
-              <!-- Subtle Ice Scratches SVG Overlay -->
+            <div class="w-56 h-56 sm:w-72 sm:h-72 rounded-full puck-3d flex items-center justify-center p-6 border-4 border-[#272b33] select-none group">
               <svg class="absolute inset-0 w-full h-full opacity-25 pointer-events-none" viewBox="0 0 200 200">
                 <line x1="25" y1="60" x2="165" y2="110" stroke="#ffffff" stroke-width="0.6" />
                 <line x1="45" y1="150" x2="155" y2="40" stroke="#ffffff" stroke-width="0.5" />
                 <line x1="15" y1="115" x2="180" y2="95" stroke="#ffffff" stroke-width="0.8" />
-                <line x1="70" y1="20" x2="120" y2="180" stroke="#ffffff" stroke-width="0.4" />
                 <circle cx="100" cy="100" r="92" fill="none" stroke="#ffffff" stroke-width="0.8" stroke-dasharray="6 4 2 8" />
               </svg>
-              
-              <!-- Embossed Elitserien Logo on the Puck -->
               <svg viewBox="0 0 320 140" class="w-full h-auto drop-shadow-[0_4px_10px_rgba(0,0,0,0.95)] group-hover:scale-105 transition duration-300">
-                <!-- Upper Swoosh -->
                 <path d="M 60 54 C 102 22, 205 15, 254 32 C 260 43, 262 52, 260 61 C 206 46, 114 50, 70 75 Z" 
                       fill="#07090d" stroke="#e2e8f0" stroke-width="4.5" stroke-linejoin="round" />
-                <!-- Inner White Wave -->
                 <path d="M 78 80 C 118 57, 174 55, 194 61 C 172 67, 166 82, 180 87 C 198 92, 232 80, 256 67 C 232 95, 174 106, 110 97 C 86 93, 74 86, 78 80 Z" 
                       fill="#f1f5f9" stroke="#ffffff" stroke-width="2" stroke-linejoin="round" />
-                <!-- Curved ELITSERIEN Text -->
                 <defs>
                   <path id="heroPuckArc" d="M 15 102 Q 160 142 305 100" />
                 </defs>
@@ -356,7 +290,7 @@
         </div>
       </div>
 
-      <!-- TWO-COLUMN SHL.SE MAIN CONTENT (MATCHER & TABELLEN) -->
+      <!-- TWO-COLUMN MAIN CONTENT (MATCHER & TABELLEN) -->
       <div class="max-w-[1220px] mx-auto px-4 sm:px-6 py-10">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
           
@@ -368,39 +302,32 @@
                 <h2 class="font-shl text-2xl font-extrabold uppercase tracking-wide text-slate-900">MATCHER</h2>
               </div>
               <button onclick="switchView('schedule')" class="text-xs font-bold text-shl-blue hover:underline uppercase tracking-wider">
-                Visa alla matcher <i class="fa-solid fa-arrow-right ml-1"></i>
+                Spelschema <i class="fa-solid fa-arrow-right ml-1"></i>
               </button>
             </div>
 
-            <!-- Filter Tabs (SHL-KOMMANDE / SPELADE) -->
             <div class="flex items-center gap-2">
               <button id="homeMatchFilterUpcoming" onclick="setHomeMatchFilter('upcoming')" class="px-3.5 py-1.5 rounded-sm text-xs font-bold uppercase tracking-wider bg-[#4a8af4] text-white shadow-sm transition">
-                ELITSERIEN - KOMMANDE
+                KOMMANDE
               </button>
               <button id="homeMatchFilterPlayed" onclick="setHomeMatchFilter('played')" class="px-3.5 py-1.5 rounded-sm text-xs font-bold uppercase tracking-wider bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
-                ELITSERIEN - SPELADE
+                SPELADE
               </button>
             </div>
 
-            <!-- Match Cards List -->
-            <div id="homeMatchesContainer" class="space-y-3">
-              <!-- Populated by JS -->
-            </div>
+            <div id="homeMatchesContainer" class="space-y-3"></div>
 
-            <!-- Statistik-ledare (Poängkung & Målvaktskung mini-banner) -->
             <div class="pt-6">
               <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-2.5">
                   <span class="w-1.5 h-6 bg-[#649eff] rounded-sm"></span>
-                  <h2 class="font-shl text-2xl font-extrabold uppercase tracking-wide text-slate-900">POÄNGTOPPEN – PUCK ANALYTICS</h2>
+                  <h2 class="font-shl text-2xl font-extrabold uppercase tracking-wide text-slate-900">REGISTRERADE SPELARE & POÄNGTOPP</h2>
                 </div>
                 <button onclick="switchView('stats')" class="text-xs font-bold text-shl-blue hover:underline uppercase tracking-wider">
-                  Fullständig statistik
+                  Alla spelare
                 </button>
               </div>
-              <div id="homeTopScorersGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <!-- Populated by JS -->
-              </div>
+              <div id="homeTopScorersGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
             </div>
           </div>
 
@@ -416,113 +343,72 @@
               </button>
             </div>
 
-            <!-- Standings Table (Exact SHL.se clean white style) -->
             <div class="bg-white rounded-sm border border-gray-200 shadow-sm overflow-hidden">
               <table class="w-full text-sm">
                 <thead>
                   <tr class="text-[11px] font-bold text-gray-500 border-b border-gray-200 bg-gray-50/60">
                     <th class="py-2.5 pl-4 pr-2 text-left w-8">#</th>
                     <th class="py-2.5 px-2 text-left">Lag</th>
-                    <th class="py-2.5 px-2 text-center">Matcher</th>
+                    <th class="py-2.5 px-2 text-center">GP</th>
                     <th class="py-2.5 px-2 text-center">+/-</th>
                     <th class="py-2.5 pl-2 pr-4 text-right">Poäng</th>
                   </tr>
                 </thead>
-                <tbody id="homeStandingsBody" class="divide-y divide-gray-100">
-                  <!-- Populated by JS -->
-                </tbody>
+                <tbody id="homeStandingsBody" class="divide-y divide-gray-100"></tbody>
               </table>
-              <div class="bg-gray-50 px-4 py-2.5 text-[11px] text-gray-500 flex items-center justify-between border-t border-gray-200">
-                <span class="flex items-center gap-1.5"><span class="w-2.5 h-0.5 bg-emerald-500 inline-block"></span> Topp 6: Direkt till Kvartsfinal</span>
-                <span class="flex items-center gap-1.5"><span class="w-2.5 h-0.5 bg-amber-500 inline-block"></span> 7–8: Åttondelsfinal</span>
-              </div>
             </div>
-
-            <!-- Discord & Server Connection Box -->
-            <div class="bg-gradient-to-br from-[#0f172a] to-[#1e293b] text-white p-5 rounded-sm shadow-md border border-slate-700">
-              <div class="flex items-start justify-between gap-4">
-                <div class="space-y-1.5">
-                  <span class="text-[10px] font-bold uppercase tracking-widest text-shl-lightBlue bg-shl-blue/20 px-2 py-0.5 rounded">Server-Integration</span>
-                  <h3 class="font-shl text-2xl font-extrabold uppercase">SPELA MED DITT LAG I ELITSERIEN</h3>
-                  <p class="text-xs text-gray-300 leading-relaxed">
-                    Logga in med Steam, skräddarsy din Puck-gubbe och ansök om en lagplats. Vårt C#-serverplugin loggar alla mål, passningar och skott i km/h automatiskt.
-                  </p>
-                </div>
-                <i class="fa-brands fa-steam text-4xl text-white/20"></i>
-              </div>
-              <div class="mt-4 pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-2">
-                <button onclick="openTeamApplicationModal()" class="bg-[#649eff] hover:bg-blue-500 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-sm transition">
-                  Ansök med lag
-                </button>
-                <button onclick="switchView('admin')" class="text-xs text-amber-300 hover:underline font-semibold">
-                  Testa Server-Simulatorn <i class="fa-solid fa-bolt ml-1"></i>
-                </button>
-              </div>
-            </div>
-
           </div>
 
         </div>
       </div>
-
     </section>
 
     <!-- =================================================================== -->
-    <!-- VIEW 2: SPELARPROFIL & PUCK-KARAKTÄR REDIGERARE (SHL PROFILE VIEW)  -->
+    <!-- VIEW 2: SPELARPROFIL & PUCK LOCKER ROOM                             -->
     <!-- =================================================================== -->
     <section id="view-profile" class="hidden flex-1 bg-white">
       
-      <!-- 1. SHL DARK ARENA PLAYER HEADER WITH FACETED 3D PUCK CHARACTER -->
+      <!-- 1. DARK ARENA PLAYER HEADER WITH FACETED 3D PUCK CHARACTER -->
       <div class="profile-hero-bg text-white relative overflow-hidden">
-        <!-- Subtle blurred hockey background lines -->
         <div class="max-w-[1160px] mx-auto px-4 sm:px-6 pt-8 pb-0 flex flex-col md:flex-row items-center md:items-end justify-center gap-6 md:gap-12 relative z-10">
           
-          <!-- Left/Center: Custom Low-Poly Faceted Puck Character SVG (Matching image_f76b80.png) -->
           <div class="relative w-72 h-80 sm:w-80 sm:h-88 flex items-end justify-center shrink-0 select-none">
-            <div id="profilePuckAvatarContainer" class="w-full h-full flex items-center justify-center puck-avatar-float">
-              <!-- Dynamically rendered SVG Puck Character -->
-            </div>
-            <!-- Edit Avatar Floating Button -->
-            <button onclick="toggleAvatarEditor()" class="absolute bottom-4 right-2 bg-[#4a8af4] hover:bg-blue-500 text-white text-xs font-bold uppercase tracking-wider px-3.5 py-2 rounded-full shadow-xl border border-white/30 flex items-center gap-1.5 transition transform hover:scale-105">
+            <div id="profilePuckAvatarContainer" class="w-full h-full flex items-center justify-center puck-avatar-float"></div>
+            <button id="btnEditAvatarFloating" onclick="toggleAvatarEditor()" class="hidden absolute bottom-4 right-2 bg-[#4a8af4] hover:bg-blue-500 text-white text-xs font-bold uppercase tracking-wider px-3.5 py-2 rounded-full shadow-xl border border-white/30 items-center gap-1.5 transition transform hover:scale-105">
               <i class="fa-solid fa-paintbrush"></i> Redigera Puck-Gubbe
             </button>
           </div>
 
-          <!-- Right: Player Info Block (Matching JOE SNIVELY SHL screenshot) -->
           <div class="pb-10 text-center md:text-left space-y-3 max-w-lg flex-1">
             <div class="flex flex-wrap items-center justify-center md:justify-start gap-2">
               <span id="profileRoleBadge" class="bg-white/10 text-shl-lightBlue text-[11px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded border border-white/10">
-                VERIFIERAD STEAM-PROFIL
+                STEAM-VERIFIERAD
               </span>
-              <span id="profileCaptainBadge" class="hidden bg-amber-500/20 text-amber-300 text-[11px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded border border-amber-400/30">
-                <i class="fa-solid fa-crown mr-1"></i> LAGKAPTEN
+              <span id="profileAdminBadge" class="hidden bg-amber-500/20 text-amber-300 text-[11px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded border border-amber-400/30">
+                <i class="fa-solid fa-user-shield mr-1"></i> LIGA-ADMIN
               </span>
             </div>
 
             <h1 id="profilePlayerName" class="font-shl text-4xl sm:text-5xl font-black uppercase tracking-wide text-white leading-none">
-              SIDDE
+              -
             </h1>
 
-            <!-- #12 FORWARD | TEAM CREST & NAME -->
             <div class="flex items-center justify-center md:justify-start gap-2.5 text-lg font-shl font-bold uppercase tracking-wider text-gray-200">
               <span id="profileNumberAndPos" class="text-white text-xl">#12 FORWARD</span>
               <span class="text-gray-500">|</span>
               <div id="profileTeamCrest" class="w-6 h-6 inline-flex items-center justify-center"></div>
-              <span id="profileTeamName" class="text-white">LINKÖPING HC</span>
+              <span id="profileTeamName" class="text-white">FRIA AGENTER</span>
             </div>
 
-            <!-- Metadata List (Matching SHL screenshot) -->
             <div class="pt-2 space-y-1.5 text-xs text-gray-300 font-medium">
-              <p><span class="text-gray-400">SteamID64:</span> <span id="profileSteamId" class="font-mono text-white">76561198360771568</span></p>
+              <p><span class="text-gray-400">SteamID64:</span> <span id="profileSteamId" class="font-mono text-white">-</span></p>
               <p><span class="text-gray-400">Klubbhand (Skjuter):</span> <span id="profileHandedness" class="text-white font-semibold">Left</span></p>
-              <p><span class="text-gray-400">Nationalitet:</span> <span id="profileNationality" class="text-white">Sverige 🇸🇪</span></p>
-              <p><span class="text-gray-400">Hårdaste uppmätta skott:</span> <span id="profileHardestShot" class="text-amber-400 font-bold">142.8 km/h</span></p>
-              <p><span class="text-gray-400">Passningsprocent (PuckAnalytics):</span> <span id="profilePassAcc" class="text-emerald-400 font-bold">86%</span></p>
+              <p><span class="text-gray-400">Hårdaste uppmätta skott:</span> <span id="profileHardestShot" class="text-amber-400 font-bold">0.0 km/h</span></p>
+              <p><span class="text-gray-400">Passningsprocent:</span> <span id="profilePassAcc" class="text-emerald-400 font-bold">0%</span></p>
             </div>
 
-            <!-- Action Buttons -->
             <div class="pt-2 flex flex-wrap items-center justify-center md:justify-start gap-2">
-              <button onclick="toggleAvatarEditor()" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-sm transition flex items-center gap-2">
+              <button id="btnOpenLockerRoom" onclick="toggleAvatarEditor()" class="hidden bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-sm transition items-center gap-2">
                 <i class="fa-solid fa-sliders"></i> Anpassa utrustning, skägg & tejp
               </button>
               <button onclick="openPlayerSelectorModal()" class="bg-white/5 hover:bg-white/15 border border-white/10 text-gray-300 text-xs font-semibold px-3.5 py-2 rounded-sm transition">
@@ -534,7 +420,7 @@
         </div>
       </div>
 
-      <!-- 2. INTERACTIVE PUCK CHARACTER CUSTOMIZER DRAWER (COLLAPSIBLE) -->
+      <!-- 2. PUCK LOCKER ROOM – REDIGERA PROFILBILD & KARAKTÄR -->
       <div id="avatarEditorDrawer" class="hidden bg-[#111827] text-white border-b border-white/15 shadow-2xl">
         <div class="max-w-[1160px] mx-auto px-4 sm:px-6 py-6">
           <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-5">
@@ -542,7 +428,7 @@
               <i class="fa-solid fa-wand-magic-sparkles text-shl-lightBlue"></i>
               <h3 class="font-shl text-2xl font-extrabold uppercase tracking-wide">PUCK LOCKER ROOM – REDIGERA PROFILBILD & KARAKTÄR</h3>
               <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded border border-emerald-500/30 font-medium">
-                Synkad med PlayerCustomizationState
+                Sparas i Neon Postgres
               </span>
             </div>
             <button onclick="toggleAvatarEditor()" class="text-gray-400 hover:text-white text-sm font-bold flex items-center gap-1">
@@ -557,16 +443,16 @@
               <h4 class="font-bold uppercase tracking-wider text-shl-lightBlue">1. Spelarinfo & Nummer</h4>
               <div>
                 <label class="block text-gray-300 mb-1">Spelarnamn (Username)</label>
-                <input type="text" id="custName" oninput="updateCurrentAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-3 py-1.5 text-white font-semibold" />
+                <input type="text" id="custName" oninput="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-3 py-1.5 text-white font-semibold" />
               </div>
               <div class="grid grid-cols-2 gap-2">
                 <div>
                   <label class="block text-gray-300 mb-1">Tröjnummer (#)</label>
-                  <input type="number" min="1" max="99" id="custNumber" oninput="updateCurrentAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-3 py-1.5 text-white font-bold" />
+                  <input type="number" min="1" max="99" id="custNumber" oninput="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-3 py-1.5 text-white font-bold" />
                 </div>
                 <div>
                   <label class="block text-gray-300 mb-1">Position (Role)</label>
-                  <select id="custRole" onchange="updateCurrentAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white">
+                  <select id="custRole" onchange="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white">
                     <option value="FORWARD">Forward</option>
                     <option value="CENTER">Center</option>
                     <option value="BACK">Back (Defense)</option>
@@ -576,7 +462,7 @@
               </div>
               <div>
                 <label class="block text-gray-300 mb-1">Klubbfattning (Handedness)</label>
-                <select id="custHand" onchange="updateCurrentAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white">
+                <select id="custHand" onchange="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white">
                   <option value="Left">Left (Vänsterskytt)</option>
                   <option value="Right">Right (Högerskytt)</option>
                 </select>
@@ -588,24 +474,22 @@
               <h4 class="font-bold uppercase tracking-wider text-shl-lightBlue">2. Lagställ & Tröjfärger</h4>
               <div>
                 <label class="block text-gray-300 mb-1">Tillhörande Elitserien-lag</label>
-                <select id="custTeamId" onchange="applyTeamPresetToAvatar(this.value)" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white font-semibold">
-                  <!-- Populated by JS -->
-                </select>
+                <select id="custTeamId" onchange="applyTeamPresetToAvatar(this.value)" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white font-semibold"></select>
               </div>
               <div class="grid grid-cols-2 gap-2 pt-1">
                 <div>
                   <label class="block text-gray-300 mb-1">Huvudfärg Tröja</label>
-                  <input type="color" id="custJerseyPrimary" oninput="updateCurrentAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" />
+                  <input type="color" id="custJerseyPrimary" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" />
                 </div>
                 <div>
                   <label class="block text-gray-300 mb-1">Midje-/Kragrand</label>
-                  <input type="color" id="custJerseyStripe" oninput="updateCurrentAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" />
+                  <input type="color" id="custJerseyStripe" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" />
                 </div>
               </div>
               <div>
                 <label class="block text-gray-300 mb-1">Visa tröjnummer på bröstet</label>
                 <label class="inline-flex items-center gap-2 cursor-pointer mt-1">
-                  <input type="checkbox" id="custShowChestNum" onchange="updateCurrentAvatarFromInputs()" checked class="rounded text-shl-blue" />
+                  <input type="checkbox" id="custShowChestNum" onchange="previewAvatarFromInputs()" checked class="rounded text-shl-blue" />
                   <span class="text-gray-200">Visa nummer på torso-blocket</span>
                 </label>
               </div>
@@ -617,16 +501,16 @@
               <div class="grid grid-cols-2 gap-2">
                 <div>
                   <label class="block text-gray-300 mb-1">Hjälmfärg</label>
-                  <input type="color" id="custHelmetColor" oninput="updateCurrentAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" />
+                  <input type="color" id="custHelmetColor" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" />
                 </div>
                 <div>
                   <label class="block text-gray-300 mb-1">Hudton</label>
-                  <input type="color" id="custSkinColor" oninput="updateCurrentAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" />
+                  <input type="color" id="custSkinColor" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" />
                 </div>
               </div>
               <div>
                 <label class="block text-gray-300 mb-1">Visir-toning</label>
-                <select id="custVisor" onchange="updateCurrentAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white">
+                <select id="custVisor" onchange="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white">
                   <option value="tinted">Mörkt röktonat (Puck Classic)</option>
                   <option value="mirror">Blå spegelglans</option>
                   <option value="gold">Guld Chrome (MVP)</option>
@@ -636,46 +520,46 @@
               <div class="grid grid-cols-2 gap-2">
                 <div>
                   <label class="block text-gray-300 mb-1">Skägg / Mustasch</label>
-                  <select id="custBeard" onchange="updateCurrentAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white">
+                  <select id="custBeard" onchange="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white">
                     <option value="full">Slutspelsskägg + Mustasch</option>
                     <option value="mustache">Bara Hockeymustasch</option>
-                    <option value="goatee">Getterna (Goatee)</option>
+                    <option value="goatee">Goatee</option>
                     <option value="none">Renrakad</option>
                   </select>
                 </div>
                 <div>
                   <label class="block text-gray-300 mb-1">Skägg-/Hårfärg</label>
-                  <input type="color" id="custHairColor" oninput="updateCurrentAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" />
+                  <input type="color" id="custHairColor" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" />
                 </div>
               </div>
             </div>
 
-            <!-- Col 4: Stick Tape & Puck Details -->
+            <!-- Col 4: Stick Tape & Save -->
             <div class="space-y-3 bg-white/5 p-4 rounded border border-white/10">
               <h4 class="font-bold uppercase tracking-wider text-shl-lightBlue">4. Klubba & Tejp (Reskin)</h4>
               <div class="grid grid-cols-2 gap-2">
                 <div>
                   <label class="block text-gray-300 mb-1">Skafttejp (Övre)</label>
-                  <input type="color" id="custShaftTape" oninput="updateCurrentAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" />
+                  <input type="color" id="custShaftTape" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" />
                 </div>
                 <div>
                   <label class="block text-gray-300 mb-1">Bladtejp (Nedre)</label>
-                  <input type="color" id="custBladeTape" oninput="updateCurrentAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" />
+                  <input type="color" id="custBladeTape" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" />
                 </div>
               </div>
               <div>
                 <label class="block text-gray-300 mb-1">Snabbval Skafttejp</label>
                 <div class="flex items-center gap-1.5 pt-1">
-                  <button onclick="setQuickTape('#28b5e1', '#111111')" class="w-6 h-6 rounded-full bg-[#28b5e1] border border-white" title="Puck Cyan"></button>
-                  <button onclick="setQuickTape('#f43f5e', '#ffffff')" class="w-6 h-6 rounded-full bg-[#f43f5e] border border-white" title="Neonröd"></button>
-                  <button onclick="setQuickTape('#10b981', '#111111')" class="w-6 h-6 rounded-full bg-[#10b981] border border-white" title="Smaragdgrön"></button>
-                  <button onclick="setQuickTape('#f59e0b', '#111111')" class="w-6 h-6 rounded-full bg-[#f59e0b] border border-white" title="Guld"></button>
-                  <button onclick="setQuickTape('#ffffff', '#ffffff')" class="w-6 h-6 rounded-full bg-white border border-gray-400" title="Helvit"></button>
-                  <button onclick="setQuickTape('#ec4899', '#111111')" class="w-6 h-6 rounded-full bg-[#ec4899] border border-white" title="Rosa"></button>
+                  <button type="button" onclick="setQuickTape('#28b5e1', '#111111')" class="w-6 h-6 rounded-full bg-[#28b5e1] border border-white" title="Puck Cyan"></button>
+                  <button type="button" onclick="setQuickTape('#f43f5e', '#ffffff')" class="w-6 h-6 rounded-full bg-[#f43f5e] border border-white" title="Neonröd"></button>
+                  <button type="button" onclick="setQuickTape('#10b981', '#111111')" class="w-6 h-6 rounded-full bg-[#10b981] border border-white" title="Smaragdgrön"></button>
+                  <button type="button" onclick="setQuickTape('#f59e0b', '#111111')" class="w-6 h-6 rounded-full bg-[#f59e0b] border border-white" title="Guld"></button>
+                  <button type="button" onclick="setQuickTape('#ffffff', '#ffffff')" class="w-6 h-6 rounded-full bg-white border border-gray-400" title="Helvit"></button>
+                  <button type="button" onclick="setQuickTape('#ec4899', '#111111')" class="w-6 h-6 rounded-full bg-[#ec4899] border border-white" title="Rosa"></button>
                 </div>
               </div>
               <div class="pt-2">
-                <button onclick="saveAvatarChanges()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold uppercase tracking-wider py-2 rounded shadow transition">
+                <button id="btnSaveCharacter" onclick="saveAvatarChangesToDB()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold uppercase tracking-wider py-2 rounded shadow transition">
                   <i class="fa-solid fa-check mr-1"></i> Spara Puck-Karaktär
                 </button>
               </div>
@@ -685,88 +569,42 @@
         </div>
       </div>
 
-      <!-- 3. SHL BLUE GRADIENT CAREER STATS BANNER (EXACT MATCH TO SCREENSHOT) -->
+      <!-- 3. CAREER STATS BANNER -->
       <div class="shl-career-gradient text-white py-8 shadow-inner">
         <div class="max-w-[1060px] mx-auto px-4">
           <h3 class="text-center font-shl text-lg font-extrabold uppercase tracking-widest text-white/90 mb-6">
-            KARRIÄRSTATISTIK FÖR TILLGÄNGLIGA LIGOR
+            REGISTRERAD STATISTIK I ELITSERIEN
           </h3>
           <div class="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-white/20 text-center">
             <div class="py-3 sm:py-1">
-              <div id="careerGP" class="font-shl text-4xl font-black">65</div>
+              <div id="careerGP" class="font-shl text-4xl font-black">0</div>
               <div class="text-xs text-white/80 font-medium mt-1">Spelade matcher</div>
             </div>
             <div class="py-3 sm:py-1">
-              <div id="careerTP" class="font-shl text-4xl font-black">44</div>
+              <div id="careerTP" class="font-shl text-4xl font-black">0</div>
               <div class="text-xs text-white/80 font-medium mt-1">Totalpoäng</div>
             </div>
             <div class="py-3 sm:py-1">
-              <div id="careerG" class="font-shl text-4xl font-black">17</div>
+              <div id="careerG" class="font-shl text-4xl font-black">0</div>
               <div class="text-xs text-white/80 font-medium mt-1">Mål</div>
             </div>
             <div class="py-3 sm:py-1">
-              <div id="careerA" class="font-shl text-4xl font-black">27</div>
+              <div id="careerA" class="font-shl text-4xl font-black">0</div>
               <div class="text-xs text-white/80 font-medium mt-1">Assist</div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 4. PROFILE SUB-TABS (Statistik | Matcher) -->
-      <div class="border-b border-gray-200 bg-white">
-        <div class="max-w-[1060px] mx-auto px-4 flex items-center justify-center gap-8">
-          <button id="profTabStats" onclick="switchProfileSubTab('stats')" class="py-4 px-3 text-xs font-bold uppercase tracking-wider text-slate-900 border-b-2 border-[#4a8af4] transition">
-            Statistik
-          </button>
-          <button id="profTabMatches" onclick="switchProfileSubTab('matches')" class="py-4 px-3 text-xs font-bold uppercase tracking-wider text-gray-500 hover:text-slate-900 border-b-2 border-transparent transition">
-            Matcher & PuckAnalytics-logg
-          </button>
-        </div>
-      </div>
-
-      <!-- 5. PROFILE SUB-CONTENT: NUVARANDE SÄSONGSSTATISTIK (CIRCULAR GAUGES + TABLE) -->
-      <div id="profileSubContentStats" class="max-w-[1060px] mx-auto px-4 py-12 space-y-12">
-        
-        <!-- Circular Dashed-Tick Gauges (Matching image_f76877.png) -->
+      <!-- 4. GAUGES -->
+      <div class="max-w-[1060px] mx-auto px-4 py-12 space-y-10">
         <div>
           <h4 class="text-center font-shl text-lg font-extrabold uppercase tracking-wider text-[#4a8af4] mb-8">
-            NUVARANDE SÄSONGSSTATISTIK
+            SÄSONGSÖVERSIKT
           </h4>
-          <div id="profileSeasonGauges" class="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
-            <!-- Rendered by JS with SVG dashed rings -->
-          </div>
+          <div id="profileSeasonGauges" class="flex flex-wrap items-center justify-center gap-6 sm:gap-10"></div>
         </div>
-
-        <!-- Season-by-Season Table (Matching image_f76877.png) -->
-        <div class="overflow-x-auto">
-          <table class="w-full text-xs sm:text-sm border-collapse">
-            <thead>
-              <tr class="text-slate-900 font-bold border-b border-gray-200 text-left">
-                <th class="py-3 px-4">Säsong</th>
-                <th class="py-3 px-4">Serier</th>
-                <th class="py-3 px-4">Team</th>
-                <th class="py-3 px-3 text-center">GP</th>
-                <th class="py-3 px-3 text-center">G</th>
-                <th class="py-3 px-3 text-center">A</th>
-                <th class="py-3 px-3 text-center">TP</th>
-                <th class="py-3 px-3 text-center">+/-</th>
-                <th class="py-3 px-3 text-center">PASS%</th>
-              </tr>
-            </thead>
-            <tbody id="profileHistoryTableBody">
-              <!-- Populated by JS -->
-            </tbody>
-          </table>
-        </div>
-
       </div>
-
-      <!-- PROFILE SUB-CONTENT: MATCHLOGG -->
-      <div id="profileSubContentMatches" class="hidden max-w-[1060px] mx-auto px-4 py-10">
-        <h4 class="font-shl text-2xl font-extrabold uppercase mb-4 text-slate-900">SENASTE SPELADE MATCHER MED SERVERLOGG</h4>
-        <div id="profileRecentMatchesList" class="space-y-3"></div>
-      </div>
-
     </section>
 
     <!-- =================================================================== -->
@@ -775,28 +613,23 @@
     <section id="view-schedule" class="hidden flex-1 max-w-[1220px] w-full mx-auto px-4 sm:px-6 py-10 space-y-6">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4">
         <div>
-          <span class="text-xs font-bold uppercase tracking-widest text-shl-blue">SÄSONGEN 2026/2027</span>
+          <span class="text-xs font-bold uppercase tracking-widest text-shl-blue">ELITSERIEN</span>
           <h1 class="font-shl text-4xl font-black uppercase text-slate-900">SPELSCHEMA & RESULTAT</h1>
-        </div>
-        <div class="flex items-center gap-2">
-          <button onclick="openTeamApplicationModal()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm transition">
-            <i class="fa-solid fa-calendar-plus mr-1.5"></i> Ansök med nytt lag
-          </button>
         </div>
       </div>
       <div id="fullScheduleContainer" class="space-y-3"></div>
     </section>
 
     <!-- =================================================================== -->
-    <!-- VIEW 4: TABELLEN (FULL STANDINGS)                                   -->
+    <!-- VIEW 4: TABELLEN                                                    -->
     <!-- =================================================================== -->
     <section id="view-standings" class="hidden flex-1 max-w-[1220px] w-full mx-auto px-4 sm:px-6 py-10 space-y-6">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4">
         <div>
-          <span class="text-xs font-bold uppercase tracking-widest text-shl-blue">ELITSERIEN GRUNDSERIE 2026/2027</span>
+          <span class="text-xs font-bold uppercase tracking-widest text-shl-blue">ELITSERIEN</span>
           <h1 class="font-shl text-4xl font-black uppercase text-slate-900">SERIETABELL</h1>
         </div>
-        <span class="text-xs text-gray-500 font-medium">Uppdateras automatiskt vid slutsignal från ELITSERIEN Ligaspel 1 & 2</span>
+        <span class="text-xs text-gray-500 font-medium">Beräknas automatiskt utifrån godkända lag och spelade matcher</span>
       </div>
 
       <div class="bg-white border border-gray-200 rounded-sm shadow-sm overflow-x-auto">
@@ -821,13 +654,13 @@
     </section>
 
     <!-- =================================================================== -->
-    <!-- VIEW 5: STATISTIK (PLAYER LEADERBOARDS)                             -->
+    <!-- VIEW 5: STATISTIK                                                   -->
     <!-- =================================================================== -->
     <section id="view-stats" class="hidden flex-1 max-w-[1220px] w-full mx-auto px-4 sm:px-6 py-10 space-y-6">
       <div class="border-b border-gray-200 pb-4">
-        <span class="text-xs font-bold uppercase tracking-widest text-shl-blue">PUCKANALYTICS LIVE-DATA</span>
-        <h1 class="font-shl text-4xl font-black uppercase text-slate-900">SPELARSTATISTIK & REKORD</h1>
-        <p class="text-xs text-gray-500 mt-1">Klicka på valfri spelare för att inspektera deras 3D/2D Puck-karaktär och karriärkort.</p>
+        <span class="text-xs font-bold uppercase tracking-widest text-shl-blue">SPELARDATABAS</span>
+        <h1 class="font-shl text-4xl font-black uppercase text-slate-900">SPELARE & STATISTIK</h1>
+        <p class="text-xs text-gray-500 mt-1">Alla spelare som har loggat in med Steam. Klicka på en rad för att visa spelarens Puck-karaktär.</p>
       </div>
 
       <div class="bg-white border border-gray-200 rounded-sm shadow-sm overflow-x-auto">
@@ -852,16 +685,16 @@
     </section>
 
     <!-- =================================================================== -->
-    <!-- VIEW 6: LAGEN & SM-SLUTSPELSTRÄD                                    -->
+    <!-- VIEW 6: LAGEN                                                       -->
     <!-- =================================================================== -->
-    <section id="view-teams" class="hidden flex-1 max-w-[1220px] w-full mx-auto px-4 sm:px-6 py-10 space-y-10">
+    <section id="view-teams" class="hidden flex-1 max-w-[1220px] w-full mx-auto px-4 sm:px-6 py-10 space-y-8">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4">
         <div>
-          <span class="text-xs font-bold uppercase tracking-widest text-shl-blue">KLUBBAR & ROSTERS</span>
+          <span class="text-xs font-bold uppercase tracking-widest text-shl-blue">KLUBBAR & TRUPPER</span>
           <h1 class="font-shl text-4xl font-black uppercase text-slate-900">LAGEN I ELITSERIEN</h1>
         </div>
         <button onclick="openTeamApplicationModal()" class="bg-[#4a8af4] hover:bg-blue-600 text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-sm shadow transition">
-          <i class="fa-solid fa-plus mr-1.5"></i> Registrera / Ansök med ditt lag
+          <i class="fa-solid fa-plus mr-1.5"></i> Ansök med ditt lag
         </button>
       </div>
 
@@ -869,56 +702,76 @@
     </section>
 
     <!-- =================================================================== -->
-    <!-- VIEW 7: ADMINPANEL & PUCK SERVER-MOD SIMULATOR                      -->
+    <!-- VIEW 7: ADMINPANEL (ENDAST FÖR 76561198360771568)                   -->
     <!-- =================================================================== -->
     <section id="view-admin" class="hidden flex-1 bg-slate-50 py-10">
       <div class="max-w-[1220px] mx-auto px-4 sm:px-6 space-y-8">
         
-        <!-- Admin Banner -->
         <div class="bg-[#0e1420] text-white p-6 rounded-sm shadow-lg border-l-4 border-amber-400 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
             <div class="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-widest">
-              <i class="fa-solid fa-unlock-keyhole"></i> LIGA-ADMINISTRATION & BACKEND-SIMULATOR
+              <i class="fa-solid fa-unlock-keyhole"></i> LIGA-ADMINISTRATION
             </div>
             <h1 class="font-shl text-3xl sm:text-4xl font-black uppercase mt-1">ELITSERIEN CONTROL CENTER</h1>
             <p class="text-xs text-gray-300 mt-1">
-              Här hanterar du inkommande lagansökningar, redigerar tabellen och testar hur er C#-servermod (<code class="text-emerald-400">ElitserienServerPlugin.dll</code>) skickar matchdata till hemsidan.
+              Godkänn inkommande lagansökningar, schemalägg matcher och registrera/testa matchrapporter mot Neon-databasen.
             </p>
           </div>
-          <button onclick="openTeamApplicationModal()" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm shrink-0 transition">
-            <i class="fa-solid fa-file-circle-plus mr-1"></i> Skapa test-ansökan
-          </button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
-          <!-- Left 6 Cols: Pending Team Applications (Lagansökningar) -->
-          <div class="lg:col-span-6 space-y-4">
-            <div class="flex items-center justify-between">
-              <h2 class="font-shl text-2xl font-extrabold uppercase text-slate-900 flex items-center gap-2">
-                <i class="fa-solid fa-inbox text-shl-blue"></i> INKOMMANDE LAGANSÖKNINGAR
-              </h2>
-              <span id="adminPendingBadge" class="bg-rose-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">2 väntar</span>
+          <!-- Left 6 Cols: Lagansökningar & Befintliga lag -->
+          <div class="lg:col-span-6 space-y-6">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <h2 class="font-shl text-2xl font-extrabold uppercase text-slate-900 flex items-center gap-2">
+                  <i class="fa-solid fa-inbox text-shl-blue"></i> VÄNTANDE LAGANSÖKNINGAR
+                </h2>
+                <span id="adminPendingBadge" class="bg-rose-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">0 väntar</span>
+              </div>
+              <div id="adminApplicationsList" class="space-y-3"></div>
             </div>
-            <p class="text-xs text-gray-600">
-              När en lagkapten loggar in med Steam och skickar in en ansökan dyker laget upp här. Klicka på <strong>Godkänn</strong> för att direkt lägga till laget i Serietabellen och under "Lagen"!
-            </p>
 
-            <div id="adminApplicationsList" class="space-y-3">
-              <!-- Populated by JS -->
+            <!-- Schemalägg ny match -->
+            <div class="bg-white p-5 rounded-sm border border-gray-200 shadow-sm space-y-4">
+              <h3 class="font-shl text-xl font-extrabold uppercase text-slate-900">SCHEMALÄGG KOMMANDE MATCH</h3>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Hemmalag</label>
+                  <select id="schedHomeTeam" class="w-full border border-gray-300 rounded px-3 py-2 text-sm font-semibold"></select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Bortalag</label>
+                  <select id="schedAwayTeam" class="w-full border border-gray-300 rounded px-3 py-2 text-sm font-semibold"></select>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Datum & Tid</label>
+                  <input type="datetime-local" id="schedDateTime" class="w-full border border-gray-300 rounded px-3 py-2 text-xs" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Servernamn</label>
+                  <input type="text" id="schedServer" value="ELITSERIEN Ligaspel 1" class="w-full border border-gray-300 rounded px-3 py-2 text-xs" />
+                </div>
+              </div>
+              <button onclick="adminScheduleMatch()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider py-2.5 rounded-sm transition">
+                Lägg till i Spelschemat
+              </button>
             </div>
           </div>
 
-          <!-- Right 6 Cols: Live C# Puck Server Webhook Simulator -->
+          <!-- Right 6 Cols: Registrera Matchresultat / C# Server Webhook Endpoint -->
           <div class="lg:col-span-6 space-y-4">
             <div class="flex items-center justify-between">
               <h2 class="font-shl text-2xl font-extrabold uppercase text-slate-900 flex items-center gap-2">
-                <i class="fa-solid fa-server text-emerald-600"></i> LIVE SERVER-MOD SIMULATOR (C# API)
+                <i class="fa-solid fa-server text-emerald-600"></i> REGISTRERA MATCHRESULTAT / SERVER-API
               </h2>
-              <span class="text-xs font-mono bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold">POST /api/match/report</span>
+              <span class="text-xs font-mono bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold">POST /api/data</span>
             </div>
             <p class="text-xs text-gray-600">
-              Testa exakt hur flödet fungerar när en match tar slut på servern <strong>ELITSERIEN Ligaspel 1</strong>. Välj lag och resultat nedan och tryck på <em>Simulera Slutsignal</em> – så uppdateras Score-Tickern, Serietabellen och spelarnas karriärpoäng omedelbart!
+              C#-pluginet på er dedikerade Puck-server skickar automatiskt JSON till <code class="font-mono bg-gray-200 px-1 rounded">/api/data</code> med headern <code class="font-mono bg-gray-200 px-1 rounded">x-server-key</code>. Du kan även bokföra resultat manuellt här nedanför.
             </p>
 
             <div class="bg-white p-5 rounded-sm border border-gray-200 shadow-sm space-y-4">
@@ -936,71 +789,89 @@
               <div class="grid grid-cols-3 gap-4 items-center">
                 <div>
                   <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Mål Hemma</label>
-                  <input type="number" id="simHomeGoals" value="4" min="0" max="20" class="w-full border border-gray-300 rounded px-3 py-2 text-lg font-shl font-bold text-center" />
+                  <input type="number" id="simHomeGoals" value="3" min="0" max="30" class="w-full border border-gray-300 rounded px-3 py-2 text-lg font-shl font-bold text-center" />
                 </div>
                 <div class="text-center pt-5">
                   <label class="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-700 cursor-pointer">
                     <input type="checkbox" id="simIsOvertime" class="rounded text-shl-blue" />
-                    Avgjordes i ÖT/SO
+                    Övertid / Straffar
                   </label>
                 </div>
                 <div>
                   <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Mål Borta</label>
-                  <input type="number" id="simAwayGoals" value="2" min="0" max="20" class="w-full border border-gray-300 rounded px-3 py-2 text-lg font-shl font-bold text-center" />
+                  <input type="number" id="simAwayGoals" value="1" min="0" max="30" class="w-full border border-gray-300 rounded px-3 py-2 text-lg font-shl font-bold text-center" />
                 </div>
               </div>
 
-              <div>
-                <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Matchens lirare / Målskytt (Får +2 Mål & +1 Assist på sin profil)</label>
-                <select id="simStarPlayer" class="w-full border border-gray-300 rounded px-3 py-2 text-sm font-semibold"></select>
+              <div class="border-t border-gray-100 pt-3 space-y-3">
+                <div class="text-xs font-bold uppercase text-gray-500">Valfri spelarinsats att bokföra i matchen</div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                  <div class="col-span-2">
+                    <label class="block text-gray-600 mb-1">Spelare</label>
+                    <select id="simStarPlayer" class="w-full border border-gray-300 rounded px-2 py-1.5 font-semibold"></select>
+                  </div>
+                  <div>
+                    <label class="block text-gray-600 mb-1">Mål (G)</label>
+                    <input type="number" id="simPlayerG" value="1" min="0" class="w-full border border-gray-300 rounded px-2 py-1.5" />
+                  </div>
+                  <div>
+                    <label class="block text-gray-600 mb-1">Assist (A)</label>
+                    <input type="number" id="simPlayerA" value="1" min="0" class="w-full border border-gray-300 rounded px-2 py-1.5" />
+                  </div>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-xs">
+                  <div>
+                    <label class="block text-gray-600 mb-1">Skotthastighet (km/h)</label>
+                    <input type="number" step="0.1" id="simPlayerShotKmh" value="138.5" class="w-full border border-gray-300 rounded px-2 py-1.5" />
+                  </div>
+                  <div>
+                    <label class="block text-gray-600 mb-1">Passningar rätt</label>
+                    <input type="number" id="simPlayerPassComp" value="18" class="w-full border border-gray-300 rounded px-2 py-1.5" />
+                  </div>
+                  <div>
+                    <label class="block text-gray-600 mb-1">Passningsförsök</label>
+                    <input type="number" id="simPlayerPassAtt" value="20" class="w-full border border-gray-300 rounded px-2 py-1.5" />
+                  </div>
+                </div>
               </div>
 
-              <!-- Simulated C# JSON Payload Preview -->
-              <div class="bg-[#0b101b] text-emerald-400 p-3 rounded font-mono text-[11px] overflow-x-auto border border-slate-800">
-                <div class="text-gray-400 mb-1">// Payload från ElitserienServerMod.dll när GameState == GameOver</div>
-                <div id="simJsonPreview">{"server":"ELITSERIEN Ligaspel 1","authKey":"ELIT_SECRET_99","matchStatus":"FINAL"}</div>
-              </div>
-
-              <button onclick="simulateServerMatchReport()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider py-3 rounded-sm shadow transition flex items-center justify-center gap-2">
-                <i class="fa-solid fa-satellite-dish"></i> Simulera Slutsignal & Skicka till Databasen
+              <button onclick="submitMatchReportToDB()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider py-3 rounded-sm shadow transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-database"></i> Spara Matchresultat till Neon-databasen
               </button>
             </div>
           </div>
 
         </div>
-
       </div>
     </section>
 
   </main>
 
   <!-- ===================================================================== -->
-  <!-- MODAL 1: MATCH BOXSCORE / INFÖR MATCH MODAL                           -->
+  <!-- MODAL 1: MATCHFAKTA                                                   -->
   <!-- ===================================================================== -->
   <div id="matchDetailModal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-sm max-w-2xl w-full overflow-hidden shadow-2xl border border-gray-200 animate-fadeIn">
+    <div class="bg-white rounded-sm max-w-2xl w-full overflow-hidden shadow-2xl border border-gray-200">
       <div class="bg-[#0e1420] text-white px-6 py-4 flex items-center justify-between">
         <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-shl-lightBlue">
-          <i class="fa-solid fa-hockey-puck"></i> <span id="modalMatchHeaderStatus">ELITSERIEN MATCHRAPPORT</span>
+          <i class="fa-solid fa-hockey-puck"></i> <span id="modalMatchHeaderStatus">MATCHFAKTA</span>
         </div>
         <button onclick="closeMatchModal()" class="text-gray-400 hover:text-white">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
-      <div id="modalMatchContent" class="p-6 space-y-6">
-        <!-- Populated dynamically -->
-      </div>
+      <div id="modalMatchContent" class="p-6 space-y-6"></div>
     </div>
   </div>
 
   <!-- ===================================================================== -->
-  <!-- MODAL 2: ANSÖK MED NYTT LAG (TEAM APPLICATION FORM)                   -->
+  <!-- MODAL 2: ANSÖK MED NYTT LAG                                           -->
   <!-- ===================================================================== -->
   <div id="teamApplicationModal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-sm max-w-lg w-full overflow-hidden shadow-2xl border border-gray-200">
       <div class="bg-[#0e1420] text-white px-6 py-4 flex items-center justify-between">
         <div>
-          <span class="text-[10px] font-bold uppercase tracking-widest text-shl-lightBlue">REGISTRERING 2026/2027</span>
+          <span class="text-[10px] font-bold uppercase tracking-widest text-shl-lightBlue">LAGREGISTRERING</span>
           <h3 class="font-shl text-2xl font-black uppercase">ANSÖK MED DITT LAG TILL ELITSERIEN</h3>
         </div>
         <button onclick="closeTeamApplicationModal()" class="text-gray-400 hover:text-white">
@@ -1009,31 +880,31 @@
       </div>
       <form onsubmit="submitTeamApplication(event)" class="p-6 space-y-4 text-sm">
         <div>
-          <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Lagnamn (t.ex. Brynäs IF eller Puckarna BK)</label>
-          <input type="text" id="appTeamName" required placeholder="T.ex. Leksands IF" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-shl-blue" />
+          <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Lagnamn</label>
+          <input type="text" id="appTeamName" required placeholder="T.ex. Enköping SK eller Linköping Puck" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-shl-blue" />
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-3 gap-3">
           <div>
-            <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Förkortning (3–4 bokstäver)</label>
-            <input type="text" id="appTeamShort" required maxlength="4" placeholder="LIF" class="w-full border border-gray-300 rounded px-3 py-2 uppercase font-bold" />
+            <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Förkortning (2–4 tecken)</label>
+            <input type="text" id="appTeamShort" required maxlength="4" placeholder="LHC" class="w-full border border-gray-300 rounded px-3 py-2 uppercase font-bold" />
           </div>
           <div>
-            <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Lagets Primärfärg</label>
-            <input type="color" id="appTeamColor" value="#1d4ed8" class="w-full h-10 border border-gray-300 rounded cursor-pointer" />
+            <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Primärfärg</label>
+            <input type="color" id="appTeamColor" value="#0284c7" class="w-full h-10 border border-gray-300 rounded cursor-pointer" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Sekundärfärg</label>
+            <input type="color" id="appTeamSecondary" value="#ffffff" class="w-full h-10 border border-gray-300 rounded cursor-pointer" />
           </div>
         </div>
         <div>
-          <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Lagkapten (Steam-namn & Nummer)</label>
-          <input type="text" id="appTeamCaptain" required value="sidde (#12)" class="w-full border border-gray-300 rounded px-3 py-2" />
-        </div>
-        <div>
-          <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Spelartrupp / Roster (Steam-namn)</label>
-          <textarea id="appTeamRoster" rows="2" required placeholder="sidde #12, Sakarias #21, Calle #9, Adde #19, Målvakts-Bosse #1" class="w-full border border-gray-300 rounded px-3 py-2 text-xs"></textarea>
+          <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Spelartrupp / Kommentar</label>
+          <textarea id="appTeamRoster" rows="2" placeholder="Skriv in planerade spelare i laget..." class="w-full border border-gray-300 rounded px-3 py-2 text-xs"></textarea>
         </div>
         <div class="pt-2 flex items-center justify-end gap-2">
           <button type="button" onclick="closeTeamApplicationModal()" class="px-4 py-2 text-xs font-bold uppercase text-gray-600 hover:bg-gray-100 rounded">Avbryt</button>
           <button type="submit" class="bg-[#4a8af4] hover:bg-blue-600 text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded shadow">
-            Skicka in lagansökan
+            Skicka ansökan
           </button>
         </div>
       </form>
@@ -1041,15 +912,31 @@
   </div>
 
   <!-- ===================================================================== -->
-  <!-- MODAL 3: SWITCH DISPLAYED PLAYER PROFILE                              -->
+  <!-- MODAL 3: VÄLJ SPELARPROFIL                                            -->
   <!-- ===================================================================== -->
   <div id="playerSelectorModal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-sm max-w-md w-full overflow-hidden shadow-2xl">
       <div class="bg-[#0e1420] text-white px-5 py-3.5 flex items-center justify-between">
-        <h3 class="font-shl text-xl font-bold uppercase">VÄLJ SPELARPROFIL ATT GRANSKA</h3>
+        <h3 class="font-shl text-xl font-bold uppercase">REGISTRERADE SPELARE</h3>
         <button onclick="closePlayerSelectorModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div id="playerSelectorList" class="p-4 divide-y divide-gray-100 max-h-96 overflow-y-auto"></div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: INTEGRITETSPOLICY (GDPR) -->
+  <div id="privacyModal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-sm max-w-lg w-full overflow-hidden shadow-2xl">
+      <div class="bg-[#0e1420] text-white px-5 py-3.5 flex items-center justify-between">
+        <h3 class="font-shl text-xl font-bold uppercase">INTEGRITETSPOLICY (GDPR)</h3>
+        <button onclick="document.getElementById('privacyModal').classList.add('hidden')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="p-6 space-y-3 text-xs text-gray-700 leading-relaxed">
+        <p><strong>1. Vilka uppgifter lagras?</strong> När du loggar in via Steam OpenID lagrar vi ditt offentliga SteamID64, ditt visningsnamn, din profilbilds-URL, din karaktärsanpassning i spelet samt matchstatistik (mål, assist, skotthastighet, passningsprocent och räddningar) från våra dedikerade Puck-servrar.</p>
+        <p><strong>2. Lösenord & Säkerhet:</strong> Inloggningen sker direkt hos Valve (Steam). Elitserien har aldrig tillgång till ditt lösenord.</p>
+        <p><strong>3. Syfte & Rättslig grund:</strong> Uppgifterna lagras i en krypterad PostgreSQL-databas inom EU (Frankfurt) för att kunna tillhandahålla serietabeller, spelarprofiler och matchhistorik.</p>
+        <p><strong>4. Radering:</strong> Du kan när som helst kontakta ligans administratör för att få din spelarprofil raderad ur databasen.</p>
+      </div>
     </div>
   </div>
 
@@ -1057,266 +944,131 @@
   <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
   <!-- ===================================================================== -->
-  <!-- FOOTER (SHL-STYLE DARK FOOTER)                                        -->
+  <!-- FOOTER                                                                -->
   <!-- ===================================================================== -->
   <footer class="bg-[#080b11] text-gray-400 border-t border-white/10 mt-16">
     <div class="max-w-[1220px] mx-auto px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs">
       <div class="flex items-center gap-4">
         <span class="font-shl text-2xl font-black italic text-white tracking-wider">ELITSERIEN</span>
         <span class="text-gray-600">|</span>
-        <span>Officiell svensk community-liga för spelet <strong>Puck</strong> på Steam (AppID: 2994020).</span>
+        <span>Svensk community-liga för spelet <strong>Puck</strong> på Steam. Fristående ideellt projekt utan koppling till SHL AB.</span>
       </div>
       <div class="flex items-center gap-6">
         <button onclick="switchView('home')" class="hover:text-white transition">Start</button>
         <button onclick="switchView('standings')" class="hover:text-white transition">Tabellen</button>
-        <button onclick="openPlayerProfile('p1')" class="hover:text-white transition">Spelarprofiler</button>
-        <button onclick="switchView('admin')" class="text-amber-400 hover:underline">Admin & API</button>
+        <button onclick="switchView('stats')" class="hover:text-white transition">Spelare</button>
+        <button onclick="document.getElementById('privacyModal').classList.remove('hidden')" class="hover:text-white transition">Integritetspolicy</button>
       </div>
     </div>
   </footer>
 
   <!-- ===================================================================== -->
-  <!-- APPLICATION LOGIC & MOCK DATABASE                                     -->
+  <!-- FRONTEND APPLICATION LOGIC (LIVE NEON POSTGRES SYNC)                  -->
   <!-- ===================================================================== -->
   <script>
-    // -----------------------------------------------------------------------
-    // 1. STATE & INITIAL SHL-INSPIRED DATA FOR ELITSERIEN
-    // -----------------------------------------------------------------------
-    let currentRole = 'player'; // 'player' | 'admin' | 'guest'
+    let currentUser = null;
+    let allTeams = [];
+    let allPlayers = [];
+    let allMatches = [];
+
     let currentView = 'home';
     let homeMatchFilter = 'upcoming';
-    let activeProfileId = 'p1';
-
-    const teams = [
-      { id: 'FBK', name: 'Färjestad BK', short: 'FBK', primary: '#065f46', secondary: '#fbbf24', gp: 10, w: 8, otw: 1, otl: 1, l: 0, gf: 45, ga: 16, pts: 27 },
-      { id: 'FHC', name: 'Frölunda HC', short: 'FHC', primary: '#14532d', secondary: '#dc2626', gp: 10, w: 7, otw: 0, otl: 1, l: 2, gf: 34, ga: 24, pts: 22 },
-      { id: 'LHC', name: 'Linköping HC', short: 'LHC', primary: '#0284c7', secondary: '#e11d48', gp: 10, w: 6, otw: 1, otl: 0, l: 3, gf: 36, ga: 25, pts: 20 },
-      { id: 'DIF', name: 'Djurgårdens IF', short: 'DIF', primary: '#1e3a8a', secondary: '#eab308', gp: 10, w: 5, otw: 2, otl: 0, l: 3, gf: 31, ga: 26, pts: 19 },
-      { id: 'SKE', name: 'Skellefteå AIK', short: 'SKE', primary: '#111827', secondary: '#facc15', gp: 10, w: 5, otw: 0, otl: 2, l: 3, gf: 29, ga: 25, pts: 17 },
-      { id: 'LHF', name: 'Luleå Hockey', short: 'LHF', primary: '#991b1b', secondary: '#f59e0b', gp: 10, w: 4, otw: 1, otl: 1, l: 4, gf: 28, ga: 29, pts: 15 },
-      { id: 'RBK', name: 'Rögle BK', short: 'RBK', primary: '#15803d', secondary: '#ffffff', gp: 10, w: 3, otw: 1, otl: 1, l: 5, gf: 22, ga: 30, pts: 12 },
-      { id: 'HV71', name: 'HV71', short: 'HV71', primary: '#1d4ed8', secondary: '#facc15', gp: 10, w: 2, otw: 0, otl: 0, l: 8, gf: 19, ga: 41, pts: 6 }
-    ];
-
-    const players = [
-      {
-        id: 'p1',
-        name: 'sidde',
-        number: 12,
-        role: 'FORWARD',
-        teamId: 'LHC',
-        isCaptain: true,
-        steamId: '76561198360771568',
-        handedness: 'Left',
-        nationality: 'Sverige',
-        hardestShot: 144.2,
-        passAccuracy: 88,
-        // Current Season
-        gp: 10, g: 11, a: 14, tp: 25, plusMinus: 9, pim: 4,
-        // Career Totals
-        careerGP: 65, careerG: 38, careerA: 46, careerTP: 84,
-        // Puck Avatar Customization (matching image_f76b80.png by default!)
-        avatar: {
-          jerseyPrimary: '#0084d1',
-          jerseyStripe: '#0a0d12',
-          helmetColor: '#0a0d12',
-          skinColor: '#c68b65',
-          visor: 'tinted',
-          beard: 'full',
-          hairColor: '#23170f',
-          shaftTape: '#28b5e1',
-          bladeTape: '#0d1017',
-          showChestNum: false
-        },
-        history: [
-          { season: '2026/2027', league: 'Elitserien 2026/2027', team: 'LHC', gp: 10, g: 11, a: 14, tp: 25, pm: '+9', pass: '88%' },
-          { season: '2025/2026', league: 'Elitserien SM-slutspel 2026', team: 'LHC', gp: 7, g: 6, a: 8, tp: 14, pm: '+5', pass: '85%' },
-          { season: '2025/2026', league: 'Elitserien 2025/2026', team: 'LHC', gp: 32, g: 15, a: 18, tp: 33, pm: '+11', pass: '84%' },
-          { season: '2024/2025', league: 'European Puck Series', team: 'SWE Crowns', gp: 16, g: 6, a: 6, tp: 12, pm: '+3', pass: '81%' }
-        ]
-      },
-      {
-        id: 'p2',
-        name: 'Sakarias',
-        number: 21,
-        role: 'CENTER',
-        teamId: 'LHC',
-        isCaptain: false,
-        steamId: '76561198099281721',
-        handedness: 'Left',
-        nationality: 'Sverige',
-        hardestShot: 138.5,
-        passAccuracy: 91,
-        gp: 10, g: 9, a: 18, tp: 27, plusMinus: 11, pim: 2,
-        careerGP: 58, careerG: 29, careerA: 51, careerTP: 80,
-        avatar: {
-          jerseyPrimary: '#0084d1',
-          jerseyStripe: '#e11d48',
-          helmetColor: '#ffffff',
-          skinColor: '#d9a17c',
-          visor: 'mirror',
-          beard: 'mustache',
-          hairColor: '#3b2313',
-          shaftTape: '#ffffff',
-          bladeTape: '#111111',
-          showChestNum: true
-        },
-        history: [
-          { season: '2026/2027', league: 'Elitserien 2026/2027', team: 'LHC', gp: 10, g: 9, a: 18, tp: 27, pm: '+11', pass: '91%' },
-          { season: '2025/2026', league: 'Elitserien 2025/2026', team: 'LHC', gp: 48, g: 20, a: 33, tp: 53, pm: '+18', pass: '89%' }
-        ]
-      },
-      {
-        id: 'p3',
-        name: 'FrostbiteFred',
-        number: 7,
-        role: 'FORWARD',
-        teamId: 'DIF',
-        isCaptain: true,
-        steamId: '76561198112233445',
-        handedness: 'Right',
-        nationality: 'Sverige',
-        hardestShot: 151.0,
-        passAccuracy: 82,
-        gp: 10, g: 14, a: 7, tp: 21, plusMinus: 6, pim: 6,
-        careerGP: 65, careerG: 44, careerA: 27, careerTP: 71,
-        avatar: {
-          jerseyPrimary: '#1e3a8a',
-          jerseyStripe: '#eab308',
-          helmetColor: '#1e3a8a',
-          skinColor: '#e0ac8b',
-          visor: 'clear',
-          beard: 'goatee',
-          hairColor: '#b45309',
-          shaftTape: '#facc15',
-          bladeTape: '#ffffff',
-          showChestNum: true
-        },
-        history: [
-          { season: '2026/2027', league: 'Elitserien 2026/2027', team: 'DIF', gp: 10, g: 14, a: 7, tp: 21, pm: '+6', pass: '82%' },
-          { season: '2025/2026', league: 'Elitserien 2025/2026', team: 'DIF', gp: 55, g: 30, a: 20, tp: 50, pm: '+14', pass: '79%' }
-        ]
-      },
-      {
-        id: 'p4',
-        name: 'hamasa',
-        number: 19,
-        role: 'BACK',
-        teamId: 'FBK',
-        isCaptain: true,
-        steamId: '76561198445566778',
-        handedness: 'Left',
-        nationality: 'Sverige',
-        hardestShot: 156.4,
-        passAccuracy: 89,
-        gp: 10, g: 8, a: 16, tp: 24, plusMinus: 17, pim: 8,
-        careerGP: 72, careerG: 25, careerA: 64, careerTP: 89,
-        avatar: {
-          jerseyPrimary: '#065f46',
-          jerseyStripe: '#fbbf24',
-          helmetColor: '#065f46',
-          skinColor: '#c68b65',
-          visor: 'gold',
-          beard: 'full',
-          hairColor: '#111827',
-          shaftTape: '#10b981',
-          bladeTape: '#111827',
-          showChestNum: true
-        },
-        history: [
-          { season: '2026/2027', league: 'Elitserien 2026/2027', team: 'FBK', gp: 10, g: 8, a: 16, tp: 24, pm: '+17', pass: '89%' },
-          { season: '2025/2026', league: 'Elitserien 2025/2026', team: 'FBK', gp: 62, g: 17, a: 48, tp: 65, pm: '+32', pass: '87%' }
-        ]
-      },
-      {
-        id: 'p5',
-        name: 'SnipeKing99',
-        number: 88,
-        role: 'FORWARD',
-        teamId: 'FHC',
-        isCaptain: false,
-        steamId: '76561198887766554',
-        handedness: 'Right',
-        nationality: 'Sverige',
-        hardestShot: 147.9,
-        passAccuracy: 84,
-        gp: 10, g: 12, a: 8, tp: 20, plusMinus: 7, pim: 0,
-        careerGP: 45, careerG: 31, careerA: 22, careerTP: 53,
-        avatar: {
-          jerseyPrimary: '#14532d',
-          jerseyStripe: '#dc2626',
-          helmetColor: '#111827',
-          skinColor: '#d19975',
-          visor: 'tinted',
-          beard: 'none',
-          hairColor: '#1f2937',
-          shaftTape: '#f43f5e',
-          bladeTape: '#ffffff',
-          showChestNum: true
-        },
-        history: [
-          { season: '2026/2027', league: 'Elitserien 2026/2027', team: 'FHC', gp: 10, g: 12, a: 8, tp: 20, pm: '+7', pass: '84%' }
-        ]
-      }
-    ];
-
-    const matches = [
-      { id: 'm1', dateGroup: 'LÖR 17 OKT.', dateLabel: '17 okt | 19:00', status: 'ELITSERIEN - SPELAD', isPlayed: true, home: 'LHF', away: 'HV71', homeScore: 5, awayScore: 2, server: 'ELITSERIEN Ligaspel 1', summary: 'Hårdaste skott: 146.2 km/h • Puckinnehav: 56% - 44%' },
-      { id: 'm2', dateGroup: 'LÖR 17 OKT.', dateLabel: '17 okt | 19:30', status: 'ELITSERIEN - SPELAD SO', isPlayed: true, home: 'DIF', away: 'RBK', homeScore: 3, awayScore: 2, server: 'ELITSERIEN Ligaspel 2', summary: 'Avgjord på straffar av #7 FrostbiteFred (141.0 km/h)' },
-      { id: 'm3', dateGroup: 'LÖR 17 OKT.', dateLabel: '17 okt | 20:00', status: 'ELITSERIEN - SPELAD', isPlayed: true, home: 'RBK', away: 'LHC', homeScore: 1, awayScore: 4, server: 'ELITSERIEN Ligaspel 1', summary: '#12 sidde (2G, 1A) & #21 Sakarias (1G, 2A) dominerade isen.' },
-      { id: 'm4', dateGroup: 'LÖR 17 OKT.', dateLabel: '17 okt | 20:30', status: 'ELITSERIEN - SPELAD SO', isPlayed: true, home: 'FHC', away: 'SKE', homeScore: 3, awayScore: 2, server: 'ELITSERIEN Ligaspel 1', summary: 'Passningsprocent: 87% vs 81% • 28 skott på mål' },
-      { id: 'm5', dateGroup: 'LÖR 17 OKT.', dateLabel: '17 okt | 21:00', status: 'ELITSERIEN - SPELAD', isPlayed: true, home: 'LHC', away: 'FBK', homeScore: 2, awayScore: 4, server: 'ELITSERIEN Ligaspel 1', summary: 'Toppmöte! #19 hamasa dundrade in 156.4 km/h slagskott.' },
-      { id: 'm6', dateGroup: 'TIS 20 OKT.', dateLabel: '20 okt | 19:00', status: 'ELITSERIEN - KOMMANDE', isPlayed: false, time: '19:00', home: 'HV71', away: 'LHC', homeScore: null, awayScore: null, server: 'ELITSERIEN Ligaspel 1 (Bokad)', summary: 'E4-derby på Puck-isen! LHC jagar revansch.' },
-      { id: 'm7', dateGroup: 'TIS 20 OKT.', dateLabel: '20 okt | 20:00', status: 'ELITSERIEN - KOMMANDE', isPlayed: false, time: '20:00', home: 'FBK', away: 'DIF', homeScore: null, awayScore: null, server: 'ELITSERIEN Ligaspel 2 (Bokad)', summary: 'Klassikermöte i toppen av tabellen.' },
-      { id: 'm8', dateGroup: 'TOR 22 OKT.', dateLabel: '22 okt | 19:30', status: 'ELITSERIEN - KOMMANDE', isPlayed: false, time: '19:30', home: 'FHC', away: 'LHF', homeScore: null, awayScore: null, server: 'ELITSERIEN Ligaspel 1 (Bokad)', summary: 'Torsdagsdrabbning med direkt-sändning i Discord.' }
-    ];
-
-    let pendingApplications = [
-      {
-        id: 'app1',
-        name: 'Brynäs IF Puck',
-        short: 'BIF',
-        primary: '#111827',
-        secondary: '#dc2626',
-        captain: 'GävleGubben (#13)',
-        roster: 'GävleGubben #13, Silfver #100, KaffeKungen #44, Muraren #30'
-      },
-      {
-        id: 'app2',
-        name: 'Malmö Redhawks',
-        short: 'MIF',
-        primary: '#be123c',
-        secondary: '#111827',
-        captain: 'SkåneSniper (#91)',
-        roster: 'SkåneSniper #91, Öresund #8, Klubbbladet #14, Nätväktaren #1'
-      }
-    ];
+    let activeProfileSteamId = null;
 
     // -----------------------------------------------------------------------
-    // 2. HELPER: TEAM CREST SVG GENERATOR
+    // 1. HÄMTA LIVE-DATA FRÅN NEON POSTGRES (/api/data)
     // -----------------------------------------------------------------------
+    async function loadLeagueData() {
+      try {
+        const res = await fetch('/api/data');
+        if (!res.ok) throw new Error('Kunde inte hämta data från servern');
+        const data = await res.json();
+
+        currentUser = data.currentUser || null;
+        allTeams = data.teams || [];
+        allPlayers = (data.players || []).map(normalizePlayer);
+        allMatches = data.matches || [];
+
+        if (!activeProfileSteamId) {
+          if (currentUser) activeProfileSteamId = currentUser.steam_id;
+          else if (allPlayers.length > 0) activeProfileSteamId = allPlayers[0].steam_id;
+        }
+
+        renderAll();
+      } catch (err) {
+        console.error(err);
+        document.getElementById('topStatsCounter').textContent = 'Kunde inte ansluta till databasen';
+      }
+    }
+
+    function normalizePlayer(p) {
+      const passAtt = p.passes_attempted || 0;
+      const passComp = p.passes_completed || 0;
+      const passAcc = passAtt > 0 ? Math.round((passComp / passAtt) * 100) : 0;
+
+      return {
+        steamId: p.steam_id,
+        name: p.username || 'Spelare',
+        avatarUrl: p.avatar_url || '',
+        accountRole: p.role || 'player',
+        number: p.jersey_number || 12,
+        position: (p.preferred_position || 'FORWARD').toUpperCase(),
+        handedness: p.stick_handedness === 'Right' ? 'Right' : 'Left',
+        teamId: p.team_id || null,
+        gp: p.gp || 0,
+        g: p.g || 0,
+        a: p.a || 0,
+        tp: p.tp || 0,
+        plusMinus: p.plus_minus || 0,
+        hardestShot: Number(p.hardest_shot || 0),
+        passAccuracy: passAcc,
+        avatar: {
+          jerseyPrimary: p.jersey_primary_color || '#0284c7',
+          jerseyStripe: p.jersey_stripe_color || '#0a0d12',
+          helmetColor: p.helmet_color || '#0a0d12',
+          skinColor: p.skin_color || '#c68b65',
+          visor: p.visor_tint || 'tinted',
+          beard: p.facial_hair || 'none',
+          hairColor: p.hair_color || '#23170f',
+          shaftTape: p.stick_shaft_color || '#28b5e1',
+          bladeTape: p.stick_blade_tape || '#111111',
+          showChestNum: p.show_chest_number !== false
+        }
+      };
+    }
+
+    function getApprovedTeams() {
+      return allTeams.filter(t => t.status === 'approved');
+    }
+
+    function getPendingTeams() {
+      return allTeams.filter(t => t.status === 'pending');
+    }
+
     function getTeamById(id) {
-      return teams.find(t => t.id === id) || { id: id, name: id, short: id, primary: '#1e293b', secondary: '#38bdf8' };
+      if (!id) return { id: null, name: 'Fria Agenter', tag: 'FRI', primary_color: '#1e293b', secondary_color: '#649eff' };
+      return allTeams.find(t => Number(t.id) === Number(id)) || { id, name: 'Okänt lag', tag: 'LAG', primary_color: '#1e293b', secondary_color: '#649eff' };
     }
 
     function renderTeamCrestSVG(teamId, sizeClass = 'w-6 h-6') {
       const t = getTeamById(teamId);
+      const primary = t.primary_color || '#0284c7';
+      const secondary = t.secondary_color || '#ffffff';
+      const tag = (t.tag || 'FRI').slice(0, 4);
       return `
         <svg viewBox="0 0 40 44" class="${sizeClass} shrink-0 drop-shadow-sm select-none">
-          <path d="M4 4 H36 V22 C36 33 20 41 20 41 C20 41 4 33 4 22 Z" fill="${t.primary}" stroke="${t.secondary}" stroke-width="3" />
-          <path d="M7 18 H33 V23 H7 Z" fill="${t.secondary}" opacity="0.85" />
-          <text x="20" y="24" text-anchor="middle" fill="#ffffff" font-family="'Barlow Condensed', sans-serif" font-weight="900" font-size="12" stroke="#000" stroke-width="1.5" paint-order="stroke fill">${t.short}</text>
+          <path d="M4 4 H36 V22 C36 33 20 41 20 41 C20 41 4 33 4 22 Z" fill="${primary}" stroke="${secondary}" stroke-width="3" />
+          <path d="M7 18 H33 V23 H7 Z" fill="${secondary}" opacity="0.85" />
+          <text x="20" y="24" text-anchor="middle" fill="#ffffff" font-family="'Barlow Condensed', sans-serif" font-weight="900" font-size="11" stroke="#000" stroke-width="1.5" paint-order="stroke fill">${tag}</text>
         </svg>
       `;
     }
 
     // -----------------------------------------------------------------------
-    // 3. LOW-POLY FACETED 3D PUCK CHARACTER SVG RENDERER
-    //    (Faithfully recreating image_f76b80.png with dynamic customization!)
+    // 2. LOW-POLY 3D PUCK KARAKTÄR-RENDERARE
     // -----------------------------------------------------------------------
     function renderPuckCharacterSVG(player) {
       const av = player.avatar;
-      // Visor color logic
       let visorFill = 'rgba(20, 18, 18, 0.78)';
       let visorShine = 'rgba(255, 255, 255, 0.25)';
       if (av.visor === 'mirror') {
@@ -1330,18 +1082,14 @@
         visorShine = 'rgba(255, 255, 255, 0.55)';
       }
 
-      // Beard / Mustache SVG paths
       let facialHairSVG = '';
       if (av.beard === 'full') {
         facialHairSVG = `
-          <!-- Full Low-Poly Beard & Mustache -->
           <polygon points="122,94 134,110 156,113 176,108 182,90 176,82 170,96 154,101 136,98 128,84" fill="${av.hairColor}" />
           <polygon points="138,89 152,85 166,89 162,94 142,94" fill="${av.hairColor}" />
         `;
       } else if (av.beard === 'mustache') {
-        facialHairSVG = `
-          <polygon points="136,88 152,84 168,88 164,95 140,95" fill="${av.hairColor}" />
-        `;
+        facialHairSVG = `<polygon points="136,88 152,84 168,88 164,95 140,95" fill="${av.hairColor}" />`;
       } else if (av.beard === 'goatee') {
         facialHairSVG = `
           <polygon points="138,89 152,85 166,89 162,94 142,94" fill="${av.hairColor}" />
@@ -1349,124 +1097,63 @@
         `;
       }
 
-      // Chest Number optional overlay
       const chestNumberSVG = av.showChestNum ? `
         <text x="150" y="182" text-anchor="middle" font-family="'Barlow Condensed', sans-serif" font-weight="900" font-style="italic" font-size="38" fill="#ffffff" stroke="${av.jerseyStripe}" stroke-width="4" paint-order="stroke fill" opacity="0.95">#${player.number}</text>
       ` : '';
 
-      // Flip stick if Right-handed
       const stickTransform = player.handedness === 'Right' ? 'transform="translate(310, 0) scale(-1, 1)"' : '';
 
       return `
         <svg viewBox="0 0 320 340" class="w-full h-full drop-shadow-[0_18px_28px_rgba(0,0,0,0.75)]">
           <defs>
-            <!-- Faceted shading filters for authentic low-poly Puck look -->
             <linearGradient id="iceShadow" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stop-color="#000000" stop-opacity="0.45"/>
               <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
             </linearGradient>
           </defs>
-
-          <!-- Ground / Ice Shadow beneath floating character -->
           <ellipse cx="150" cy="316" rx="75" ry="12" fill="url(#iceShadow)" />
-
-          <!-- ======================================================= -->
-          <!-- 1. FLOATING LOWER WAIST / HIP BLOCK (Puck Anatomy)      -->
-          <!-- ======================================================= -->
           <g>
-            <!-- Left Facet -->
             <polygon points="116,226 150,228 150,295 112,268" fill="${av.jerseyPrimary}" />
             <polygon points="116,226 150,228 150,295 112,268" fill="#000000" opacity="0.12" />
-            <!-- Right Facet (Lighter) -->
             <polygon points="150,228 184,225 188,266 150,295" fill="${av.jerseyPrimary}" />
-            <!-- Bottom Pointed Facet -->
             <polygon points="112,268 150,295 188,266 150,302" fill="#000000" opacity="0.28" />
           </g>
-
-          <!-- ======================================================= -->
-          <!-- 2. FLOATING UPPER CHEST / TORSO BLOCK (Faceted Low-Poly)-->
-          <!-- ======================================================= -->
           <g>
-            <!-- Collar / Neck Dark Plate -->
             <polygon points="114,120 186,118 196,125 104,126" fill="${av.jerseyStripe}" />
-
-            <!-- Upper Chest Top Slant -->
             <polygon points="104,126 196,125 214,145 88,147" fill="${av.jerseyPrimary}" />
             <polygon points="104,126 196,125 214,145 88,147" fill="#ffffff" opacity="0.14" />
-
-            <!-- Main Chest Center-Left Facet -->
             <polygon points="88,147 152,148 148,200 100,198" fill="${av.jerseyPrimary}" />
-
-            <!-- Main Chest Center-Right Facet -->
             <polygon points="152,148 214,145 202,196 148,200" fill="${av.jerseyPrimary}" />
             <polygon points="152,148 214,145 202,196 148,200" fill="#000000" opacity="0.1" />
-
-            <!-- Side Rib Facets (Darker Shading) -->
             <polygon points="88,147 100,198 112,208 85,172" fill="${av.jerseyPrimary}" />
             <polygon points="88,147 100,198 112,208 85,172" fill="#000000" opacity="0.24" />
             <polygon points="214,145 216,170 190,206 202,196" fill="${av.jerseyPrimary}" />
             <polygon points="214,145 216,170 190,206 202,196" fill="#000000" opacity="0.28" />
-
-            <!-- Waist Bottom Stripe (Black/Secondary band at bottom of upper torso) -->
             <polygon points="100,198 148,200 202,196 190,213 150,216 112,213" fill="${av.jerseyStripe}" />
-
             ${chestNumberSVG}
           </g>
-
-          <!-- ======================================================= -->
-          <!-- 3. FLOATING LOW-POLY HEAD, HELMET, VISOR & BEARD        -->
-          <!-- ======================================================= -->
           <g>
-            <!-- Low-Poly Face / Jaw Block -->
             <polygon points="122,64 180,64 178,96 156,112 134,109 120,90" fill="${av.skinColor}" />
-            <!-- Face Side Shading -->
             <polygon points="154,64 180,64 178,96 156,112" fill="#000000" opacity="0.14" />
-
-            <!-- Beard / Mustache -->
             ${facialHairSVG}
-
-            <!-- Hockey Helmet Dome (Low-Poly Facets) -->
             <polygon points="114,48 134,26 168,25 188,45 186,68 152,65 114,68" fill="${av.helmetColor}" />
-            <!-- Helmet Top Highlight -->
             <polygon points="134,26 168,25 178,42 126,44" fill="#ffffff" opacity="0.09" />
-            <!-- Helmet Ear Guards -->
             <polygon points="114,62 123,62 123,86 115,80" fill="${av.helmetColor}" />
             <polygon points="178,60 186,60 184,84 177,86" fill="${av.helmetColor}" />
-
-            <!-- Hockey Visor Shield -->
             <polygon points="112,58 152,55 188,58 183,81 152,85 117,80" fill="${visorFill}" stroke="rgba(255,255,255,0.35)" stroke-width="1.2" />
-            <!-- Visor Diagonal Glint -->
             <polygon points="122,60 138,59 130,79 119,77" fill="${visorShine}" />
           </g>
-
-          <!-- ======================================================= -->
-          <!-- 4. FLOATING HOCKEY STICK & PUCK (Matching image_f76b80) -->
-          <!-- ======================================================= -->
           <g ${stickTransform}>
-            <!-- Stick Shaft Base (Carbon Black) -->
             <polygon points="298,125 310,136 108,298 96,287" fill="#0c1017" />
-            
-            <!-- Blue "CARBON" Graphic Pattern on Mid-Shaft -->
             <polygon points="242,170 254,181 162,255 150,244" fill="#1e3a5f" opacity="0.7" />
             <line x1="238" y1="175" x2="158" y2="249" stroke="#38bdf8" stroke-width="2" stroke-dasharray="8 4" opacity="0.75" />
-
-            <!-- Upper Handle Grip Tape (Customizable Shaft Tape!) -->
             <polygon points="298,125 311,137 242,192 230,180" fill="${av.shaftTape}" />
-            <!-- Knob at Top of Stick -->
             <polygon points="296,120 314,135 307,142 290,127" fill="${av.shaftTape}" filter="brightness(1.1)" />
-
-            <!-- Hockey Stick Blade (Heel + Toe) -->
             <polygon points="108,284 114,296 22,324 16,301 24,292" fill="#090b10" stroke="#1e293b" stroke-width="1" />
-            <!-- Blade Tape Wrap (Customizable Blade Tape!) -->
             <polygon points="82,290 87,304 34,320 30,298" fill="${av.bladeTape}" />
-
-            <!-- The Puck on the Ice in front of the Blade -->
             <g transform="translate(46, 308)">
-              <!-- Puck Cylinder Side -->
               <path d="M0,8 L0,20 A24,8 0 0,0 48,20 L48,8 Z" fill="#090b0e" />
-              <!-- Puck Top Ellipse -->
               <ellipse cx="24" cy="8" rx="24" ry="8" fill="#1e242d" stroke="#cbd5e1" stroke-width="1" />
-              <!-- "PUCK" White Print on Top -->
               <text x="24" y="10.5" text-anchor="middle" fill="#e2e8f0" font-family="'Barlow Condensed', sans-serif" font-weight="900" font-size="8" letter-spacing="1.5">PUCK</text>
             </g>
           </g>
@@ -1475,61 +1162,134 @@
     }
 
     // -----------------------------------------------------------------------
-    // 4. RENDER SCORE TICKER RIBBON (TOP HORIZONTAL BAR)
+    // 3. RENDER ALL VIEWS
     // -----------------------------------------------------------------------
-    function renderScoreTicker() {
-      const container = document.getElementById('scoreTickerContainer');
-      let html = '';
-      let lastDateGroup = '';
+    function renderAll() {
+      const approvedTeams = getApprovedTeams();
+      document.getElementById('topStatsCounter').textContent =
+        `${allPlayers.length} registrerade spelare • ${approvedTeams.length} lag • ${allMatches.filter(m => m.status === 'completed').length} spelade matcher`;
 
-      matches.forEach(m => {
-        if (m.dateGroup !== lastDateGroup) {
-          lastDateGroup = m.dateGroup;
-          const parts = m.dateGroup.split(' ');
-          html += `
-            <div class="bg-[#161c28] text-white px-2.5 flex flex-col items-center justify-center shrink-0 text-center leading-tight">
-              <span class="text-[9px] font-bold text-gray-400 uppercase">${parts[0]}</span>
-              <span class="text-sm font-shl font-black">${parts[1]}</span>
-              <span class="text-[9px] font-bold text-gray-400 uppercase">${parts[2] || ''}</span>
-            </div>
-          `;
+      renderHeaderAuthArea();
+      renderScoreTicker();
+      renderHomeMatches();
+      renderStandingsTables();
+      renderHomeTopScorers();
+      renderFullScheduleView();
+      renderFullStatsView();
+      renderTeamsView();
+      renderAdminView();
+
+      if (activeProfileSteamId) {
+        renderProfileView(activeProfileSteamId);
+      }
+    }
+
+    function renderHeaderAuthArea() {
+      const container = document.getElementById('headerAuthArea');
+      const hint = document.getElementById('topAuthHint');
+      const navAdmin = document.getElementById('nav-admin');
+      const mobileAdmin = document.getElementById('mobileAdminBtn');
+
+      if (!currentUser) {
+        hint.textContent = 'Utloggad besökare';
+        navAdmin.classList.add('hidden');
+        navAdmin.classList.remove('flex');
+        mobileAdmin.classList.add('hidden');
+
+        container.innerHTML = `
+          <a href="/api/auth?action=login" class="bg-[#171a21] hover:bg-[#2a475e] text-white text-xs font-bold px-3.5 py-2 rounded border border-white/20 flex items-center gap-2 transition shadow">
+            <i class="fa-brands fa-steam text-base"></i> Logga in med Steam
+          </a>
+        `;
+      } else {
+        const me = allPlayers.find(p => p.steamId === currentUser.steam_id) || normalizePlayer(currentUser);
+        const isAdmin = me.accountRole === 'admin';
+        hint.innerHTML = `Inloggad via Steam: <strong class="text-white">${me.name}</strong> (${me.steamId})`;
+
+        if (isAdmin) {
+          navAdmin.classList.remove('hidden');
+          navAdmin.classList.add('flex');
+          mobileAdmin.classList.remove('hidden');
+        } else {
+          navAdmin.classList.add('hidden');
+          navAdmin.classList.remove('flex');
+          mobileAdmin.classList.add('hidden');
         }
 
-        const scoreOrTime = m.isPlayed 
-          ? `<span class="font-shl text-base font-black text-slate-900 px-1.5">${m.homeScore} - ${m.awayScore}</span>`
-          : `<span class="font-shl text-sm font-bold text-shl-blue px-1.5">${m.time}</span>`;
+        const roleBadge = isAdmin
+          ? `<span class="text-[10px] bg-amber-400 text-slate-950 font-extrabold px-1.5 py-0.2 rounded uppercase">ADMIN</span>`
+          : `<span class="text-[10px] text-emerald-400 font-mono">#${me.number}</span>`;
 
-        html += `
-          <div onclick="openMatchModal('${m.id}')" class="px-4 py-1.5 flex flex-col justify-between min-w-[178px] bg-[#f8fafc] hover:bg-white cursor-pointer transition shrink-0 group">
-            <div class="text-[9px] font-extrabold uppercase tracking-wider text-center ${m.isPlayed ? 'text-slate-600' : 'text-shl-blue'}">
-              ${m.status}
+        container.innerHTML = `
+          <div class="flex items-center gap-2">
+            <button onclick="openPlayerProfile('${me.steamId}')" class="flex items-center gap-2.5 bg-white/5 hover:bg-white/15 border border-white/15 px-3 py-1 rounded transition">
+              <div class="w-7 h-8 rounded bg-slate-800 overflow-hidden flex items-center justify-center">
+                ${renderPuckCharacterSVG(me)}
+              </div>
+              <div class="text-left leading-tight hidden sm:block">
+                <div class="text-xs font-bold text-white flex items-center gap-1.5">${me.name}${roleBadge}</div>
+                <div class="text-[10px] text-gray-400">Min Puck-Profil</div>
+              </div>
+            </button>
+            <a href="/api/auth?action=logout" title="Logga ut" class="p-2 rounded bg-white/5 hover:bg-rose-600/30 border border-white/10 text-gray-300 hover:text-white text-xs transition">
+              <i class="fa-solid fa-right-from-bracket"></i>
+            </a>
+          </div>
+        `;
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // 4. SCORE TICKER & MATCHLISTOR
+    // -----------------------------------------------------------------------
+    function formatDateShort(dateStr) {
+      if (!dateStr) return 'Datum ej satt';
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function renderScoreTicker() {
+      const container = document.getElementById('scoreTickerContainer');
+      if (allMatches.length === 0) {
+        container.innerHTML = `
+          <div class="flex items-center justify-center w-full text-xs text-gray-500 font-medium px-4">
+            Inga matcher har schemalagts eller spelats ännu.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = allMatches.map(m => {
+        const isPlayed = m.status === 'completed';
+        const statusText = isPlayed
+          ? (m.is_shootout ? 'SPELAD SO' : m.is_overtime ? 'SPELAD ÖT' : 'SPELAD')
+          : 'KOMMANDE';
+        const centerText = isPlayed ? `${m.home_score} -${m.away_score}` : formatDateShort(m.played_at);
+
+        return `
+          <div onclick="openMatchModal(${m.id})" class="px-4 py-1.5 flex flex-col justify-between min-w-[185px] bg-[#f8fafc] hover:bg-white cursor-pointer transition shrink-0">
+            <div class="text-[9px] font-extrabold uppercase tracking-wider text-center ${isPlayed ? 'text-slate-600' : 'text-shl-blue'}">
+              ${statusText}
             </div>
             <div class="flex items-center justify-between gap-2 my-auto">
               <div class="flex items-center gap-1.5">
-                <span class="font-shl font-bold text-xs text-slate-800">${m.home}</span>
-                ${renderTeamCrestSVG(m.home, 'w-5 h-5')}
+                <span class="font-shl font-bold text-xs text-slate-800">${m.home_tag \vert{}\vert{} 'HEM'}</span>${renderTeamCrestSVG(m.home_team_id, 'w-5 h-5')}
               </div>
-              ${scoreOrTime}
+              <span class="font-shl ${isPlayed ? 'text-base font-black text-slate-900' : 'text-xs font-bold text-shl-blue'} px-1">${centerText}</span>
               <div class="flex items-center gap-1.5">
-                ${renderTeamCrestSVG(m.away, 'w-5 h-5')}
-                <span class="font-shl font-bold text-xs text-slate-800">${m.away}</span>
+                ${renderTeamCrestSVG(m.away_team_id, 'w-5 h-5')}
+                <span class="font-shl font-bold text-xs text-slate-800">${m.away_tag || 'BOR'}</span>
               </div>
             </div>
           </div>
         `;
-      });
-
-      container.innerHTML = html;
+      }).join('');
     }
 
     function scrollTicker(amount) {
-      const container = document.getElementById('scoreTickerContainer');
-      container.scrollBy({ left: amount, behavior: 'smooth' });
+      document.getElementById('scoreTickerContainer').scrollBy({ left: amount, behavior: 'smooth' });
     }
 
-    // -----------------------------------------------------------------------
-    // 5. RENDER HOME VIEW (MATCHER, TABELLEN, POÄNGTOPPEN)
-    // -----------------------------------------------------------------------
     function setHomeMatchFilter(filter) {
       homeMatchFilter = filter;
       const btnUp = document.getElementById('homeMatchFilterUpcoming');
@@ -1546,77 +1306,114 @@
 
     function renderHomeMatches() {
       const container = document.getElementById('homeMatchesContainer');
-      const filtered = matches.filter(m => homeMatchFilter === 'upcoming' ? !m.isPlayed : m.isPlayed);
+      const filtered = allMatches.filter(m => homeMatchFilter === 'upcoming' ? m.status !== 'completed' : m.status === 'completed');
 
-      container.innerHTML = filtered.map(m => {
-        const homeTeam = getTeamById(m.home);
-        const awayTeam = getTeamById(m.away);
-        const centerDisplay = m.isPlayed 
-          ? `${m.homeScore} - ${m.awayScore}`
-          : m.time;
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="bg-[#f8fafc] border border-gray-200 rounded-sm p-8 text-center text-xs text-gray-500">
+            Inga ${homeMatchFilter === 'upcoming' ? 'kommande' : 'spelade'} matcher registrerade ännu.
+          </div>
+        `;
+        return;
+      }
 
+      container.innerHTML = filtered.slice(0, 6).map(m => {
+        const isPlayed = m.status === 'completed';
+        const centerDisplay = isPlayed ? `${m.home_score} -${m.away_score}` : 'VS';
         return `
           <div class="bg-[#f8fafc] border border-gray-200 rounded-sm p-4 match-card-hover">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-              
-              <!-- Date -->
-              <div class="text-xs text-gray-600 font-medium w-28 text-center sm:text-left shrink-0">
-                ${m.dateLabel}
+              <div class="text-xs text-gray-600 font-medium w-32 text-center sm:text-left shrink-0">
+                ${formatDateShort(m.played_at || m.created_at)}
               </div>
-
-              <!-- Teams & Center Score/Time (Exact SHL.se Layout) -->
               <div class="flex items-center justify-center gap-3 sm:gap-5 flex-1">
                 <div class="flex items-center justify-end gap-2.5 flex-1 text-right">
-                  <span class="font-shl text-lg font-extrabold uppercase text-slate-900">${homeTeam.name}</span>
-                  ${renderTeamCrestSVG(m.home, 'w-8 h-8')}
+                  <span class="font-shl text-lg font-extrabold uppercase text-slate-900">${m.home_name \vert{}\vert{} 'Hemmalag'}</span>${renderTeamCrestSVG(m.home_team_id, 'w-8 h-8')}
                 </div>
-
                 <div class="text-center px-2 shrink-0">
                   <div class="font-shl text-3xl font-black text-slate-900 leading-none">${centerDisplay}</div>
-                  <div class="text-[10px] text-gray-500 mt-1 font-medium">${m.server}</div>
+                  <div class="text-[10px] text-gray-500 mt-1 font-medium">${m.server_ip || 'ELITSERIEN Server'}</div>
                 </div>
-
                 <div class="flex items-center justify-start gap-2.5 flex-1 text-left">
-                  ${renderTeamCrestSVG(m.away, 'w-8 h-8')}
-                  <span class="font-shl text-lg font-extrabold uppercase text-slate-900">${awayTeam.name}</span>
+                  ${renderTeamCrestSVG(m.away_team_id, 'w-8 h-8')}
+                  <span class="font-shl text-lg font-extrabold uppercase text-slate-900">${m.away_name || 'Bortalag'}</span>
                 </div>
               </div>
-
-              <!-- Action Button -->
               <div class="flex items-center gap-2 shrink-0">
-                <button onclick="openMatchModal('${m.id}')" class="border border-[#649eff] text-[#4a8af4] hover:bg-[#4a8af4] hover:text-white text-xs font-semibold px-4 py-1.5 rounded-sm transition">
-                  ${m.isPlayed ? 'Matchfakta' : 'Inför match'}
+                <button onclick="openMatchModal(${m.id})" class="border border-[#649eff] text-[#4a8af4] hover:bg-[#4a8af4] hover:text-white text-xs font-semibold px-4 py-1.5 rounded-sm transition">
+                  Matchfakta
                 </button>
               </div>
-
             </div>
           </div>
         `;
       }).join('');
     }
 
-    function getSortedTeams() {
-      return [...teams].sort((a, b) => {
+    // -----------------------------------------------------------------------
+    // 5. SERIETABELL (BERÄKNAS FRÅN DATABASENS LAG OCH MATCHER)
+    // -----------------------------------------------------------------------
+    function computeStandings() {
+      const statsMap = {};
+      getApprovedTeams().forEach(t => {
+        statsMap[t.id] = {
+          id: t.id,
+          name: t.name,
+          tag: t.tag,
+          gp: 0, w: 0, otw: 0, otl: 0, l: 0, gf: 0, ga: 0, pts: 0
+        };
+      });
+
+      allMatches.filter(m => m.status === 'completed').forEach(m => {
+        const h = statsMap[m.home_team_id];
+        const a = statsMap[m.away_team_id];
+        if (!h || !a) return;
+
+        const hs = Number(m.home_score || 0);
+        const as = Number(m.away_score || 0);
+        const isOT = Boolean(m.is_overtime || m.is_shootout);
+
+        h.gp++; a.gp++;
+        h.gf += hs; h.ga += as;
+        a.gf += as; a.ga += hs;
+
+        if (hs > as) {
+          if (isOT) { h.otw++; h.pts += 2; a.otl++; a.pts += 1; }
+          else { h.w++; h.pts += 3; a.l++; }
+        } else if (as > hs) {
+          if (isOT) { a.otw++; a.pts += 2; h.otl++; h.pts += 1; }
+          else { a.w++; a.pts += 3; h.l++; }
+        } else {
+          h.pts += 1; a.pts += 1;
+        }
+      });
+
+      return Object.values(statsMap).sort((a, b) => {
         if (b.pts !== a.pts) return b.pts - a.pts;
-        return (b.gf - b.ga) - (a.gf - a.ga);
+        const diffB = b.gf - b.ga;
+        const diffA = a.gf - a.ga;
+        if (diffB !== diffA) return diffB - diffA;
+        return b.gf - a.gf;
       });
     }
 
     function renderStandingsTables() {
-      const sorted = getSortedTeams();
+      const sorted = computeStandings();
       const homeBody = document.getElementById('homeStandingsBody');
       const fullBody = document.getElementById('fullStandingsBody');
+
+      if (sorted.length === 0) {
+        const emptyRow = `<tr><td colspan="10" class="py-8 text-center text-xs text-gray-500">Inga godkända lag i tabellen ännu. Ansök med ett lag och godkänn det i Adminpanelen!</td></tr>`;
+        homeBody.innerHTML = emptyRow;
+        if (fullBody) fullBody.innerHTML = emptyRow;
+        return;
+      }
 
       homeBody.innerHTML = sorted.map((t, idx) => {
         const diff = t.gf - t.ga;
         const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
-        // Playoff divider line styling
-        let borderClass = '';
-        if (idx === 5) borderClass = 'border-b-2 border-emerald-500';
-        if (idx === 7) borderClass = 'border-b-2 border-amber-500';
-
         return `
-          <tr onclick="switchView('teams')" class="hover:bg-blue-50/50 cursor-pointer transition ${borderClass}">
+          <tr onclick="switchView('teams')" class="hover:bg-blue-50/50 cursor-pointer transition">
             <td class="py-3 pl-4 pr-2 font-bold text-slate-900">${idx + 1}</td>
             <td class="py-3 px-2">
               <div class="flex items-center gap-2.5">
@@ -1649,7 +1446,7 @@
               <td class="py-3.5 px-3 text-center">${t.otw}</td>
               <td class="py-3.5 px-3 text-center">${t.otl}</td>
               <td class="py-3.5 px-3 text-center">${t.l}</td>
-              <td class="py-3.5 px-3 text-center text-gray-600">${t.gf} - ${t.ga}</td>
+              <td class="py-3.5 px-3 text-center text-gray-600">${t.gf} -${t.ga}</td>
               <td class="py-3.5 px-3 text-center font-semibold ${diff >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${diffStr}</td>
               <td class="py-3.5 pl-3 pr-5 text-right font-shl text-xl font-black text-slate-900">${t.pts}</td>
             </tr>
@@ -1660,19 +1457,27 @@
 
     function renderHomeTopScorers() {
       const container = document.getElementById('homeTopScorersGrid');
-      const top3 = [...players].sort((a, b) => b.tp - a.tp).slice(0, 3);
+      if (allPlayers.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-3 bg-gray-50 border border-gray-200 rounded-sm p-6 text-center text-xs text-gray-500">
+            Inga spelare har loggat in ännu. Var först med att logga in med Steam uppe till höger!
+          </div>
+        `;
+        return;
+      }
+
+      const top3 = allPlayers.slice(0, 3);
       container.innerHTML = top3.map((p, i) => `
-        <div onclick="openPlayerProfile('${p.id}')" class="bg-[#0e1420] text-white rounded-sm p-4 border border-slate-800 hover:border-shl-lightBlue cursor-pointer transition group relative overflow-hidden">
+        <div onclick="openPlayerProfile('${p.steamId}')" class="bg-[#0e1420] text-white rounded-sm p-4 border border-slate-800 hover:border-shl-lightBlue cursor-pointer transition group relative overflow-hidden">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-[10px] font-bold uppercase tracking-widest text-shl-lightBlue">#${i + 1} POÄNGKUNG</span>
-            ${renderTeamCrestSVG(p.teamId, 'w-5 h-5')}
+            <span class="text-[10px] font-bold uppercase tracking-widest text-shl-lightBlue">#${i + 1} SPELARE</span>${renderTeamCrestSVG(p.teamId, 'w-5 h-5')}
           </div>
           <div class="flex items-center gap-3">
             <div class="w-14 h-16 shrink-0 bg-white/5 rounded overflow-hidden flex items-center justify-center">
               ${renderPuckCharacterSVG(p)}
             </div>
             <div>
-              <div class="font-shl text-xl font-black uppercase group-hover:text-shl-lightBlue transition">#${p.number} ${p.name}</div>
+              <div class="font-shl text-xl font-black uppercase group-hover:text-shl-lightBlue transition">#${p.number}${p.name}</div>
               <div class="text-xs text-gray-400">${p.g} Mål • ${p.a} Assist</div>
               <div class="text-sm font-extrabold text-amber-400 mt-0.5">${p.tp} Poäng</div>
             </div>
@@ -1682,19 +1487,34 @@
     }
 
     // -----------------------------------------------------------------------
-    // 6. SHL PLAYER PROFILE & CIRCULAR DASHED GAUGES
+    // 6. SPELARPROFIL & PUCK LOCKER ROOM
     // -----------------------------------------------------------------------
-    function openPlayerProfile(playerId) {
-      activeProfileId = playerId;
-      const p = players.find(x => x.id === playerId) || players[0];
+    function openMyProfile() {
+      if (currentUser) {
+        openPlayerProfile(currentUser.steam_id);
+      } else if (allPlayers.length > 0) {
+        openPlayerProfile(allPlayers[0].steamId);
+      } else {
+        showToast('Logga in med Steam uppe till höger för att skapa din profil!', 'info');
+      }
+    }
+
+    function openPlayerProfile(steamId) {
+      activeProfileSteamId = steamId;
+      renderProfileView(steamId);
+      switchView('profile');
+    }
+
+    function renderProfileView(steamId) {
+      const p = allPlayers.find(x => x.steamId === steamId) || allPlayers[0];
+      if (!p) return;
+
       const team = getTeamById(p.teamId);
+      const canEdit = currentUser && (currentUser.steam_id === p.steamId || currentUser.role === 'admin');
 
-      // Render 3D Faceted Puck Avatar
       document.getElementById('profilePuckAvatarContainer').innerHTML = renderPuckCharacterSVG(p);
-
-      // Update Header Info
       document.getElementById('profilePlayerName').textContent = p.name;
-      document.getElementById('profileNumberAndPos').textContent = `#${p.number} ${p.role}`;
+      document.getElementById('profileNumberAndPos').textContent = `#${p.number}${p.position}`;
       document.getElementById('profileTeamCrest').innerHTML = renderTeamCrestSVG(p.teamId, 'w-6 h-6');
       document.getElementById('profileTeamName').textContent = team.name;
       document.getElementById('profileSteamId').textContent = p.steamId;
@@ -1702,17 +1522,30 @@
       document.getElementById('profileHardestShot').textContent = `${p.hardestShot.toFixed(1)} km/h`;
       document.getElementById('profilePassAcc').textContent = `${p.passAccuracy}%`;
 
-      const capBadge = document.getElementById('profileCaptainBadge');
-      if (p.isCaptain) capBadge.classList.remove('hidden');
-      else capBadge.classList.add('hidden');
+      const adminBadge = document.getElementById('profileAdminBadge');
+      if (p.accountRole === 'admin') adminBadge.classList.remove('hidden');
+      else adminBadge.classList.add('hidden');
 
-      // Update Blue Gradient Career Bar
-      document.getElementById('careerGP').textContent = p.careerGP;
-      document.getElementById('careerTP').textContent = p.careerTP;
-      document.getElementById('careerG').textContent = p.careerG;
-      document.getElementById('careerA').textContent = p.careerA;
+      const btnFloat = document.getElementById('btnEditAvatarFloating');
+      const btnOpen = document.getElementById('btnOpenLockerRoom');
+      if (canEdit) {
+        btnFloat.classList.remove('hidden');
+        btnFloat.classList.add('flex');
+        btnOpen.classList.remove('hidden');
+        btnOpen.classList.add('flex');
+      } else {
+        btnFloat.classList.add('hidden');
+        btnFloat.classList.remove('flex');
+        btnOpen.classList.add('hidden');
+        btnOpen.classList.remove('flex');
+        document.getElementById('avatarEditorDrawer').classList.add('hidden');
+      }
 
-      // Render 4 Circular Dashed-Tick Gauges (Exact match to SHL screenshot image_f76877.png)
+      document.getElementById('careerGP').textContent = p.gp;
+      document.getElementById('careerTP').textContent = p.tp;
+      document.getElementById('careerG').textContent = p.g;
+      document.getElementById('careerA').textContent = p.a;
+
       const gauges = [
         { label: 'GP', value: p.gp },
         { label: 'TP', value: p.tp },
@@ -1731,44 +1564,18 @@
         </div>
       `).join('');
 
-      // Render Season History Table
-      const tbody = document.getElementById('profileHistoryTableBody');
-      tbody.innerHTML = p.history.map((h, idx) => `
-        <tr class="${idx % 2 === 0 ? 'bg-[#f4f5f7]' : 'bg-white'} hover:bg-blue-50/40 transition">
-          <td class="py-3.5 px-4 text-gray-700">${h.season}</td>
-          <td class="py-3.5 px-4 text-gray-800 font-medium">${h.league}</td>
-          <td class="py-3.5 px-4">
-            <div class="flex items-center gap-2">
-              ${renderTeamCrestSVG(h.team, 'w-5 h-5')}
-              <span class="font-semibold text-slate-900">${h.team}</span>
-            </div>
-          </td>
-          <td class="py-3.5 px-3 text-center text-gray-700">${h.gp}</td>
-          <td class="py-3.5 px-3 text-center text-gray-700">${h.g}</td>
-          <td class="py-3.5 px-3 text-center text-gray-700">${h.a}</td>
-          <td class="py-3.5 px-3 text-center font-bold text-slate-900">${h.tp}</td>
-          <td class="py-3.5 px-3 text-center text-gray-700">${h.pm}</td>
-          <td class="py-3.5 px-3 text-center font-semibold text-emerald-700">${h.pass}</td>
-        </tr>
-      `).join('');
-
-      // Populate Customizer Inputs with this player's values
       populateAvatarCustomizerInputs(p);
-
-      // Render Recent Matches in Sub-tab 2
-      renderProfileRecentMatches(p);
-
-      switchView('profile');
     }
 
     function populateAvatarCustomizerInputs(p) {
-      // Populate team dropdown
       const teamSel = document.getElementById('custTeamId');
-      teamSel.innerHTML = teams.map(t => `<option value="${t.id}" ${t.id === p.teamId ? 'selected' : ''}>${t.name} (${t.short})</option>`).join('');
+      const approved = getApprovedTeams();
+      teamSel.innerHTML = `<option value="">Fria Agenter (Inget lag)</option>` +
+        approved.map(t => `<option value="${t.id}" ${Number(t.id) === Number(p.teamId) ? 'selected' : ''}>${t.name} (${t.tag})</option>`).join('');
 
       document.getElementById('custName').value = p.name;
       document.getElementById('custNumber').value = p.number;
-      document.getElementById('custRole').value = p.role;
+      document.getElementById('custRole').value = p.position;
       document.getElementById('custHand').value = p.handedness;
       document.getElementById('custJerseyPrimary').value = p.avatar.jerseyPrimary;
       document.getElementById('custJerseyStripe').value = p.avatar.jerseyStripe;
@@ -1782,15 +1589,16 @@
       document.getElementById('custShowChestNum').checked = p.avatar.showChestNum;
     }
 
-    function updateCurrentAvatarFromInputs() {
-      const p = players.find(x => x.id === activeProfileId);
+    function previewAvatarFromInputs() {
+      const p = allPlayers.find(x => x.steamId === activeProfileSteamId);
       if (!p) return;
 
       p.name = document.getElementById('custName').value || 'Spelare';
-      p.number = parseInt(document.getElementById('custNumber').value) || 12;
-      p.role = document.getElementById('custRole').value;
+      p.number = parseInt(document.getElementById('custNumber').value, 10) || 12;
+      p.position = document.getElementById('custRole').value;
       p.handedness = document.getElementById('custHand').value;
-      p.teamId = document.getElementById('custTeamId').value;
+      const tVal = document.getElementById('custTeamId').value;
+      p.teamId = tVal ? parseInt(tVal, 10) : null;
 
       p.avatar.jerseyPrimary = document.getElementById('custJerseyPrimary').value;
       p.avatar.jerseyStripe = document.getElementById('custJerseyStripe').value;
@@ -1803,111 +1611,118 @@
       p.avatar.bladeTape = document.getElementById('custBladeTape').value;
       p.avatar.showChestNum = document.getElementById('custShowChestNum').checked;
 
-      // Live re-render avatar & text
       const team = getTeamById(p.teamId);
       document.getElementById('profilePuckAvatarContainer').innerHTML = renderPuckCharacterSVG(p);
       document.getElementById('profilePlayerName').textContent = p.name;
-      document.getElementById('profileNumberAndPos').textContent = `#${p.number} ${p.role}`;
+      document.getElementById('profileNumberAndPos').textContent = `#${p.number}${p.position}`;
       document.getElementById('profileTeamCrest').innerHTML = renderTeamCrestSVG(p.teamId, 'w-6 h-6');
       document.getElementById('profileTeamName').textContent = team.name;
       document.getElementById('profileHandedness').textContent = p.handedness;
-      renderHeaderAuthArea();
     }
 
     function applyTeamPresetToAvatar(teamId) {
-      const t = getTeamById(teamId);
-      document.getElementById('custJerseyPrimary').value = t.primary;
-      document.getElementById('custJerseyStripe').value = t.secondary;
-      updateCurrentAvatarFromInputs();
+      if (teamId) {
+        const t = getTeamById(teamId);
+        if (t.primary_color) document.getElementById('custJerseyPrimary').value = t.primary_color;
+        if (t.secondary_color) document.getElementById('custJerseyStripe').value = t.secondary_color;
+      }
+      previewAvatarFromInputs();
     }
 
     function setQuickTape(shaftHex, bladeHex) {
       document.getElementById('custShaftTape').value = shaftHex;
       document.getElementById('custBladeTape').value = bladeHex;
-      updateCurrentAvatarFromInputs();
+      previewAvatarFromInputs();
     }
 
     function toggleAvatarEditor() {
-      const drawer = document.getElementById('avatarEditorDrawer');
-      drawer.classList.toggle('hidden');
+      document.getElementById('avatarEditorDrawer').classList.toggle('hidden');
     }
 
-    function saveAvatarChanges() {
-      toggleAvatarEditor();
-      renderHomeTopScorers();
-      renderFullStatsView();
-      showToast('Din Puck-karaktär och utrustning har sparats till profilen!', 'success');
-    }
+    async function saveAvatarChangesToDB() {
+      const p = allPlayers.find(x => x.steamId === activeProfileSteamId);
+      if (!p) return;
 
-    function switchProfileSubTab(tab) {
-      const statsDiv = document.getElementById('profileSubContentStats');
-      const matchesDiv = document.getElementById('profileSubContentMatches');
-      const tabStats = document.getElementById('profTabStats');
-      const tabMatches = document.getElementById('profTabMatches');
+      const btn = document.getElementById('btnSaveCharacter');
+      btn.disabled = true;
+      btn.textContent = 'Sparar...';
 
-      if (tab === 'stats') {
-        statsDiv.classList.remove('hidden');
-        matchesDiv.classList.add('hidden');
-        tabStats.className = 'py-4 px-3 text-xs font-bold uppercase tracking-wider text-slate-900 border-b-2 border-[#4a8af4] transition';
-        tabMatches.className = 'py-4 px-3 text-xs font-bold uppercase tracking-wider text-gray-500 hover:text-slate-900 border-b-2 border-transparent transition';
-      } else {
-        statsDiv.classList.add('hidden');
-        matchesDiv.classList.remove('hidden');
-        tabMatches.className = 'py-4 px-3 text-xs font-bold uppercase tracking-wider text-slate-900 border-b-2 border-[#4a8af4] transition';
-        tabStats.className = 'py-4 px-3 text-xs font-bold uppercase tracking-wider text-gray-500 hover:text-slate-900 border-b-2 border-transparent transition';
+      try {
+        const res = await fetch('/api/data', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'save_character',
+            targetSteamId: p.steamId,
+            username: p.name,
+            jerseyNumber: p.number,
+            preferredPosition: p.position,
+            stickHandedness: p.handedness,
+            teamId: p.teamId,
+            jerseyPrimary: p.avatar.jerseyPrimary,
+            jerseyStripe: p.avatar.jerseyStripe,
+            showChestNum: p.avatar.showChestNum,
+            helmetColor: p.avatar.helmetColor,
+            skinColor: p.avatar.skinColor,
+            visorTint: p.avatar.visor,
+            facialHair: p.avatar.beard,
+            hairColor: p.avatar.hairColor,
+            shaftTape: p.avatar.shaftTape,
+            bladeTape: p.avatar.bladeTape
+          })
+        });
+
+        const out = await res.json();
+        if (!res.ok) throw new Error(out.error || 'Kunde inte spara');
+
+        showToast('Din Puck-karaktär har sparats i databasen!', 'success');
+        document.getElementById('avatarEditorDrawer').classList.add('hidden');
+        await loadLeagueData();
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Spara Puck-Karaktär';
       }
     }
 
-    function renderProfileRecentMatches(p) {
-      const list = document.getElementById('profileRecentMatchesList');
-      const played = matches.filter(m => m.isPlayed);
-      list.innerHTML = played.map(m => `
-        <div onclick="openMatchModal('${m.id}')" class="bg-gray-50 hover:bg-white p-4 border border-gray-200 rounded-sm flex items-center justify-between cursor-pointer transition">
-          <div class="flex items-center gap-4">
-            <span class="text-xs font-bold text-gray-500">${m.dateLabel}</span>
-            <div class="flex items-center gap-2 font-shl text-lg font-extrabold">
-              ${renderTeamCrestSVG(m.home, 'w-5 h-5')} ${m.home}
-              <span class="px-2 text-slate-900">${m.homeScore} - ${m.awayScore}</span>
-              ${renderTeamCrestSVG(m.away, 'w-5 h-5')} ${m.away}
-            </div>
-          </div>
-          <div class="text-xs text-gray-600 hidden sm:block">${m.summary}</div>
-        </div>
-      `).join('');
-    }
-
     // -----------------------------------------------------------------------
-    // 7. RENDER OTHER VIEWS (SCHEDULE, STATS, TEAMS, ADMIN)
+    // 7. SPELSCHEMA, SPELARSTATISTIK, LAGEN & ADMIN
     // -----------------------------------------------------------------------
     function renderFullScheduleView() {
       const container = document.getElementById('fullScheduleContainer');
-      container.innerHTML = matches.map(m => {
-        const homeTeam = getTeamById(m.home);
-        const awayTeam = getTeamById(m.away);
+      if (allMatches.length === 0) {
+        container.innerHTML = `<div class="bg-gray-50 border border-gray-200 rounded-sm p-8 text-center text-xs text-gray-500">Inga matcher i spelschemat ännu.</div>`;
+        return;
+      }
+
+      const isAdmin = currentUser && currentUser.role === 'admin';
+      container.innerHTML = allMatches.map(m => {
+        const isPlayed = m.status === 'completed';
         return `
           <div class="bg-white border border-gray-200 rounded-sm p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
             <div class="flex items-center gap-3 w-48">
-              <span class="text-xs font-bold px-2 py-0.5 rounded ${m.isPlayed ? 'bg-gray-200 text-gray-700' : 'bg-blue-100 text-blue-800'}">
-                ${m.isPlayed ? 'SPELAD' : 'KOMMANDE'}
+              <span class="text-xs font-bold px-2 py-0.5 rounded ${isPlayed ? 'bg-gray-200 text-gray-700' : 'bg-blue-100 text-blue-800'}">
+                ${isPlayed ? 'SPELAD' : 'KOMMANDE'}
               </span>
-              <span class="text-xs text-gray-600 font-medium">${m.dateLabel}</span>
+              <span class="text-xs text-gray-600 font-medium">${formatDateShort(m.played_at || m.created_at)}</span>
             </div>
             <div class="flex items-center justify-center gap-4 flex-1">
               <div class="flex items-center justify-end gap-2 flex-1 text-right font-shl text-xl font-bold uppercase">
-                ${homeTeam.name} ${renderTeamCrestSVG(m.home, 'w-7 h-7')}
+                ${m.home_name \vert{}\vert{} 'Hemmalag'}${renderTeamCrestSVG(m.home_team_id, 'w-7 h-7')}
               </div>
               <div class="font-shl text-2xl font-black px-3 py-1 bg-gray-100 rounded min-w-[75px] text-center">
-                ${m.isPlayed ? `${m.homeScore} - ${m.awayScore}` : m.time}
+                ${isPlayed ? `${m.home_score} - ${m.away_score}` : 'VS'}
               </div>
               <div class="flex items-center justify-start gap-2 flex-1 text-left font-shl text-xl font-bold uppercase">
-                ${renderTeamCrestSVG(m.away, 'w-7 h-7')} ${awayTeam.name}
+                ${renderTeamCrestSVG(m.away_team_id, 'w-7 h-7')}${m.away_name || 'Bortalag'}
               </div>
             </div>
-            <div class="flex items-center gap-3">
-              <span class="text-xs text-gray-400 hidden md:inline">${m.server}</span>
-              <button onclick="openMatchModal('${m.id}')" class="border border-shl-blue text-shl-blue hover:bg-shl-blue hover:text-white text-xs font-bold px-3.5 py-1.5 rounded-sm transition">
+            <div class="flex items-center gap-2">
+              <button onclick="openMatchModal(${m.id})" class="border border-shl-blue text-shl-blue hover:bg-shl-blue hover:text-white text-xs font-bold px-3.5 py-1.5 rounded-sm transition">
                 Detaljer
               </button>
+              ${isAdmin ? `<button onclick="adminDeleteMatch(${m.id})" class="text-rose-600 hover:bg-rose-50 px-2.5 py-1.5 rounded text-xs" title="Radera match"><i class="fa-solid fa-trash"></i></button>` : ''}
             </div>
           </div>
         `;
@@ -1916,477 +1731,66 @@
 
     function renderFullStatsView() {
       const tbody = document.getElementById('fullPlayerStatsBody');
-      const sorted = [...players].sort((a, b) => b.tp - a.tp);
-      tbody.innerHTML = sorted.map((p, idx) => `
-        <tr onclick="openPlayerProfile('${p.id}')" class="hover:bg-blue-50/60 cursor-pointer transition">
-          <td class="py-3.5 pl-4 pr-2 font-bold text-gray-600">${idx + 1}</td>
-          <td class="py-3.5 px-3">
-            <div class="flex items-center gap-3">
-              <div class="w-9 h-10 bg-slate-900 rounded overflow-hidden flex items-center justify-center shrink-0">
-                ${renderPuckCharacterSVG(p)}
-              </div>
-              <div>
-                <div class="font-bold text-slate-900 hover:text-shl-blue">#${p.number} ${p.name}</div>
-                <div class="text-[11px] text-gray-400 font-mono">Steam: ${p.steamId.slice(-6)}</div>
-              </div>
-            </div>
-          </td>
-          <td class="py-3.5 px-3">
-            <div class="flex items-center gap-2">
-              ${renderTeamCrestSVG(p.teamId, 'w-5 h-5')}
-              <span class="font-semibold">${p.teamId}</span>
-            </div>
-          </td>
-          <td class="py-3.5 px-3 text-center text-xs font-bold text-gray-600">${p.role}</td>
-          <td class="py-3.5 px-3 text-center">${p.gp}</td>
-          <td class="py-3.5 px-3 text-center font-semibold">${p.g}</td>
-          <td class="py-3.5 px-3 text-center font-semibold">${p.a}</td>
-          <td class="py-3.5 px-3 text-center font-shl text-xl font-black text-shl-blue bg-blue-50/50">${p.tp}</td>
-          <td class="py-3.5 px-3 text-center font-semibold text-emerald-600">${p.passAccuracy}%</td>
-          <td class="py-3.5 px-4 text-right font-mono text-xs font-bold text-amber-600">${p.hardestShot.toFixed(1)} km/h</td>
-        </tr>
-      `).join('');
-    }
+      if (allPlayers.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" class="py-8 text-center text-xs text-gray-500">Inga spelare har loggat in med Steam ännu.</td></tr>`;
+        return;
+      }
 
-    function renderTeamsView() {
-      const container = document.getElementById('teamsGridContainer');
-      container.innerHTML = teams.map(t => {
-        const teamPlayers = players.filter(p => p.teamId === t.id);
+      tbody.innerHTML = allPlayers.map((p, idx) => {
+        const team = getTeamById(p.teamId);
         return `
-          <div class="bg-white border border-gray-200 rounded-sm shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition">
-            <div>
-              <div class="h-2" style="background-color: ${t.primary}"></div>
-              <div class="p-5 flex items-center gap-4 border-b border-gray-100">
-                ${renderTeamCrestSVG(t.id, 'w-12 h-12')}
+          <tr onclick="openPlayerProfile('${p.steamId}')" class="hover:bg-blue-50/60 cursor-pointer transition">
+            <td class="py-3.5 pl-4 pr-2 font-bold text-gray-600">${idx + 1}</td>
+            <td class="py-3.5 px-3">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-10 bg-slate-900 rounded overflow-hidden flex items-center justify-center shrink-0">
+                  ${renderPuckCharacterSVG(p)}
+                </div>
                 <div>
-                  <h3 class="font-shl text-2xl font-black uppercase text-slate-900 leading-none">${t.name}</h3>
-                  <span class="text-xs text-gray-500 font-medium">${t.pts} poäng • ${t.gp} matcher</span>
+                  <div class="font-bold text-slate-900 hover:text-shl-blue">#${p.number}${p.name}</div>
+                  <div class="text-[11px] text-gray-400 font-mono">SteamID: ${p.steamId}</div>
                 </div>
               </div>
-              <div class="p-4 space-y-2">
-                <div class="text-[11px] font-bold uppercase tracking-wider text-gray-400">Registrerade Spelare</div>
-                ${teamPlayers.length > 0 ? teamPlayers.map(tp => `
-                  <div onclick="openPlayerProfile('${tp.id}')" class="flex items-center justify-between text-xs py-1 px-2 rounded hover:bg-gray-100 cursor-pointer">
-                    <span class="font-bold text-slate-800">#${tp.number} ${tp.name}</span>
-                    <span class="text-shl-blue font-semibold">${tp.tp} TP</span>
-                  </div>
-                `).join('') : `<div class="text-xs text-gray-400 italic py-2">Officiell ligatrupp synkas via Steam</div>`}
+            </td>
+            <td class="py-3.5 px-3">
+              <div class="flex items-center gap-2">
+                ${renderTeamCrestSVG(p.teamId, 'w-5 h-5')}
+                <span class="font-semibold">${team.tag}</span>
               </div>
-            </div>
-            <div class="bg-gray-50 px-4 py-2.5 border-t border-gray-100 flex items-center justify-between text-xs">
-              <span class="text-gray-500">Målskillnad: <strong>${t.gf}-${t.ga}</strong></span>
-              <button onclick="switchView('standings')" class="text-shl-blue font-bold hover:underline">Se tabell →</button>
-            </div>
-          </div>
+            </td>
+            <td class="py-3.5 px-3 text-center text-xs font-bold text-gray-600">${p.position}</td>
+            <td class="py-3.5 px-3 text-center">${p.gp}</td>
+            <td class="py-3.5 px-3 text-center font-semibold">${p.g}</td>
+            <td class="py-3.5 px-3 text-center font-semibold">${p.a}</td>
+            <td class="py-3.5 px-3 text-center font-shl text-xl font-black text-shl-blue bg-blue-50/50">${p.tp}</td>
+            <td class="py-3.5 px-3 text-center font-semibold text-emerald-600">${p.passAccuracy}%</td>
+            <td class="py-3.5 px-4 text-right font-mono text-xs font-bold text-amber-600">${p.hardestShot.toFixed(1)} km/h</td>
+          </tr>
         `;
       }).join('');
     }
 
-    // -----------------------------------------------------------------------
-    // 8. ADMIN PANEL & LIVE SERVER-MOD SIMULATOR
-    // -----------------------------------------------------------------------
-    function renderAdminView() {
-      // Update pending counts
-      const count = pendingApplications.length;
-      document.getElementById('topAdminBadge').textContent = count;
-      document.getElementById('navAdminCount').textContent = count;
-      document.getElementById('adminPendingBadge').textContent = `${count} väntar`;
+    function renderTeamsView() {
+      const container = document.getElementById('teamsGridContainer');
+      const approved = getApprovedTeams();
 
-      const appList = document.getElementById('adminApplicationsList');
-      if (count === 0) {
-        appList.innerHTML = `
-          <div class="bg-white border border-gray-200 rounded-sm p-8 text-center text-gray-500 text-sm">
-            <i class="fa-solid fa-circle-check text-emerald-500 text-2xl mb-2"></i>
-            <p class="font-bold text-slate-800">Alla lagansökningar är behandlade!</p>
-            <p class="text-xs mt-1">Klicka på "Skapa test-ansökan" uppe till höger för att testa flödet igen.</p>
+      if (approved.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-4 bg-gray-50 border border-gray-200 rounded-sm p-10 text-center space-y-3">
+            <p class="text-sm font-bold text-slate-800">Inga lag är godkända i ligan ännu.</p>
+            <p class="text-xs text-gray-500">Klicka på "Ansök med ditt lag" för att skicka in den första lagansökan!</p>
           </div>
         `;
-      } else {
-        appList.innerHTML = pendingApplications.map(app => `
-          <div class="bg-white border border-gray-200 rounded-sm p-4 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="w-4 h-4 rounded-full inline-block border border-gray-300" style="background:${app.primary}"></span>
-                <span class="font-shl text-xl font-black uppercase text-slate-900">${app.name} (${app.short})</span>
-              </div>
-              <div class="text-xs text-gray-600"><strong>Lagkapten:</strong> ${app.captain}</div>
-              <div class="text-xs text-gray-500"><strong>Trupp:</strong> ${app.roster}</div>
-            </div>
-            <div class="flex items-center gap-2 shrink-0">
-              <button onclick="approveTeamApplication('${app.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase px-3.5 py-2 rounded-sm shadow transition">
-                <i class="fa-solid fa-check mr-1"></i> Godkänn lag
-              </button>
-              <button onclick="rejectTeamApplication('${app.id}')" class="bg-rose-100 hover:bg-rose-200 text-rose-700 text-xs font-bold uppercase px-3 py-2 rounded-sm transition">
-                Neka
-              </button>
-            </div>
-          </div>
-        `).join('');
-      }
-
-      // Populate Server Simulator selects
-      const homeSel = document.getElementById('simHomeTeam');
-      const awaySel = document.getElementById('simAwayTeam');
-      const starSel = document.getElementById('simStarPlayer');
-
-      homeSel.innerHTML = teams.map((t, i) => `<option value="${t.id}" ${i === 2 ? 'selected' : ''}>${t.name} (${t.short})</option>`).join('');
-      awaySel.innerHTML = teams.map((t, i) => `<option value="${t.id}" ${i === 0 ? 'selected' : ''}>${t.name} (${t.short})</option>`).join('');
-      starSel.innerHTML = players.map(p => `<option value="${p.id}">#${p.number} ${p.name} (${p.teamId})</option>`).join('');
-    }
-
-    function approveTeamApplication(appId) {
-      const app = pendingApplications.find(a => a.id === appId);
-      if (!app) return;
-
-      teams.push({
-        id: app.short.toUpperCase(),
-        name: app.name,
-        short: app.short.toUpperCase(),
-        primary: app.primary,
-        secondary: app.secondary || '#ffffff',
-        gp: 0, w: 0, otw: 0, otl: 0, l: 0, gf: 0, ga: 0, pts: 0
-      });
-
-      pendingApplications = pendingApplications.filter(a => a.id !== appId);
-      renderAdminView();
-      renderStandingsTables();
-      renderTeamsView();
-      showToast(`${app.name} (${app.short}) har godkänts och lagts till i Elitserien-tabellen!`, 'success');
-    }
-
-    function rejectTeamApplication(appId) {
-      pendingApplications = pendingApplications.filter(a => a.id !== appId);
-      renderAdminView();
-      showToast('Lagansökan nekades och togs bort.', 'info');
-    }
-
-    function openTeamApplicationModal() {
-      document.getElementById('teamApplicationModal').classList.remove('hidden');
-    }
-    function closeTeamApplicationModal() {
-      document.getElementById('teamApplicationModal').classList.add('hidden');
-    }
-
-    function submitTeamApplication(e) {
-      e.preventDefault();
-      const name = document.getElementById('appTeamName').value.trim();
-      const short = document.getElementById('appTeamShort').value.trim().toUpperCase();
-      const color = document.getElementById('appTeamColor').value;
-      const captain = document.getElementById('appTeamCaptain').value.trim();
-      const roster = document.getElementById('appTeamRoster').value.trim();
-
-      pendingApplications.unshift({
-        id: 'app_' + Date.now(),
-        name,
-        short,
-        primary: color,
-        secondary: '#ffffff',
-        captain,
-        roster
-      });
-
-      closeTeamApplicationModal();
-      renderAdminView();
-      showToast(`Ansökan för ${name} har skickats till Liga-Admin!`, 'success');
-    }
-
-    function simulateServerMatchReport() {
-      const homeId = document.getElementById('simHomeTeam').value;
-      const awayId = document.getElementById('simAwayTeam').value;
-      if (homeId === awayId) {
-        showToast('Välj två olika lag för att simulera en match!', 'error');
         return;
       }
 
-      const hg = parseInt(document.getElementById('simHomeGoals').value) || 0;
-      const ag = parseInt(document.getElementById('simAwayGoals').value) || 0;
-      const isOT = document.getElementById('simIsOvertime').checked;
-      const starId = document.getElementById('simStarPlayer').value;
+      const standingsMap = {};
+      computeStandings().forEach(s => { standingsMap[s.id] = s; });
 
-      const homeTeam = getTeamById(homeId);
-      const awayTeam = getTeamById(awayId);
-      const starPlayer = players.find(p => p.id === starId);
-
-      // Update Standings
-      homeTeam.gp++;
-      awayTeam.gp++;
-      homeTeam.gf += hg;
-      homeTeam.ga += ag;
-      awayTeam.gf += ag;
-      awayTeam.ga += hg;
-
-      if (hg > ag) {
-        if (isOT) { homeTeam.otw++; homeTeam.pts += 2; awayTeam.otl++; awayTeam.pts += 1; }
-        else { homeTeam.w++; homeTeam.pts += 3; awayTeam.l++; }
-      } else if (ag > hg) {
-        if (isOT) { awayTeam.otw++; awayTeam.pts += 2; homeTeam.otl++; homeTeam.pts += 1; }
-        else { awayTeam.w++; awayTeam.pts += 3; homeTeam.l++; }
-      } else {
-        homeTeam.pts += 1;
-        awayTeam.pts += 1;
-      }
-
-      // Update Star Player Stats
-      if (starPlayer) {
-        starPlayer.gp++;
-        starPlayer.g += 2;
-        starPlayer.a += 1;
-        starPlayer.tp += 3;
-        starPlayer.careerGP++;
-        starPlayer.careerG += 2;
-        starPlayer.careerA += 1;
-        starPlayer.careerTP += 3;
-        if (starPlayer.history.length > 0) {
-          starPlayer.history[0].gp = starPlayer.gp;
-          starPlayer.history[0].g = starPlayer.g;
-          starPlayer.history[0].a = starPlayer.a;
-          starPlayer.history[0].tp = starPlayer.tp;
-        }
-      }
-
-      // Add to Score Ticker & Match List
-      const newMatch = {
-        id: 'm_' + Date.now(),
-        dateGroup: 'LIVE NU',
-        dateLabel: 'Idag | Nyss',
-        status: isOT ? 'ELITSERIEN - SPELAD ÖT' : 'ELITSERIEN - SPELAD',
-        isPlayed: true,
-        home: homeId,
-        away: awayId,
-        homeScore: hg,
-        awayScore: ag,
-        server: 'ELITSERIEN Ligaspel 1',
-        summary: `Auto-loggad via C# ServerMod • Matchens lirare: #${starPlayer ? starPlayer.number + ' ' + starPlayer.name : ''}`
-      };
-      matches.unshift(newMatch);
-
-      document.getElementById('simJsonPreview').textContent = JSON.stringify({
-        server: "ELITSERIEN Ligaspel 1",
-        score: `${homeId} ${hg} - ${ag} ${awayId}`,
-        mvpSteamId: starPlayer ? starPlayer.steamId : "",
-        verified: true
-      });
-
-      renderScoreTicker();
-      renderHomeMatches();
-      renderStandingsTables();
-      renderHomeTopScorers();
-      renderFullScheduleView();
-      renderFullStatsView();
-
-      showToast(`Slutresultat ${homeId} ${hg}–${ag} ${awayId} mottaget från servern! Tabell & spelarprofil uppdaterad.`, 'success');
-    }
-
-    // -----------------------------------------------------------------------
-    // 9. ROLE SWITCHER & NAVIGATION
-    // -----------------------------------------------------------------------
-    function setRole(role) {
-      currentRole = role;
-      const bPlayer = document.getElementById('roleBtnPlayer');
-      const bAdmin = document.getElementById('roleBtnAdmin');
-      const bGuest = document.getElementById('roleBtnGuest');
-
-      bPlayer.className = 'px-2.5 py-1 rounded text-[11px] font-semibold transition flex items-center gap-1.5 text-gray-300 hover:text-white';
-      bAdmin.className = 'px-2.5 py-1 rounded text-[11px] font-semibold transition flex items-center gap-1.5 text-gray-300 hover:text-white';
-      bGuest.className = 'px-2.5 py-1 rounded text-[11px] font-semibold transition flex items-center gap-1.5 text-gray-300 hover:text-white';
-
-      if (role === 'player') {
-        bPlayer.className = 'px-2.5 py-1 rounded text-[11px] font-semibold transition flex items-center gap-1.5 bg-shl-blue text-white';
-        showToast('Inloggad via Steam som spelare: sidde (#12)', 'info');
-      } else if (role === 'admin') {
-        bAdmin.className = 'px-2.5 py-1 rounded text-[11px] font-semibold transition flex items-center gap-1.5 bg-amber-500 text-slate-950 font-bold';
-        showToast('Växlade till Liga-Admin! Du har nu full behörighet över lagansökningar och tabell.', 'success');
-      } else {
-        bGuest.className = 'px-2.5 py-1 rounded text-[11px] font-semibold transition flex items-center gap-1.5 bg-white/20 text-white';
-        showToast('Visar sidan som utloggad besökare.', 'info');
-      }
-
-      renderHeaderAuthArea();
-    }
-
-    function renderHeaderAuthArea() {
-      const container = document.getElementById('headerAuthArea');
-      const me = players[0]; // sidde #12
-
-      if (currentRole === 'guest') {
-        container.innerHTML = `
-          <button onclick="setRole('player')" class="bg-[#171a21] hover:bg-[#2a475e] text-white text-xs font-bold px-3.5 py-2 rounded border border-white/20 flex items-center gap-2 transition shadow">
-            <i class="fa-brands fa-steam text-base"></i> Logga in med Steam
-          </button>
-        `;
-      } else {
-        const roleTag = currentRole === 'admin' 
-          ? `<span class="text-[10px] bg-amber-400 text-slate-950 font-extrabold px-1.5 py-0.2 rounded uppercase">ADMIN</span>`
-          : `<span class="text-[10px] text-emerald-400 font-mono">#${me.number} ${me.teamId}</span>`;
-
-        container.innerHTML = `
-          <button onclick="openPlayerProfile('p1')" class="flex items-center gap-2.5 bg-white/5 hover:bg-white/15 border border-white/15 px-3 py-1 rounded transition">
-            <div class="w-7 h-8 rounded bg-slate-800 overflow-hidden flex items-center justify-center">
-              ${renderPuckCharacterSVG(me)}
-            </div>
-            <div class="text-left leading-tight hidden sm:block">
-              <div class="text-xs font-bold text-white flex items-center gap-1.5">${me.name} ${roleTag}</div>
-              <div class="text-[10px] text-gray-400">Min Puck-Profil</div>
-            </div>
-          </button>
-        `;
-      }
-    }
-
-    function switchView(viewName) {
-      currentView = viewName;
-      const views = ['home', 'profile', 'schedule', 'standings', 'stats', 'teams', 'admin'];
-      views.forEach(v => {
-        const el = document.getElementById('view-' + v);
-        if (el) {
-          if (v === viewName) el.classList.remove('hidden');
-          else el.classList.add('hidden');
-        }
-      });
-
-      // Highlight active nav button
-      document.querySelectorAll('.nav-link').forEach(btn => {
-        btn.classList.remove('text-shl-lightBlue', 'font-semibold');
-      });
-      const activeNav = document.getElementById('nav-' + viewName);
-      if (activeNav) activeNav.classList.add('text-shl-lightBlue', 'font-semibold');
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function toggleMobileMenu() {
-      document.getElementById('mobileMenuDrawer').classList.toggle('hidden');
-    }
-
-    // -----------------------------------------------------------------------
-    // 10. MODALS & QUICK SEARCH
-    // -----------------------------------------------------------------------
-    function openMatchModal(matchId) {
-      const m = matches.find(x => x.id === matchId);
-      if (!m) return;
-      const homeTeam = getTeamById(m.home);
-      const awayTeam = getTeamById(m.away);
-
-      document.getElementById('modalMatchHeaderStatus').textContent = `${m.status} • ${m.server}`;
-      document.getElementById('modalMatchContent').innerHTML = `
-        <div class="flex items-center justify-between bg-slate-900 text-white p-6 rounded-sm">
-          <div class="flex flex-col items-center gap-2 flex-1">
-            ${renderTeamCrestSVG(m.home, 'w-14 h-14')}
-            <span class="font-shl text-2xl font-black uppercase">${homeTeam.name}</span>
-          </div>
-          <div class="text-center px-4">
-            <div class="font-shl text-5xl font-black text-amber-400">${m.isPlayed ? `${m.homeScore} - ${m.awayScore}` : m.time}</div>
-            <div class="text-xs text-gray-400 mt-1">${m.dateLabel}</div>
-          </div>
-          <div class="flex flex-col items-center gap-2 flex-1">
-            ${renderTeamCrestSVG(m.away, 'w-14 h-14')}
-            <span class="font-shl text-2xl font-black uppercase">${awayTeam.name}</span>
-          </div>
-        </div>
-        <div class="bg-gray-50 p-4 rounded border border-gray-200 space-y-2 text-xs">
-          <div class="font-bold uppercase text-slate-700">PuckAnalytics Server-Sammanfattning:</div>
-          <p class="text-gray-600">${m.summary}</p>
-          <div class="pt-2 flex items-center justify-between text-[11px] text-gray-500 border-t border-gray-200">
-            <span>Server: <strong>${m.server}</strong></span>
-            <span class="text-emerald-600 font-semibold"><i class="fa-solid fa-shield-check"></i> Verifierad via IPuckPlugin API</span>
-          </div>
-        </div>
-      `;
-      document.getElementById('matchDetailModal').classList.remove('hidden');
-    }
-
-    function closeMatchModal() {
-      document.getElementById('matchDetailModal').classList.add('hidden');
-    }
-
-    function openPlayerSelectorModal() {
-      const list = document.getElementById('playerSelectorList');
-      list.innerHTML = players.map(p => `
-        <button onclick="openPlayerProfile('${p.id}'); closePlayerSelectorModal()" class="w-full py-2.5 px-3 hover:bg-blue-50 flex items-center justify-between text-left transition rounded">
-          <div class="flex items-center gap-3">
-            ${renderTeamCrestSVG(p.teamId, 'w-6 h-6')}
+      container.innerHTML = approved.map(t => {
+        const teamPlayers = allPlayers.filter(p => Number(p.teamId) === Number(t.id));
+        const st = standingsMap[t.id] || { pts: 0, gp: 0, gf: 0, ga: 0 };
+        return `
+          <div class="bg-white border border-gray-200 rounded-sm shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition">
             <div>
-              <div class="font-bold text-sm text-slate-900">#${p.number} ${p.name}</div>
-              <div class="text-xs text-gray-500">${p.role} • ${p.tp} Poäng</div>
-            </div>
-          </div>
-          <span class="text-xs font-bold text-shl-blue">Visa profil →</span>
-        </button>
-      `).join('');
-      document.getElementById('playerSelectorModal').classList.remove('hidden');
-    }
-
-    function closePlayerSelectorModal() {
-      document.getElementById('playerSelectorModal').classList.add('hidden');
-    }
-
-    function handleQuickSearch(query) {
-      const box = document.getElementById('quickSearchResults');
-      const q = query.trim().toLowerCase();
-      if (!q) {
-        box.classList.add('hidden');
-        return;
-      }
-
-      const matchedPlayers = players.filter(p => p.name.toLowerCase().includes(q) || String(p.number).includes(q));
-      const matchedTeams = teams.filter(t => t.name.toLowerCase().includes(q) || t.short.toLowerCase().includes(q));
-
-      if (matchedPlayers.length === 0 && matchedTeams.length === 0) {
-        box.innerHTML = `<div class="px-4 py-2 text-xs text-gray-400">Inga träffar på "${query}"</div>`;
-      } else {
-        let html = '';
-        matchedPlayers.forEach(p => {
-          html += `
-            <button onclick="openPlayerProfile('${p.id}'); document.getElementById('quickSearchResults').classList.add('hidden');" class="w-full text-left px-4 py-2 hover:bg-white/10 flex items-center justify-between">
-              <span class="font-bold text-white">#${p.number} ${p.name}</span>
-              <span class="text-xs text-shl-lightBlue">${p.teamId}</span>
-            </button>
-          `;
-        });
-        matchedTeams.forEach(t => {
-          html += `
-            <button onclick="switchView('teams'); document.getElementById('quickSearchResults').classList.add('hidden');" class="w-full text-left px-4 py-2 hover:bg-white/10 flex items-center justify-between border-t border-white/5">
-              <span class="font-semibold text-gray-200">${t.name}</span>
-              <span class="text-xs text-amber-400">${t.pts}p</span>
-            </button>
-          `;
-        });
-        box.innerHTML = html;
-      }
-      box.classList.remove('hidden');
-    }
-
-    function showToast(message, type = 'info') {
-      const container = document.getElementById('toastContainer');
-      const colors = {
-        success: 'bg-emerald-600 border-emerald-400',
-        error: 'bg-rose-600 border-rose-400',
-        info: 'bg-[#0e1420] border-shl-lightBlue'
-      };
-      const toast = document.createElement('div');
-      toast.className = `${colors[type] || colors.info} text-white text-xs font-semibold px-4 py-3 rounded shadow-2xl border-l-4 flex items-center gap-2.5 pointer-events-auto transition duration-300`;
-      toast.innerHTML = `<i class="fa-solid fa-hockey-puck text-shl-lightBlue"></i> <span>${message}</span>`;
-      container.appendChild(toast);
-      setTimeout(() => {
-        toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 300);
-      }, 3800);
-    }
-
-    // -----------------------------------------------------------------------
-    // INITIALIZE ON LOAD
-    // -----------------------------------------------------------------------
-    window.addEventListener('DOMContentLoaded', () => {
-      renderHeaderAuthArea();
-      renderScoreTicker();
-      renderHomeMatches();
-      renderStandingsTables();
-      renderHomeTopScorers();
-      renderFullScheduleView();
-      renderFullStatsView();
-      renderTeamsView();
-      renderAdminView();
-    });
-  </script>
-</body>
-</html>
+              <div class="h-2" style="background-color: ${t.
