@@ -1,0 +1,66 @@
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #ffffff;
+  color: #0f172a;
+  overflow-x: hidden;
+}
+
+.font-shl {
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.ticker-scroll::-webkit-scrollbar {
+  height: 0px;
+  display: none;
+}
+.ticker-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hero-arena-bg {
+  background: 
+    radial-gradient(circle at 18% 35%, rgba(110, 215, 215, 0.25) 0%, rgba(110, 215, 215, 0) 18%),
+    radial-gradient(circle at 32% 72%, rgba(96, 165, 250, 0.20) 0%, rgba(96, 165, 250, 0) 22%),
+    radial-gradient(circle at 60% 25%, rgba(125, 211, 252, 0.22) 0%, rgba(125, 211, 252, 0) 16%),
+    linear-gradient(115deg, #0d1b2a 0%, #1b3a4b 48%, #0f172a 100%);
+}
+
+.profile-hero-bg {
+  background:
+    radial-gradient(circle at 38% 30%, rgba(56, 189, 248, 0.14) 0%, transparent 45%),
+    radial-gradient(circle at 65% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 40%),
+    linear-gradient(180deg, #161920 0%, #090b0e 100%);
+}
+
+.shl-career-gradient {
+  background: linear-gradient(90deg, #131c2e 0%, #25416b 45%, #4a8af4 100%);
+}
+
+.puck-3d {
+  background: 
+    radial-gradient(circle at 30% 28%, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 45%),
+    radial-gradient(circle at 50% 50%, #1e2229 0%, #0c0e12 72%, #050608 100%);
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.85),
+    inset 0 2px 5px rgba(255, 255, 255, 0.25),
+    inset 0 -8px 18px rgba(0, 0, 0, 0.9);
+  position: relative;
+}
+
+.match-card-hover {
+  transition: all 0.18s ease;
+}
+.match-card-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+}
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+}
+.puck-avatar-float {
+  animation: floatSlow 4s ease-in-out infinite;
+}
