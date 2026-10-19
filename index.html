@@ -4,14 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ELITSERIEN – Svenska Puckligan</title>
+  
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Barlow Condensed & Inter -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;0,900;1,700;1,800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <!-- Din egen CSS -->
+  <link rel="stylesheet" href="style.css" />
 
   <script>
     tailwind.config = {
@@ -22,88 +25,12 @@
             sans: ['"Inter"', 'sans-serif'],
           },
           colors: {
-            shl: {
-              darkest: '#080c14',
-              dark: '#0f172a',
-              navy: '#131c2e',
-              blue: '#4a8af4',
-              lightBlue: '#649eff',
-              ice: '#f4f6f9',
-            }
+            shl: { darkest: '#080c14', dark: '#0f172a', navy: '#131c2e', blue: '#4a8af4', lightBlue: '#649eff', ice: '#f4f6f9' }
           }
         }
       }
     }
   </script>
-
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #ffffff;
-      color: #0f172a;
-      overflow-x: hidden;
-    }
-
-    .font-shl {
-      font-family: 'Barlow Condensed', sans-serif;
-      letter-spacing: 0.02em;
-    }
-
-    .ticker-scroll::-webkit-scrollbar {
-      height: 0px;
-      display: none;
-    }
-    .ticker-scroll {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-
-    .hero-arena-bg {
-      background: 
-        radial-gradient(circle at 18% 35%, rgba(110, 215, 215, 0.25) 0%, rgba(110, 215, 215, 0) 18%),
-        radial-gradient(circle at 32% 72%, rgba(96, 165, 250, 0.20) 0%, rgba(96, 165, 250, 0) 22%),
-        radial-gradient(circle at 60% 25%, rgba(125, 211, 252, 0.22) 0%, rgba(125, 211, 252, 0) 16%),
-        linear-gradient(115deg, #0d1b2a 0%, #1b3a4b 48%, #0f172a 100%);
-    }
-
-    .profile-hero-bg {
-      background:
-        radial-gradient(circle at 38% 30%, rgba(56, 189, 248, 0.14) 0%, transparent 45%),
-        radial-gradient(circle at 65% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 40%),
-        linear-gradient(180deg, #161920 0%, #090b0e 100%);
-    }
-
-    .shl-career-gradient {
-      background: linear-gradient(90deg, #131c2e 0%, #25416b 45%, #4a8af4 100%);
-    }
-
-    .puck-3d {
-      background: 
-        radial-gradient(circle at 30% 28%, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 45%),
-        radial-gradient(circle at 50% 50%, #1e2229 0%, #0c0e12 72%, #050608 100%);
-      box-shadow: 
-        0 25px 50px -12px rgba(0, 0, 0, 0.85),
-        inset 0 2px 5px rgba(255, 255, 255, 0.25),
-        inset 0 -8px 18px rgba(0, 0, 0, 0.9);
-      position: relative;
-    }
-
-    .match-card-hover {
-      transition: all 0.18s ease;
-    }
-    .match-card-hover:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
-    }
-
-    @keyframes floatSlow {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-5px); }
-    }
-    .puck-avatar-float {
-      animation: floatSlow 4s ease-in-out infinite;
-    }
-  </style>
 </head>
 <body class="min-h-screen flex flex-col selection:bg-shl-blue selection:text-white">
 
@@ -122,9 +49,8 @@
           <i class="fa-solid fa-shield-halved text-shl-lightBlue"></i> Ansök med ditt lag
         </button>
       </div>
-
       <div class="flex items-center gap-4 shrink-0 text-[11px] text-gray-400">
-        <span id="topAuthHint">Inte inloggad</span>
+        <span id="topAuthHint">Laddar session...</span>
       </div>
     </div>
   </div>
@@ -139,13 +65,9 @@
         <button onclick="switchView('home')" class="flex items-center gap-3 group focus:outline-none text-left" title="Till Startsidan">
           <div class="w-36 h-12 flex items-center">
             <svg viewBox="0 0 320 110" class="w-full h-full drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)] group-hover:scale-105 transition duration-200">
-              <path d="M 65 44 C 105 18, 205 12, 248 26 C 253 35, 255 42, 254 49 C 205 36, 115 40, 74 62 Z" 
-                    fill="#080a0f" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" />
-              <path d="M 82 67 C 118 47, 172 45, 190 50 C 170 55, 165 68, 178 72 C 194 76, 226 67, 248 56 C 226 80, 172 90, 112 82 C 90 79, 78 72, 82 67 Z" 
-                    fill="#ffffff" stroke="#ffffff" stroke-width="2" stroke-linejoin="round" />
-              <defs>
-                <path id="elitArc" d="M 22 86 Q 160 118 298 84" />
-              </defs>
+              <path d="M 65 44 C 105 18, 205 12, 248 26 C 253 35, 255 42, 254 49 C 205 36, 115 40, 74 62 Z" fill="#080a0f" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" />
+              <path d="M 82 67 C 118 47, 172 45, 190 50 C 170 55, 165 68, 178 72 C 194 76, 226 67, 248 56 C 226 80, 172 90, 112 82 C 90 79, 78 72, 82 67 Z" fill="#ffffff" stroke="#ffffff" stroke-width="2" stroke-linejoin="round" />
+              <defs><path id="elitArc" d="M 22 86 Q 160 118 298 84" /></defs>
               <text font-family="'Barlow Condensed', sans-serif" font-weight="900" font-style="italic" font-size="34" letter-spacing="3" fill="#090c12" stroke="#ffffff" stroke-width="5" paint-order="stroke fill">
                 <textPath href="#elitArc" startOffset="50%" text-anchor="middle">ELITSERIEN</textPath>
               </text>
@@ -154,28 +76,14 @@
         </button>
 
         <nav class="hidden lg:flex items-center gap-1 text-sm font-medium">
-          <button onclick="switchView('home')" id="nav-home" class="nav-link px-3.5 py-2 rounded hover:bg-white/10 transition text-shl-lightBlue font-semibold">
-            Start
-          </button>
-          <button onclick="switchView('schedule')" id="nav-schedule" class="nav-link px-3.5 py-2 rounded hover:bg-white/10 transition text-gray-200">
-            Spelschema
-          </button>
-          <button onclick="switchView('standings')" id="nav-standings" class="nav-link px-3.5 py-2 rounded hover:bg-white/10 transition text-gray-200">
-            Tabellen
-          </button>
-          <button onclick="switchView('stats')" id="nav-stats" class="nav-link px-3.5 py-2 rounded hover:bg-white/10 transition text-gray-200">
-            Statistik
-          </button>
-          <button onclick="switchView('teams')" id="nav-teams" class="nav-link px-3.5 py-2 rounded hover:bg-white/10 transition text-gray-200">
-            Lagen
-          </button>
-          <button onclick="openMyProfile()" id="nav-profile" class="nav-link px-3.5 py-2 rounded hover:bg-white/10 transition text-gray-200 flex items-center gap-1.5">
-            <i class="fa-solid fa-hockey-puck text-xs text-shl-lightBlue"></i> Spelarprofil
-          </button>
+          <button onclick="switchView('home')" id="nav-home" class="nav-link px-3.5 py-2 rounded hover:bg-white/10 transition text-shl-lightBlue font-semibold">Start</button>
+          <button onclick="switchView('schedule')" id="nav-schedule" class="nav-link px-3.5 py-2 rounded hover:bg-white/10 transition text-gray-200">Spelschema</button>
+          <button onclick="switchView('standings')" id="nav-standings" class="nav-link px-3.5 py-2 rounded hover:bg-white/10 transition text-gray-200">Tabellen</button>
+          <button onclick="switchView('stats')" id="nav-stats" class="nav-link px-3.5 py-2 rounded hover:bg-white/10 transition text-gray-200">Statistik</button>
+          <button onclick="switchView('teams')" id="nav-teams" class="nav-link px-3.5 py-2 rounded hover:bg-white/10 transition text-gray-200">Lagen</button>
+          <button onclick="openMyProfile()" id="nav-profile" class="nav-link px-3.5 py-2 rounded hover:bg-white/10 transition text-gray-200 flex items-center gap-1.5"><i class="fa-solid fa-hockey-puck text-xs text-shl-lightBlue"></i> Spelarprofil</button>
           <button onclick="switchView('admin')" id="nav-admin" class="hidden nav-link px-3.5 py-2 rounded bg-amber-500/15 border border-amber-400/30 hover:bg-amber-500/25 transition text-amber-300 font-semibold items-center gap-2 ml-2">
-            <i class="fa-solid fa-screwdriver-wrench text-xs"></i>
-            <span>Admin</span>
-            <span id="navAdminCount" class="bg-rose-600 text-white text-[11px] px-1.5 py-0.2 rounded-full font-bold">0</span>
+            <i class="fa-solid fa-screwdriver-wrench text-xs"></i> <span>Admin</span> <span id="navAdminCount" class="bg-rose-600 text-white text-[11px] px-1.5 py-0.2 rounded-full font-bold">0</span>
           </button>
         </nav>
       </div>
@@ -183,24 +91,20 @@
       <!-- Right: Search & Steam Login -->
       <div class="flex items-center gap-3">
         <div class="relative hidden sm:block">
-          <input 
-            type="text" 
-            id="quickSearchInput"
-            oninput="handleQuickSearch(this.value)"
-            placeholder="Sök spelare eller lag..." 
-            class="bg-white/10 text-sm text-white placeholder-gray-400 pl-8 pr-3 py-1.5 rounded border border-white/15 focus:outline-none focus:border-shl-lightBlue w-44 lg:w-56 transition"
-          />
+          <input type="text" id="quickSearchInput" oninput="handleQuickSearch(this.value)" placeholder="Sök spelare/lag..." class="bg-white/10 text-sm text-white placeholder-gray-400 pl-8 pr-3 py-1.5 rounded border border-white/15 focus:outline-none focus:border-shl-lightBlue w-44 lg:w-56 transition"/>
           <i class="fa-solid fa-magnifying-glass text-gray-400 text-xs absolute left-3 top-1/2 -translate-y-1/2"></i>
           <div id="quickSearchResults" class="hidden absolute right-0 mt-1 w-72 bg-[#131c2e] border border-white/15 rounded-lg shadow-2xl py-2 z-50 text-sm"></div>
         </div>
 
-        <div id="headerAuthArea"></div>
+        <!-- DENNA VISAR STEAM-KNAPPEN OMEDELBART! -->
+        <div id="headerAuthArea">
+           <a href="/api/auth?action=login" class="bg-[#171a21] hover:bg-[#2a475e] text-white text-xs font-bold px-3.5 py-2 rounded border border-white/20 flex items-center gap-2 transition shadow">
+             <i class="fa-brands fa-steam text-base"></i> Logga in med Steam
+           </a>
+        </div>
 
-        <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded bg-white/10 hover:bg-white/20 text-white">
-          <i class="fa-solid fa-bars"></i>
-        </button>
+        <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded bg-white/10 hover:bg-white/20 text-white"><i class="fa-solid fa-bars"></i></button>
       </div>
-
     </div>
 
     <div id="mobileMenuDrawer" class="hidden lg:hidden bg-[#0a0f18] border-t border-white/10 px-4 py-3 space-y-1">
@@ -215,9 +119,9 @@
   </header>
 
   <!-- ===================================================================== -->
-  <!-- 3. SCORE TICKER RIBBON                                                -->
+  <!-- 3. SCORE TICKER RIBBON (DÖLJS NU AUTOMATISKT OM DEN ÄR TOM)           -->
   <!-- ===================================================================== -->
-  <div class="bg-[#0e1420] pb-2 pt-1 select-none border-b border-gray-200">
+  <div id="tickerWrapper" class="bg-[#0e1420] pb-2 pt-1 select-none border-b border-gray-200 hidden">
     <div class="max-w-[1220px] mx-auto px-2 sm:px-4">
       <div class="bg-[#f3f4f6] rounded-sm shadow-md flex items-stretch overflow-hidden border border-gray-300 h-[58px]">
         <button onclick="scrollTicker(-320)" class="w-8 bg-[#e5e7eb] hover:bg-gray-300 text-gray-700 flex items-center justify-center shrink-0 border-r border-gray-300 transition">
@@ -236,23 +140,14 @@
   <!-- ===================================================================== -->
   <main class="flex-1 flex flex-col">
 
-    <!-- =================================================================== -->
-    <!-- VIEW 1: START                                                       -->
-    <!-- =================================================================== -->
+    <!-- VIEW 1: START -->
     <section id="view-home" class="flex-1">
       <div class="hero-arena-bg relative overflow-hidden border-b border-gray-200">
         <div class="max-w-[1220px] mx-auto px-6 py-10 md:py-12 flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
-          
           <div class="max-w-xl text-white space-y-3 text-center md:text-left">
-            <h1 class="font-shl text-5xl sm:text-6xl font-black uppercase tracking-tight leading-none drop-shadow">
-              ELITSERIEN
-            </h1>
-            <p class="text-lg sm:text-xl font-bold text-gray-100">
-              Svenska community-ligan i Puck
-            </p>
-            <p class="text-sm text-gray-300 leading-relaxed max-w-lg">
-              Logga in med ditt Steam-konto för att skapa och anpassa din Puck-karaktär, registrera ditt lag och följa tabell, spelschema och individuell matchstatistik.
-            </p>
+            <h1 class="font-shl text-5xl sm:text-6xl font-black uppercase tracking-tight leading-none drop-shadow">ELITSERIEN</h1>
+            <p class="text-lg sm:text-xl font-bold text-gray-100">Svenska community-ligan i Puck</p>
+            <p class="text-sm text-gray-300 leading-relaxed max-w-lg">Logga in med ditt Steam-konto för att skapa och anpassa din Puck-karaktär, registrera ditt lag och följa tabell, spelschema och individuell matchstatistik.</p>
             <div class="pt-3 flex flex-wrap items-center justify-center md:justify-start gap-3">
               <button onclick="openMyProfile()" class="bg-[#649eff] hover:bg-[#4e8df5] text-white font-bold text-xs uppercase tracking-wider px-6 py-3.5 rounded-sm shadow-lg transition flex items-center gap-2">
                 <i class="fa-solid fa-user-pen"></i> Min Puck-Profil
@@ -262,8 +157,6 @@
               </button>
             </div>
           </div>
-
-          <!-- 3D Hockey Puck Emblem -->
           <div class="relative flex items-center justify-center">
             <div class="w-56 h-56 sm:w-72 sm:h-72 rounded-full puck-3d flex items-center justify-center p-6 border-4 border-[#272b33] select-none group">
               <svg class="absolute inset-0 w-full h-full opacity-25 pointer-events-none" viewBox="0 0 200 200">
@@ -273,48 +166,33 @@
                 <circle cx="100" cy="100" r="92" fill="none" stroke="#ffffff" stroke-width="0.8" stroke-dasharray="6 4 2 8" />
               </svg>
               <svg viewBox="0 0 320 140" class="w-full h-auto drop-shadow-[0_4px_10px_rgba(0,0,0,0.95)] group-hover:scale-105 transition duration-300">
-                <path d="M 60 54 C 102 22, 205 15, 254 32 C 260 43, 262 52, 260 61 C 206 46, 114 50, 70 75 Z" 
-                      fill="#07090d" stroke="#e2e8f0" stroke-width="4.5" stroke-linejoin="round" />
-                <path d="M 78 80 C 118 57, 174 55, 194 61 C 172 67, 166 82, 180 87 C 198 92, 232 80, 256 67 C 232 95, 174 106, 110 97 C 86 93, 74 86, 78 80 Z" 
-                      fill="#f1f5f9" stroke="#ffffff" stroke-width="2" stroke-linejoin="round" />
-                <defs>
-                  <path id="heroPuckArc" d="M 15 102 Q 160 142 305 100" />
-                </defs>
+                <path d="M 60 54 C 102 22, 205 15, 254 32 C 260 43, 262 52, 260 61 C 206 46, 114 50, 70 75 Z" fill="#07090d" stroke="#e2e8f0" stroke-width="4.5" stroke-linejoin="round" />
+                <path d="M 78 80 C 118 57, 174 55, 194 61 C 172 67, 166 82, 180 87 C 198 92, 232 80, 256 67 C 232 95, 174 106, 110 97 C 86 93, 74 86, 78 80 Z" fill="#f1f5f9" stroke="#ffffff" stroke-width="2" stroke-linejoin="round" />
+                <defs><path id="heroPuckArc" d="M 15 102 Q 160 142 305 100" /></defs>
                 <text font-family="'Barlow Condensed', sans-serif" font-weight="900" font-style="italic" font-size="38" letter-spacing="3.5" fill="#090c12" stroke="#f8fafc" stroke-width="6" paint-order="stroke fill">
                   <textPath href="#heroPuckArc" startOffset="50%" text-anchor="middle">ELITSERIEN</textPath>
                 </text>
               </svg>
             </div>
           </div>
-
         </div>
       </div>
 
-      <!-- TWO-COLUMN MAIN CONTENT (MATCHER & TABELLEN) -->
       <div class="max-w-[1220px] mx-auto px-4 sm:px-6 py-10">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
           
-          <!-- LEFT COLUMN: MATCHER (7 Cols) -->
           <div class="lg:col-span-7 space-y-5">
             <div class="flex items-center justify-between border-b border-gray-100 pb-2">
               <div class="flex items-center gap-2.5">
                 <span class="w-1.5 h-6 bg-[#649eff] rounded-sm"></span>
                 <h2 class="font-shl text-2xl font-extrabold uppercase tracking-wide text-slate-900">MATCHER</h2>
               </div>
-              <button onclick="switchView('schedule')" class="text-xs font-bold text-shl-blue hover:underline uppercase tracking-wider">
-                Spelschema <i class="fa-solid fa-arrow-right ml-1"></i>
-              </button>
+              <button onclick="switchView('schedule')" class="text-xs font-bold text-shl-blue hover:underline uppercase tracking-wider">Spelschema <i class="fa-solid fa-arrow-right ml-1"></i></button>
             </div>
-
             <div class="flex items-center gap-2">
-              <button id="homeMatchFilterUpcoming" onclick="setHomeMatchFilter('upcoming')" class="px-3.5 py-1.5 rounded-sm text-xs font-bold uppercase tracking-wider bg-[#4a8af4] text-white shadow-sm transition">
-                KOMMANDE
-              </button>
-              <button id="homeMatchFilterPlayed" onclick="setHomeMatchFilter('played')" class="px-3.5 py-1.5 rounded-sm text-xs font-bold uppercase tracking-wider bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
-                SPELADE
-              </button>
+              <button id="homeMatchFilterUpcoming" onclick="setHomeMatchFilter('upcoming')" class="px-3.5 py-1.5 rounded-sm text-xs font-bold uppercase tracking-wider bg-[#4a8af4] text-white shadow-sm transition">KOMMANDE</button>
+              <button id="homeMatchFilterPlayed" onclick="setHomeMatchFilter('played')" class="px-3.5 py-1.5 rounded-sm text-xs font-bold uppercase tracking-wider bg-gray-100 text-gray-600 hover:bg-gray-200 transition">SPELADE</button>
             </div>
-
             <div id="homeMatchesContainer" class="space-y-3"></div>
 
             <div class="pt-6">
@@ -323,26 +201,20 @@
                   <span class="w-1.5 h-6 bg-[#649eff] rounded-sm"></span>
                   <h2 class="font-shl text-2xl font-extrabold uppercase tracking-wide text-slate-900">REGISTRERADE SPELARE & POÄNGTOPP</h2>
                 </div>
-                <button onclick="switchView('stats')" class="text-xs font-bold text-shl-blue hover:underline uppercase tracking-wider">
-                  Alla spelare
-                </button>
+                <button onclick="switchView('stats')" class="text-xs font-bold text-shl-blue hover:underline uppercase tracking-wider">Alla spelare</button>
               </div>
               <div id="homeTopScorersGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
             </div>
           </div>
 
-          <!-- RIGHT COLUMN: TABELLEN (5 Cols) -->
           <div class="lg:col-span-5 space-y-5">
             <div class="flex items-center justify-between border-b border-gray-100 pb-2">
               <div class="flex items-center gap-2.5">
                 <span class="w-1.5 h-6 bg-[#649eff] rounded-sm"></span>
                 <h2 class="font-shl text-2xl font-extrabold uppercase tracking-wide text-slate-900">TABELLEN</h2>
               </div>
-              <button onclick="switchView('standings')" class="text-xs font-bold text-shl-blue hover:underline uppercase tracking-wider">
-                Utökad tabell <i class="fa-solid fa-expand ml-1"></i>
-              </button>
+              <button onclick="switchView('standings')" class="text-xs font-bold text-shl-blue hover:underline uppercase tracking-wider">Utökad tabell <i class="fa-solid fa-expand ml-1"></i></button>
             </div>
-
             <div class="bg-white rounded-sm border border-gray-200 shadow-sm overflow-hidden">
               <table class="w-full text-sm">
                 <thead>
@@ -363,50 +235,34 @@
       </div>
     </section>
 
-    <!-- =================================================================== -->
-    <!-- VIEW 2: SPELARPROFIL & PUCK LOCKER ROOM                             -->
-    <!-- =================================================================== -->
+    <!-- VIEW 2: SPELARPROFIL & PUCK LOCKER ROOM -->
     <section id="view-profile" class="hidden flex-1 bg-white">
-      
-      <!-- 1. DARK ARENA PLAYER HEADER WITH FACETED 3D PUCK CHARACTER -->
       <div class="profile-hero-bg text-white relative overflow-hidden">
         <div class="max-w-[1160px] mx-auto px-4 sm:px-6 pt-8 pb-0 flex flex-col md:flex-row items-center md:items-end justify-center gap-6 md:gap-12 relative z-10">
-          
           <div class="relative w-72 h-80 sm:w-80 sm:h-88 flex items-end justify-center shrink-0 select-none">
             <div id="profilePuckAvatarContainer" class="w-full h-full flex items-center justify-center puck-avatar-float"></div>
             <button id="btnEditAvatarFloating" onclick="toggleAvatarEditor()" class="hidden absolute bottom-4 right-2 bg-[#4a8af4] hover:bg-blue-500 text-white text-xs font-bold uppercase tracking-wider px-3.5 py-2 rounded-full shadow-xl border border-white/30 items-center gap-1.5 transition transform hover:scale-105">
               <i class="fa-solid fa-paintbrush"></i> Redigera Puck-Gubbe
             </button>
           </div>
-
           <div class="pb-10 text-center md:text-left space-y-3 max-w-lg flex-1">
             <div class="flex flex-wrap items-center justify-center md:justify-start gap-2">
-              <span id="profileRoleBadge" class="bg-white/10 text-shl-lightBlue text-[11px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded border border-white/10">
-                STEAM-VERIFIERAD
-              </span>
-              <span id="profileAdminBadge" class="hidden bg-amber-500/20 text-amber-300 text-[11px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded border border-amber-400/30">
-                <i class="fa-solid fa-user-shield mr-1"></i> LIGA-ADMIN
-              </span>
+              <span id="profileRoleBadge" class="bg-white/10 text-shl-lightBlue text-[11px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded border border-white/10">STEAM-VERIFIERAD</span>
+              <span id="profileAdminBadge" class="hidden bg-amber-500/20 text-amber-300 text-[11px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded border border-amber-400/30"><i class="fa-solid fa-user-shield mr-1"></i> LIGA-ADMIN</span>
             </div>
-
-            <h1 id="profilePlayerName" class="font-shl text-4xl sm:text-5xl font-black uppercase tracking-wide text-white leading-none">
-              -
-            </h1>
-
+            <h1 id="profilePlayerName" class="font-shl text-4xl sm:text-5xl font-black uppercase tracking-wide text-white leading-none">-</h1>
             <div class="flex items-center justify-center md:justify-start gap-2.5 text-lg font-shl font-bold uppercase tracking-wider text-gray-200">
               <span id="profileNumberAndPos" class="text-white text-xl">#12 FORWARD</span>
               <span class="text-gray-500">|</span>
               <div id="profileTeamCrest" class="w-6 h-6 inline-flex items-center justify-center"></div>
               <span id="profileTeamName" class="text-white">FRIA AGENTER</span>
             </div>
-
             <div class="pt-2 space-y-1.5 text-xs text-gray-300 font-medium">
               <p><span class="text-gray-400">SteamID64:</span> <span id="profileSteamId" class="font-mono text-white">-</span></p>
               <p><span class="text-gray-400">Klubbhand (Skjuter):</span> <span id="profileHandedness" class="text-white font-semibold">Left</span></p>
               <p><span class="text-gray-400">Hårdaste uppmätta skott:</span> <span id="profileHardestShot" class="text-amber-400 font-bold">0.0 km/h</span></p>
               <p><span class="text-gray-400">Passningsprocent:</span> <span id="profilePassAcc" class="text-emerald-400 font-bold">0%</span></p>
             </div>
-
             <div class="pt-2 flex flex-wrap items-center justify-center md:justify-start gap-2">
               <button id="btnOpenLockerRoom" onclick="toggleAvatarEditor()" class="hidden bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-sm transition items-center gap-2">
                 <i class="fa-solid fa-sliders"></i> Anpassa utrustning, skägg & tejp
@@ -416,146 +272,67 @@
               </button>
             </div>
           </div>
-
         </div>
       </div>
 
-      <!-- 2. PUCK LOCKER ROOM – REDIGERA PROFILBILD & KARAKTÄR -->
       <div id="avatarEditorDrawer" class="hidden bg-[#111827] text-white border-b border-white/15 shadow-2xl">
         <div class="max-w-[1160px] mx-auto px-4 sm:px-6 py-6">
           <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-5">
             <div class="flex items-center gap-2.5">
               <i class="fa-solid fa-wand-magic-sparkles text-shl-lightBlue"></i>
-              <h3 class="font-shl text-2xl font-extrabold uppercase tracking-wide">PUCK LOCKER ROOM – REDIGERA PROFILBILD & KARAKTÄR</h3>
-              <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded border border-emerald-500/30 font-medium">
-                Sparas i Neon Postgres
-              </span>
+              <h3 class="font-shl text-2xl font-extrabold uppercase tracking-wide">PUCK LOCKER ROOM</h3>
+              <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded border border-emerald-500/30 font-medium">Sparas i Neon Postgres</span>
             </div>
-            <button onclick="toggleAvatarEditor()" class="text-gray-400 hover:text-white text-sm font-bold flex items-center gap-1">
-              Stäng <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
+            <button onclick="toggleAvatarEditor()" class="text-gray-400 hover:text-white text-sm font-bold flex items-center gap-1">Stäng <i class="fa-solid fa-xmark text-lg"></i></button>
           </div>
-
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-xs">
-            
-            <!-- Col 1: Identity & Role -->
             <div class="space-y-3 bg-white/5 p-4 rounded border border-white/10">
               <h4 class="font-bold uppercase tracking-wider text-shl-lightBlue">1. Spelarinfo & Nummer</h4>
-              <div>
-                <label class="block text-gray-300 mb-1">Spelarnamn (Username)</label>
-                <input type="text" id="custName" oninput="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-3 py-1.5 text-white font-semibold" />
-              </div>
+              <div><label class="block text-gray-300 mb-1">Spelarnamn (Username)</label><input type="text" id="custName" oninput="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-3 py-1.5 text-white font-semibold" /></div>
               <div class="grid grid-cols-2 gap-2">
-                <div>
-                  <label class="block text-gray-300 mb-1">Tröjnummer (#)</label>
-                  <input type="number" min="1" max="99" id="custNumber" oninput="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-3 py-1.5 text-white font-bold" />
-                </div>
-                <div>
-                  <label class="block text-gray-300 mb-1">Position (Role)</label>
-                  <select id="custRole" onchange="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white">
-                    <option value="FORWARD">Forward</option>
-                    <option value="CENTER">Center</option>
-                    <option value="BACK">Back (Defense)</option>
-                    <option value="MÅLVAKT">Målvakt (Goalie)</option>
-                  </select>
-                </div>
+                <div><label class="block text-gray-300 mb-1">Tröjnummer (#)</label><input type="number" min="1" max="99" id="custNumber" oninput="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-3 py-1.5 text-white font-bold" /></div>
+                <div><label class="block text-gray-300 mb-1">Position (Role)</label><select id="custRole" onchange="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white"><option value="FORWARD">Forward</option><option value="CENTER">Center</option><option value="BACK">Back (Defense)</option><option value="MÅLVAKT">Målvakt (Goalie)</option></select></div>
               </div>
-              <div>
-                <label class="block text-gray-300 mb-1">Klubbfattning (Handedness)</label>
-                <select id="custHand" onchange="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white">
-                  <option value="Left">Left (Vänsterskytt)</option>
-                  <option value="Right">Right (Högerskytt)</option>
-                </select>
-              </div>
+              <div><label class="block text-gray-300 mb-1">Klubbfattning</label><select id="custHand" onchange="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white"><option value="Left">Left (Vänsterskytt)</option><option value="Right">Right (Högerskytt)</option></select></div>
             </div>
-
-            <!-- Col 2: Jersey & Team Preset -->
             <div class="space-y-3 bg-white/5 p-4 rounded border border-white/10">
               <h4 class="font-bold uppercase tracking-wider text-shl-lightBlue">2. Lagställ & Tröjfärger</h4>
-              <div>
-                <label class="block text-gray-300 mb-1">Tillhörande Elitserien-lag</label>
-                <select id="custTeamId" onchange="applyTeamPresetToAvatar(this.value)" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white font-semibold"></select>
-              </div>
+              <div><label class="block text-gray-300 mb-1">Tillhörande Elitserien-lag</label><select id="custTeamId" onchange="applyTeamPresetToAvatar(this.value)" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white font-semibold"></select></div>
               <div class="grid grid-cols-2 gap-2 pt-1">
-                <div>
-                  <label class="block text-gray-300 mb-1">Huvudfärg Tröja</label>
-                  <input type="color" id="custJerseyPrimary" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" />
-                </div>
-                <div>
-                  <label class="block text-gray-300 mb-1">Midje-/Kragrand</label>
-                  <input type="color" id="custJerseyStripe" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" />
-                </div>
+                <div><label class="block text-gray-300 mb-1">Huvudfärg</label><input type="color" id="custJerseyPrimary" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" /></div>
+                <div><label class="block text-gray-300 mb-1">Midje-/Kragrand</label><input type="color" id="custJerseyStripe" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" /></div>
               </div>
               <div>
                 <label class="block text-gray-300 mb-1">Visa tröjnummer på bröstet</label>
-                <label class="inline-flex items-center gap-2 cursor-pointer mt-1">
-                  <input type="checkbox" id="custShowChestNum" onchange="previewAvatarFromInputs()" checked class="rounded text-shl-blue" />
-                  <span class="text-gray-200">Visa nummer på torso-blocket</span>
-                </label>
+                <label class="inline-flex items-center gap-2 cursor-pointer mt-1"><input type="checkbox" id="custShowChestNum" onchange="previewAvatarFromInputs()" checked class="rounded text-shl-blue" /><span class="text-gray-200">Visa nummer på torso-blocket</span></label>
               </div>
             </div>
-
-            <!-- Col 3: Headgear, Visor, Skin & Beard -->
             <div class="space-y-3 bg-white/5 p-4 rounded border border-white/10">
               <h4 class="font-bold uppercase tracking-wider text-shl-lightBlue">3. Hjälm, Visir & Skägg</h4>
               <div class="grid grid-cols-2 gap-2">
-                <div>
-                  <label class="block text-gray-300 mb-1">Hjälmfärg</label>
-                  <input type="color" id="custHelmetColor" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" />
-                </div>
-                <div>
-                  <label class="block text-gray-300 mb-1">Hudton</label>
-                  <input type="color" id="custSkinColor" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" />
-                </div>
+                <div><label class="block text-gray-300 mb-1">Hjälmfärg</label><input type="color" id="custHelmetColor" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" /></div>
+                <div><label class="block text-gray-300 mb-1">Hudton</label><input type="color" id="custSkinColor" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" /></div>
               </div>
-              <div>
-                <label class="block text-gray-300 mb-1">Visir-toning</label>
-                <select id="custVisor" onchange="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white">
-                  <option value="tinted">Mörkt röktonat (Puck Classic)</option>
-                  <option value="mirror">Blå spegelglans</option>
-                  <option value="gold">Guld Chrome (MVP)</option>
-                  <option value="clear">Klart genomskinligt</option>
-                </select>
-              </div>
+              <div><label class="block text-gray-300 mb-1">Visir-toning</label><select id="custVisor" onchange="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white"><option value="tinted">Mörkt röktonat</option><option value="mirror">Blå spegelglans</option><option value="gold">Guld Chrome</option><option value="clear">Klart genomskinligt</option></select></div>
               <div class="grid grid-cols-2 gap-2">
-                <div>
-                  <label class="block text-gray-300 mb-1">Skägg / Mustasch</label>
-                  <select id="custBeard" onchange="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white">
-                    <option value="full">Slutspelsskägg + Mustasch</option>
-                    <option value="mustache">Bara Hockeymustasch</option>
-                    <option value="goatee">Goatee</option>
-                    <option value="none">Renrakad</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-gray-300 mb-1">Skägg-/Hårfärg</label>
-                  <input type="color" id="custHairColor" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" />
-                </div>
+                <div><label class="block text-gray-300 mb-1">Skägg</label><select id="custBeard" onchange="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white"><option value="full">Slutspelsskägg</option><option value="mustache">Hockeymustasch</option><option value="goatee">Goatee</option><option value="none">Renrakad</option></select></div>
+                <div><label class="block text-gray-300 mb-1">Skägg-/Hårfärg</label><input type="color" id="custHairColor" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" /></div>
               </div>
             </div>
-
-            <!-- Col 4: Stick Tape & Save -->
             <div class="space-y-3 bg-white/5 p-4 rounded border border-white/10">
-              <h4 class="font-bold uppercase tracking-wider text-shl-lightBlue">4. Klubba & Tejp (Reskin)</h4>
+              <h4 class="font-bold uppercase tracking-wider text-shl-lightBlue">4. Klubba & Tejp</h4>
               <div class="grid grid-cols-2 gap-2">
-                <div>
-                  <label class="block text-gray-300 mb-1">Skafttejp (Övre)</label>
-                  <input type="color" id="custShaftTape" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" />
-                </div>
-                <div>
-                  <label class="block text-gray-300 mb-1">Bladtejp (Nedre)</label>
-                  <input type="color" id="custBladeTape" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" />
-                </div>
+                <div><label class="block text-gray-300 mb-1">Skafttejp (Övre)</label><input type="color" id="custShaftTape" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" /></div>
+                <div><label class="block text-gray-300 mb-1">Bladtejp (Nedre)</label><input type="color" id="custBladeTape" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" /></div>
               </div>
               <div>
                 <label class="block text-gray-300 mb-1">Snabbval Skafttejp</label>
                 <div class="flex items-center gap-1.5 pt-1">
-                  <button type="button" onclick="setQuickTape('#28b5e1', '#111111')" class="w-6 h-6 rounded-full bg-[#28b5e1] border border-white" title="Puck Cyan"></button>
-                  <button type="button" onclick="setQuickTape('#f43f5e', '#ffffff')" class="w-6 h-6 rounded-full bg-[#f43f5e] border border-white" title="Neonröd"></button>
-                  <button type="button" onclick="setQuickTape('#10b981', '#111111')" class="w-6 h-6 rounded-full bg-[#10b981] border border-white" title="Smaragdgrön"></button>
+                  <button type="button" onclick="setQuickTape('#28b5e1', '#111111')" class="w-6 h-6 rounded-full bg-[#28b5e1] border border-white" title="Cyan"></button>
+                  <button type="button" onclick="setQuickTape('#f43f5e', '#ffffff')" class="w-6 h-6 rounded-full bg-[#f43f5e] border border-white" title="Röd"></button>
+                  <button type="button" onclick="setQuickTape('#10b981', '#111111')" class="w-6 h-6 rounded-full bg-[#10b981] border border-white" title="Grön"></button>
                   <button type="button" onclick="setQuickTape('#f59e0b', '#111111')" class="w-6 h-6 rounded-full bg-[#f59e0b] border border-white" title="Guld"></button>
-                  <button type="button" onclick="setQuickTape('#ffffff', '#ffffff')" class="w-6 h-6 rounded-full bg-white border border-gray-400" title="Helvit"></button>
-                  <button type="button" onclick="setQuickTape('#ec4899', '#111111')" class="w-6 h-6 rounded-full bg-[#ec4899] border border-white" title="Rosa"></button>
+                  <button type="button" onclick="setQuickTape('#ffffff', '#ffffff')" class="w-6 h-6 rounded-full bg-white border border-gray-400" title="Vit"></button>
                 </div>
               </div>
               <div class="pt-2">
@@ -564,52 +341,31 @@
                 </button>
               </div>
             </div>
-
           </div>
         </div>
       </div>
 
-      <!-- 3. CAREER STATS BANNER -->
       <div class="shl-career-gradient text-white py-8 shadow-inner">
         <div class="max-w-[1060px] mx-auto px-4">
-          <h3 class="text-center font-shl text-lg font-extrabold uppercase tracking-widest text-white/90 mb-6">
-            REGISTRERAD STATISTIK I ELITSERIEN
-          </h3>
+          <h3 class="text-center font-shl text-lg font-extrabold uppercase tracking-widest text-white/90 mb-6">REGISTRERAD STATISTIK I ELITSERIEN</h3>
           <div class="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-white/20 text-center">
-            <div class="py-3 sm:py-1">
-              <div id="careerGP" class="font-shl text-4xl font-black">0</div>
-              <div class="text-xs text-white/80 font-medium mt-1">Spelade matcher</div>
-            </div>
-            <div class="py-3 sm:py-1">
-              <div id="careerTP" class="font-shl text-4xl font-black">0</div>
-              <div class="text-xs text-white/80 font-medium mt-1">Totalpoäng</div>
-            </div>
-            <div class="py-3 sm:py-1">
-              <div id="careerG" class="font-shl text-4xl font-black">0</div>
-              <div class="text-xs text-white/80 font-medium mt-1">Mål</div>
-            </div>
-            <div class="py-3 sm:py-1">
-              <div id="careerA" class="font-shl text-4xl font-black">0</div>
-              <div class="text-xs text-white/80 font-medium mt-1">Assist</div>
-            </div>
+            <div class="py-3 sm:py-1"><div id="careerGP" class="font-shl text-4xl font-black">0</div><div class="text-xs text-white/80 font-medium mt-1">Spelade matcher</div></div>
+            <div class="py-3 sm:py-1"><div id="careerTP" class="font-shl text-4xl font-black">0</div><div class="text-xs text-white/80 font-medium mt-1">Totalpoäng</div></div>
+            <div class="py-3 sm:py-1"><div id="careerG" class="font-shl text-4xl font-black">0</div><div class="text-xs text-white/80 font-medium mt-1">Mål</div></div>
+            <div class="py-3 sm:py-1"><div id="careerA" class="font-shl text-4xl font-black">0</div><div class="text-xs text-white/80 font-medium mt-1">Assist</div></div>
           </div>
         </div>
       </div>
 
-      <!-- 4. GAUGES -->
       <div class="max-w-[1060px] mx-auto px-4 py-12 space-y-10">
         <div>
-          <h4 class="text-center font-shl text-lg font-extrabold uppercase tracking-wider text-[#4a8af4] mb-8">
-            SÄSONGSÖVERSIKT
-          </h4>
+          <h4 class="text-center font-shl text-lg font-extrabold uppercase tracking-wider text-[#4a8af4] mb-8">SÄSONGSÖVERSIKT</h4>
           <div id="profileSeasonGauges" class="flex flex-wrap items-center justify-center gap-6 sm:gap-10"></div>
         </div>
       </div>
     </section>
 
-    <!-- =================================================================== -->
-    <!-- VIEW 3: SPELSCHEMA                                                  -->
-    <!-- =================================================================== -->
+    <!-- VIEW 3: SPELSCHEMA -->
     <section id="view-schedule" class="hidden flex-1 max-w-[1220px] w-full mx-auto px-4 sm:px-6 py-10 space-y-6">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4">
         <div>
@@ -620,9 +376,7 @@
       <div id="fullScheduleContainer" class="space-y-3"></div>
     </section>
 
-    <!-- =================================================================== -->
-    <!-- VIEW 4: TABELLEN                                                    -->
-    <!-- =================================================================== -->
+    <!-- VIEW 4: TABELLEN -->
     <section id="view-standings" class="hidden flex-1 max-w-[1220px] w-full mx-auto px-4 sm:px-6 py-10 space-y-6">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4">
         <div>
@@ -631,7 +385,6 @@
         </div>
         <span class="text-xs text-gray-500 font-medium">Beräknas automatiskt utifrån godkända lag och spelade matcher</span>
       </div>
-
       <div class="bg-white border border-gray-200 rounded-sm shadow-sm overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
@@ -653,16 +406,13 @@
       </div>
     </section>
 
-    <!-- =================================================================== -->
-    <!-- VIEW 5: STATISTIK                                                   -->
-    <!-- =================================================================== -->
+    <!-- VIEW 5: STATISTIK -->
     <section id="view-stats" class="hidden flex-1 max-w-[1220px] w-full mx-auto px-4 sm:px-6 py-10 space-y-6">
       <div class="border-b border-gray-200 pb-4">
         <span class="text-xs font-bold uppercase tracking-widest text-shl-blue">SPELARDATABAS</span>
         <h1 class="font-shl text-4xl font-black uppercase text-slate-900">SPELARE & STATISTIK</h1>
-        <p class="text-xs text-gray-500 mt-1">Alla spelare som har loggat in med Steam. Klicka på en rad för att visa spelarens Puck-karaktär.</p>
+        <p class="text-xs text-gray-500 mt-1">Alla spelare som har loggat in med Steam.</p>
       </div>
-
       <div class="bg-white border border-gray-200 rounded-sm shadow-sm overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
@@ -684,9 +434,7 @@
       </div>
     </section>
 
-    <!-- =================================================================== -->
-    <!-- VIEW 6: LAGEN                                                       -->
-    <!-- =================================================================== -->
+    <!-- VIEW 6: LAGEN -->
     <section id="view-teams" class="hidden flex-1 max-w-[1220px] w-full mx-auto px-4 sm:px-6 py-10 space-y-8">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4">
         <div>
@@ -697,223 +445,101 @@
           <i class="fa-solid fa-plus mr-1.5"></i> Ansök med ditt lag
         </button>
       </div>
-
       <div id="teamsGridContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"></div>
     </section>
 
-    <!-- =================================================================== -->
-    <!-- VIEW 7: ADMINPANEL (ENDAST FÖR 76561198360771568)                   -->
-    <!-- =================================================================== -->
+    <!-- VIEW 7: ADMINPANEL -->
     <section id="view-admin" class="hidden flex-1 bg-slate-50 py-10">
       <div class="max-w-[1220px] mx-auto px-4 sm:px-6 space-y-8">
-        
         <div class="bg-[#0e1420] text-white p-6 rounded-sm shadow-lg border-l-4 border-amber-400 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
-            <div class="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-widest">
-              <i class="fa-solid fa-unlock-keyhole"></i> LIGA-ADMINISTRATION
-            </div>
+            <div class="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-widest"><i class="fa-solid fa-unlock-keyhole"></i> LIGA-ADMINISTRATION</div>
             <h1 class="font-shl text-3xl sm:text-4xl font-black uppercase mt-1">ELITSERIEN CONTROL CENTER</h1>
-            <p class="text-xs text-gray-300 mt-1">
-              Godkänn inkommande lagansökningar, schemalägg matcher och registrera/testa matchrapporter mot Neon-databasen.
-            </p>
           </div>
         </div>
-
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
-          <!-- Left 6 Cols: Lagansökningar & Befintliga lag -->
           <div class="lg:col-span-6 space-y-6">
             <div class="space-y-3">
               <div class="flex items-center justify-between">
-                <h2 class="font-shl text-2xl font-extrabold uppercase text-slate-900 flex items-center gap-2">
-                  <i class="fa-solid fa-inbox text-shl-blue"></i> VÄNTANDE LAGANSÖKNINGAR
-                </h2>
+                <h2 class="font-shl text-2xl font-extrabold uppercase text-slate-900 flex items-center gap-2"><i class="fa-solid fa-inbox text-shl-blue"></i> VÄNTANDE LAGANSÖKNINGAR</h2>
                 <span id="adminPendingBadge" class="bg-rose-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">0 väntar</span>
               </div>
               <div id="adminApplicationsList" class="space-y-3"></div>
             </div>
-
-            <!-- Schemalägg ny match -->
             <div class="bg-white p-5 rounded-sm border border-gray-200 shadow-sm space-y-4">
               <h3 class="font-shl text-xl font-extrabold uppercase text-slate-900">SCHEMALÄGG KOMMANDE MATCH</h3>
               <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Hemmalag</label>
-                  <select id="schedHomeTeam" class="w-full border border-gray-300 rounded px-3 py-2 text-sm font-semibold"></select>
-                </div>
-                <div>
-                  <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Bortalag</label>
-                  <select id="schedAwayTeam" class="w-full border border-gray-300 rounded px-3 py-2 text-sm font-semibold"></select>
-                </div>
+                <div><label class="block text-xs font-bold uppercase text-gray-600 mb-1">Hemmalag</label><select id="schedHomeTeam" class="w-full border border-gray-300 rounded px-3 py-2 text-sm font-semibold"></select></div>
+                <div><label class="block text-xs font-bold uppercase text-gray-600 mb-1">Bortalag</label><select id="schedAwayTeam" class="w-full border border-gray-300 rounded px-3 py-2 text-sm font-semibold"></select></div>
               </div>
               <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Datum & Tid</label>
-                  <input type="datetime-local" id="schedDateTime" class="w-full border border-gray-300 rounded px-3 py-2 text-xs" />
-                </div>
-                <div>
-                  <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Servernamn</label>
-                  <input type="text" id="schedServer" value="ELITSERIEN Ligaspel 1" class="w-full border border-gray-300 rounded px-3 py-2 text-xs" />
-                </div>
+                <div><label class="block text-xs font-bold uppercase text-gray-600 mb-1">Datum & Tid</label><input type="datetime-local" id="schedDateTime" class="w-full border border-gray-300 rounded px-3 py-2 text-xs" /></div>
+                <div><label class="block text-xs font-bold uppercase text-gray-600 mb-1">Servernamn</label><input type="text" id="schedServer" value="ELITSERIEN Ligaspel 1" class="w-full border border-gray-300 rounded px-3 py-2 text-xs" /></div>
               </div>
-              <button onclick="adminScheduleMatch()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider py-2.5 rounded-sm transition">
-                Lägg till i Spelschemat
-              </button>
+              <button onclick="adminScheduleMatch()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider py-2.5 rounded-sm transition">Lägg till i Spelschemat</button>
             </div>
           </div>
 
-          <!-- Right 6 Cols: Registrera Matchresultat / C# Server Webhook Endpoint -->
           <div class="lg:col-span-6 space-y-4">
-            <div class="flex items-center justify-between">
-              <h2 class="font-shl text-2xl font-extrabold uppercase text-slate-900 flex items-center gap-2">
-                <i class="fa-solid fa-server text-emerald-600"></i> REGISTRERA MATCHRESULTAT / SERVER-API
-              </h2>
-              <span class="text-xs font-mono bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold">POST /api/data</span>
-            </div>
-            <p class="text-xs text-gray-600">
-              C#-pluginet på er dedikerade Puck-server skickar automatiskt JSON till <code class="font-mono bg-gray-200 px-1 rounded">/api/data</code> med headern <code class="font-mono bg-gray-200 px-1 rounded">x-server-key</code>. Du kan även bokföra resultat manuellt här nedanför.
-            </p>
-
+            <h2 class="font-shl text-2xl font-extrabold uppercase text-slate-900 flex items-center gap-2"><i class="fa-solid fa-server text-emerald-600"></i> REGISTRERA MATCHRESULTAT</h2>
             <div class="bg-white p-5 rounded-sm border border-gray-200 shadow-sm space-y-4">
               <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Hemmalag</label>
-                  <select id="simHomeTeam" class="w-full border border-gray-300 rounded px-3 py-2 text-sm font-semibold"></select>
-                </div>
-                <div>
-                  <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Bortalag</label>
-                  <select id="simAwayTeam" class="w-full border border-gray-300 rounded px-3 py-2 text-sm font-semibold"></select>
-                </div>
+                <div><label class="block text-xs font-bold uppercase text-gray-600 mb-1">Hemmalag</label><select id="simHomeTeam" class="w-full border border-gray-300 rounded px-3 py-2 text-sm font-semibold"></select></div>
+                <div><label class="block text-xs font-bold uppercase text-gray-600 mb-1">Bortalag</label><select id="simAwayTeam" class="w-full border border-gray-300 rounded px-3 py-2 text-sm font-semibold"></select></div>
               </div>
-
               <div class="grid grid-cols-3 gap-4 items-center">
-                <div>
-                  <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Mål Hemma</label>
-                  <input type="number" id="simHomeGoals" value="3" min="0" max="30" class="w-full border border-gray-300 rounded px-3 py-2 text-lg font-shl font-bold text-center" />
-                </div>
-                <div class="text-center pt-5">
-                  <label class="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-700 cursor-pointer">
-                    <input type="checkbox" id="simIsOvertime" class="rounded text-shl-blue" />
-                    Övertid / Straffar
-                  </label>
-                </div>
-                <div>
-                  <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Mål Borta</label>
-                  <input type="number" id="simAwayGoals" value="1" min="0" max="30" class="w-full border border-gray-300 rounded px-3 py-2 text-lg font-shl font-bold text-center" />
-                </div>
+                <div><label class="block text-xs font-bold uppercase text-gray-600 mb-1">Mål Hemma</label><input type="number" id="simHomeGoals" value="3" class="w-full border border-gray-300 rounded px-3 py-2 text-lg font-shl font-bold text-center" /></div>
+                <div class="text-center pt-5"><label class="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-700 cursor-pointer"><input type="checkbox" id="simIsOvertime" class="rounded text-shl-blue" /> Övertid/Straffar</label></div>
+                <div><label class="block text-xs font-bold uppercase text-gray-600 mb-1">Mål Borta</label><input type="number" id="simAwayGoals" value="1" class="w-full border border-gray-300 rounded px-3 py-2 text-lg font-shl font-bold text-center" /></div>
               </div>
-
-              <div class="border-t border-gray-100 pt-3 space-y-3">
-                <div class="text-xs font-bold uppercase text-gray-500">Valfri spelarinsats att bokföra i matchen</div>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                  <div class="col-span-2">
-                    <label class="block text-gray-600 mb-1">Spelare</label>
-                    <select id="simStarPlayer" class="w-full border border-gray-300 rounded px-2 py-1.5 font-semibold"></select>
-                  </div>
-                  <div>
-                    <label class="block text-gray-600 mb-1">Mål (G)</label>
-                    <input type="number" id="simPlayerG" value="1" min="0" class="w-full border border-gray-300 rounded px-2 py-1.5" />
-                  </div>
-                  <div>
-                    <label class="block text-gray-600 mb-1">Assist (A)</label>
-                    <input type="number" id="simPlayerA" value="1" min="0" class="w-full border border-gray-300 rounded px-2 py-1.5" />
-                  </div>
-                </div>
-                <div class="grid grid-cols-3 gap-2 text-xs">
-                  <div>
-                    <label class="block text-gray-600 mb-1">Skotthastighet (km/h)</label>
-                    <input type="number" step="0.1" id="simPlayerShotKmh" value="138.5" class="w-full border border-gray-300 rounded px-2 py-1.5" />
-                  </div>
-                  <div>
-                    <label class="block text-gray-600 mb-1">Passningar rätt</label>
-                    <input type="number" id="simPlayerPassComp" value="18" class="w-full border border-gray-300 rounded px-2 py-1.5" />
-                  </div>
-                  <div>
-                    <label class="block text-gray-600 mb-1">Passningsförsök</label>
-                    <input type="number" id="simPlayerPassAtt" value="20" class="w-full border border-gray-300 rounded px-2 py-1.5" />
-                  </div>
-                </div>
-              </div>
-
               <button onclick="submitMatchReportToDB()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider py-3 rounded-sm shadow transition flex items-center justify-center gap-2">
-                <i class="fa-solid fa-database"></i> Spara Matchresultat till Neon-databasen
+                <i class="fa-solid fa-database"></i> Spara Matchresultat till Databasen
               </button>
             </div>
           </div>
-
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- ===================================================================== -->
-  <!-- MODAL 1: MATCHFAKTA                                                   -->
-  <!-- ===================================================================== -->
+  <!-- MODALER & NOTIFIKATIONER -->
   <div id="matchDetailModal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-sm max-w-2xl w-full overflow-hidden shadow-2xl border border-gray-200">
       <div class="bg-[#0e1420] text-white px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-shl-lightBlue">
-          <i class="fa-solid fa-hockey-puck"></i> <span id="modalMatchHeaderStatus">MATCHFAKTA</span>
-        </div>
-        <button onclick="closeMatchModal()" class="text-gray-400 hover:text-white">
-          <i class="fa-solid fa-xmark text-lg"></i>
-        </button>
+        <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-shl-lightBlue"><i class="fa-solid fa-hockey-puck"></i> <span id="modalMatchHeaderStatus">MATCHFAKTA</span></div>
+        <button onclick="closeMatchModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
       <div id="modalMatchContent" class="p-6 space-y-6"></div>
     </div>
   </div>
 
-  <!-- ===================================================================== -->
-  <!-- MODAL 2: ANSÖK MED NYTT LAG                                           -->
-  <!-- ===================================================================== -->
   <div id="teamApplicationModal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-sm max-w-lg w-full overflow-hidden shadow-2xl border border-gray-200">
       <div class="bg-[#0e1420] text-white px-6 py-4 flex items-center justify-between">
         <div>
           <span class="text-[10px] font-bold uppercase tracking-widest text-shl-lightBlue">LAGREGISTRERING</span>
-          <h3 class="font-shl text-2xl font-black uppercase">ANSÖK MED DITT LAG TILL ELITSERIEN</h3>
+          <h3 class="font-shl text-2xl font-black uppercase">ANSÖK MED DITT LAG</h3>
         </div>
-        <button onclick="closeTeamApplicationModal()" class="text-gray-400 hover:text-white">
-          <i class="fa-solid fa-xmark text-lg"></i>
-        </button>
+        <button onclick="closeTeamApplicationModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
       <form onsubmit="submitTeamApplication(event)" class="p-6 space-y-4 text-sm">
-        <div>
-          <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Lagnamn</label>
-          <input type="text" id="appTeamName" required placeholder="T.ex. Enköping SK eller Linköping Puck" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-shl-blue" />
-        </div>
+        <div><label class="block text-xs font-bold uppercase text-gray-700 mb-1">Lagnamn</label><input type="text" id="appTeamName" required placeholder="T.ex. Enköping SK" class="w-full border border-gray-300 rounded px-3 py-2" /></div>
         <div class="grid grid-cols-3 gap-3">
-          <div>
-            <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Förkortning (2–4 tecken)</label>
-            <input type="text" id="appTeamShort" required maxlength="4" placeholder="LHC" class="w-full border border-gray-300 rounded px-3 py-2 uppercase font-bold" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Primärfärg</label>
-            <input type="color" id="appTeamColor" value="#0284c7" class="w-full h-10 border border-gray-300 rounded cursor-pointer" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Sekundärfärg</label>
-            <input type="color" id="appTeamSecondary" value="#ffffff" class="w-full h-10 border border-gray-300 rounded cursor-pointer" />
-          </div>
+          <div><label class="block text-xs font-bold uppercase text-gray-700 mb-1">Förkortning (2-4)</label><input type="text" id="appTeamShort" required maxlength="4" placeholder="ESK" class="w-full border border-gray-300 rounded px-3 py-2 uppercase font-bold" /></div>
+          <div><label class="block text-xs font-bold uppercase text-gray-700 mb-1">Primärfärg</label><input type="color" id="appTeamColor" value="#0284c7" class="w-full h-10 border border-gray-300 rounded" /></div>
+          <div><label class="block text-xs font-bold uppercase text-gray-700 mb-1">Sekundärfärg</label><input type="color" id="appTeamSecondary" value="#ffffff" class="w-full h-10 border border-gray-300 rounded" /></div>
         </div>
-        <div>
-          <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Spelartrupp / Kommentar</label>
-          <textarea id="appTeamRoster" rows="2" placeholder="Skriv in planerade spelare i laget..." class="w-full border border-gray-300 rounded px-3 py-2 text-xs"></textarea>
-        </div>
-        <div class="pt-2 flex items-center justify-end gap-2">
+        <div><label class="block text-xs font-bold uppercase text-gray-700 mb-1">Trupp / Notering</label><textarea id="appTeamRoster" rows="2" class="w-full border border-gray-300 rounded px-3 py-2 text-xs"></textarea></div>
+        <div class="pt-2 flex justify-end gap-2">
           <button type="button" onclick="closeTeamApplicationModal()" class="px-4 py-2 text-xs font-bold uppercase text-gray-600 hover:bg-gray-100 rounded">Avbryt</button>
-          <button type="submit" class="bg-[#4a8af4] hover:bg-blue-600 text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded shadow">
-            Skicka ansökan
-          </button>
+          <button type="submit" class="bg-[#4a8af4] hover:bg-blue-600 text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded shadow">Skicka ansökan</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- ===================================================================== -->
-  <!-- MODAL 3: VÄLJ SPELARPROFIL                                            -->
-  <!-- ===================================================================== -->
   <div id="playerSelectorModal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-sm max-w-md w-full overflow-hidden shadow-2xl">
       <div class="bg-[#0e1420] text-white px-5 py-3.5 flex items-center justify-between">
@@ -924,7 +550,6 @@
     </div>
   </div>
 
-  <!-- MODAL 4: INTEGRITETSPOLICY (GDPR) -->
   <div id="privacyModal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-sm max-w-lg w-full overflow-hidden shadow-2xl">
       <div class="bg-[#0e1420] text-white px-5 py-3.5 flex items-center justify-between">
@@ -932,865 +557,25 @@
         <button onclick="document.getElementById('privacyModal').classList.add('hidden')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="p-6 space-y-3 text-xs text-gray-700 leading-relaxed">
-        <p><strong>1. Vilka uppgifter lagras?</strong> När du loggar in via Steam OpenID lagrar vi ditt offentliga SteamID64, ditt visningsnamn, din profilbilds-URL, din karaktärsanpassning i spelet samt matchstatistik (mål, assist, skotthastighet, passningsprocent och räddningar) från våra dedikerade Puck-servrar.</p>
-        <p><strong>2. Lösenord & Säkerhet:</strong> Inloggningen sker direkt hos Valve (Steam). Elitserien har aldrig tillgång till ditt lösenord.</p>
-        <p><strong>3. Syfte & Rättslig grund:</strong> Uppgifterna lagras i en krypterad PostgreSQL-databas inom EU (Frankfurt) för att kunna tillhandahålla serietabeller, spelarprofiler och matchhistorik.</p>
-        <p><strong>4. Radering:</strong> Du kan när som helst kontakta ligans administratör för att få din spelarprofil raderad ur databasen.</p>
+        <p><strong>1. Uppgifter:</strong> Vi lagrar ditt SteamID64, visningsnamn, avatar och matchstatistik.</p>
+        <p><strong>2. Säkerhet:</strong> Steam sköter inloggningen, vi ser aldrig ditt lösenord.</p>
       </div>
     </div>
   </div>
 
-  <!-- TOAST NOTIFICATION CONTAINER -->
   <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
-  <!-- ===================================================================== -->
-  <!-- FOOTER                                                                -->
-  <!-- ===================================================================== -->
   <footer class="bg-[#080b11] text-gray-400 border-t border-white/10 mt-16">
     <div class="max-w-[1220px] mx-auto px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs">
       <div class="flex items-center gap-4">
         <span class="font-shl text-2xl font-black italic text-white tracking-wider">ELITSERIEN</span>
         <span class="text-gray-600">|</span>
-        <span>Svensk community-liga för spelet <strong>Puck</strong> på Steam. Fristående ideellt projekt utan koppling till SHL AB.</span>
-      </div>
-      <div class="flex items-center gap-6">
-        <button onclick="switchView('home')" class="hover:text-white transition">Start</button>
-        <button onclick="switchView('standings')" class="hover:text-white transition">Tabellen</button>
-        <button onclick="switchView('stats')" class="hover:text-white transition">Spelare</button>
-        <button onclick="document.getElementById('privacyModal').classList.remove('hidden')" class="hover:text-white transition">Integritetspolicy</button>
+        <span>Svensk community-liga för spelet <strong>Puck</strong> på Steam.</span>
       </div>
     </div>
   </footer>
 
-  <!-- ===================================================================== -->
-  <!-- FRONTEND APPLICATION LOGIC (LIVE NEON POSTGRES SYNC)                  -->
-  <!-- ===================================================================== -->
-  <script>
-    let currentUser = null;
-    let allTeams = [];
-    let allPlayers = [];
-    let allMatches = [];
-
-    let currentView = 'home';
-    let homeMatchFilter = 'upcoming';
-    let activeProfileSteamId = null;
-
-    // -----------------------------------------------------------------------
-    // 1. HÄMTA LIVE-DATA FRÅN NEON POSTGRES (/api/data)
-    // -----------------------------------------------------------------------
-    async function loadLeagueData() {
-      try {
-        const res = await fetch('/api/data');
-        if (!res.ok) throw new Error('Kunde inte hämta data från servern');
-        const data = await res.json();
-
-        currentUser = data.currentUser || null;
-        allTeams = data.teams || [];
-        allPlayers = (data.players || []).map(normalizePlayer);
-        allMatches = data.matches || [];
-
-        if (!activeProfileSteamId) {
-          if (currentUser) activeProfileSteamId = currentUser.steam_id;
-          else if (allPlayers.length > 0) activeProfileSteamId = allPlayers[0].steam_id;
-        }
-
-        renderAll();
-      } catch (err) {
-        console.error(err);
-        document.getElementById('topStatsCounter').textContent = 'Kunde inte ansluta till databasen';
-      }
-    }
-
-    function normalizePlayer(p) {
-      const passAtt = p.passes_attempted || 0;
-      const passComp = p.passes_completed || 0;
-      const passAcc = passAtt > 0 ? Math.round((passComp / passAtt) * 100) : 0;
-
-      return {
-        steamId: p.steam_id,
-        name: p.username || 'Spelare',
-        avatarUrl: p.avatar_url || '',
-        accountRole: p.role || 'player',
-        number: p.jersey_number || 12,
-        position: (p.preferred_position || 'FORWARD').toUpperCase(),
-        handedness: p.stick_handedness === 'Right' ? 'Right' : 'Left',
-        teamId: p.team_id || null,
-        gp: p.gp || 0,
-        g: p.g || 0,
-        a: p.a || 0,
-        tp: p.tp || 0,
-        plusMinus: p.plus_minus || 0,
-        hardestShot: Number(p.hardest_shot || 0),
-        passAccuracy: passAcc,
-        avatar: {
-          jerseyPrimary: p.jersey_primary_color || '#0284c7',
-          jerseyStripe: p.jersey_stripe_color || '#0a0d12',
-          helmetColor: p.helmet_color || '#0a0d12',
-          skinColor: p.skin_color || '#c68b65',
-          visor: p.visor_tint || 'tinted',
-          beard: p.facial_hair || 'none',
-          hairColor: p.hair_color || '#23170f',
-          shaftTape: p.stick_shaft_color || '#28b5e1',
-          bladeTape: p.stick_blade_tape || '#111111',
-          showChestNum: p.show_chest_number !== false
-        }
-      };
-    }
-
-    function getApprovedTeams() {
-      return allTeams.filter(t => t.status === 'approved');
-    }
-
-    function getPendingTeams() {
-      return allTeams.filter(t => t.status === 'pending');
-    }
-
-    function getTeamById(id) {
-      if (!id) return { id: null, name: 'Fria Agenter', tag: 'FRI', primary_color: '#1e293b', secondary_color: '#649eff' };
-      return allTeams.find(t => Number(t.id) === Number(id)) || { id, name: 'Okänt lag', tag: 'LAG', primary_color: '#1e293b', secondary_color: '#649eff' };
-    }
-
-    function renderTeamCrestSVG(teamId, sizeClass = 'w-6 h-6') {
-      const t = getTeamById(teamId);
-      const primary = t.primary_color || '#0284c7';
-      const secondary = t.secondary_color || '#ffffff';
-      const tag = (t.tag || 'FRI').slice(0, 4);
-      return `
-        <svg viewBox="0 0 40 44" class="${sizeClass} shrink-0 drop-shadow-sm select-none">
-          <path d="M4 4 H36 V22 C36 33 20 41 20 41 C20 41 4 33 4 22 Z" fill="${primary}" stroke="${secondary}" stroke-width="3" />
-          <path d="M7 18 H33 V23 H7 Z" fill="${secondary}" opacity="0.85" />
-          <text x="20" y="24" text-anchor="middle" fill="#ffffff" font-family="'Barlow Condensed', sans-serif" font-weight="900" font-size="11" stroke="#000" stroke-width="1.5" paint-order="stroke fill">${tag}</text>
-        </svg>
-      `;
-    }
-
-    // -----------------------------------------------------------------------
-    // 2. LOW-POLY 3D PUCK KARAKTÄR-RENDERARE
-    // -----------------------------------------------------------------------
-    function renderPuckCharacterSVG(player) {
-      const av = player.avatar;
-      let visorFill = 'rgba(20, 18, 18, 0.78)';
-      let visorShine = 'rgba(255, 255, 255, 0.25)';
-      if (av.visor === 'mirror') {
-        visorFill = 'rgba(37, 99, 235, 0.78)';
-        visorShine = 'rgba(147, 197, 253, 0.65)';
-      } else if (av.visor === 'gold') {
-        visorFill = 'rgba(217, 119, 6, 0.8)';
-        visorShine = 'rgba(253, 224, 71, 0.75)';
-      } else if (av.visor === 'clear') {
-        visorFill = 'rgba(226, 232, 240, 0.32)';
-        visorShine = 'rgba(255, 255, 255, 0.55)';
-      }
-
-      let facialHairSVG = '';
-      if (av.beard === 'full') {
-        facialHairSVG = `
-          <polygon points="122,94 134,110 156,113 176,108 182,90 176,82 170,96 154,101 136,98 128,84" fill="${av.hairColor}" />
-          <polygon points="138,89 152,85 166,89 162,94 142,94" fill="${av.hairColor}" />
-        `;
-      } else if (av.beard === 'mustache') {
-        facialHairSVG = `<polygon points="136,88 152,84 168,88 164,95 140,95" fill="${av.hairColor}" />`;
-      } else if (av.beard === 'goatee') {
-        facialHairSVG = `
-          <polygon points="138,89 152,85 166,89 162,94 142,94" fill="${av.hairColor}" />
-          <polygon points="142,101 162,101 157,112 146,112" fill="${av.hairColor}" />
-        `;
-      }
-
-      const chestNumberSVG = av.showChestNum ? `
-        <text x="150" y="182" text-anchor="middle" font-family="'Barlow Condensed', sans-serif" font-weight="900" font-style="italic" font-size="38" fill="#ffffff" stroke="${av.jerseyStripe}" stroke-width="4" paint-order="stroke fill" opacity="0.95">#${player.number}</text>
-      ` : '';
-
-      const stickTransform = player.handedness === 'Right' ? 'transform="translate(310, 0) scale(-1, 1)"' : '';
-
-      return `
-        <svg viewBox="0 0 320 340" class="w-full h-full drop-shadow-[0_18px_28px_rgba(0,0,0,0.75)]">
-          <defs>
-            <linearGradient id="iceShadow" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#000000" stop-opacity="0.45"/>
-              <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
-            </linearGradient>
-          </defs>
-          <ellipse cx="150" cy="316" rx="75" ry="12" fill="url(#iceShadow)" />
-          <g>
-            <polygon points="116,226 150,228 150,295 112,268" fill="${av.jerseyPrimary}" />
-            <polygon points="116,226 150,228 150,295 112,268" fill="#000000" opacity="0.12" />
-            <polygon points="150,228 184,225 188,266 150,295" fill="${av.jerseyPrimary}" />
-            <polygon points="112,268 150,295 188,266 150,302" fill="#000000" opacity="0.28" />
-          </g>
-          <g>
-            <polygon points="114,120 186,118 196,125 104,126" fill="${av.jerseyStripe}" />
-            <polygon points="104,126 196,125 214,145 88,147" fill="${av.jerseyPrimary}" />
-            <polygon points="104,126 196,125 214,145 88,147" fill="#ffffff" opacity="0.14" />
-            <polygon points="88,147 152,148 148,200 100,198" fill="${av.jerseyPrimary}" />
-            <polygon points="152,148 214,145 202,196 148,200" fill="${av.jerseyPrimary}" />
-            <polygon points="152,148 214,145 202,196 148,200" fill="#000000" opacity="0.1" />
-            <polygon points="88,147 100,198 112,208 85,172" fill="${av.jerseyPrimary}" />
-            <polygon points="88,147 100,198 112,208 85,172" fill="#000000" opacity="0.24" />
-            <polygon points="214,145 216,170 190,206 202,196" fill="${av.jerseyPrimary}" />
-            <polygon points="214,145 216,170 190,206 202,196" fill="#000000" opacity="0.28" />
-            <polygon points="100,198 148,200 202,196 190,213 150,216 112,213" fill="${av.jerseyStripe}" />
-            ${chestNumberSVG}
-          </g>
-          <g>
-            <polygon points="122,64 180,64 178,96 156,112 134,109 120,90" fill="${av.skinColor}" />
-            <polygon points="154,64 180,64 178,96 156,112" fill="#000000" opacity="0.14" />
-            ${facialHairSVG}
-            <polygon points="114,48 134,26 168,25 188,45 186,68 152,65 114,68" fill="${av.helmetColor}" />
-            <polygon points="134,26 168,25 178,42 126,44" fill="#ffffff" opacity="0.09" />
-            <polygon points="114,62 123,62 123,86 115,80" fill="${av.helmetColor}" />
-            <polygon points="178,60 186,60 184,84 177,86" fill="${av.helmetColor}" />
-            <polygon points="112,58 152,55 188,58 183,81 152,85 117,80" fill="${visorFill}" stroke="rgba(255,255,255,0.35)" stroke-width="1.2" />
-            <polygon points="122,60 138,59 130,79 119,77" fill="${visorShine}" />
-          </g>
-          <g ${stickTransform}>
-            <polygon points="298,125 310,136 108,298 96,287" fill="#0c1017" />
-            <polygon points="242,170 254,181 162,255 150,244" fill="#1e3a5f" opacity="0.7" />
-            <line x1="238" y1="175" x2="158" y2="249" stroke="#38bdf8" stroke-width="2" stroke-dasharray="8 4" opacity="0.75" />
-            <polygon points="298,125 311,137 242,192 230,180" fill="${av.shaftTape}" />
-            <polygon points="296,120 314,135 307,142 290,127" fill="${av.shaftTape}" filter="brightness(1.1)" />
-            <polygon points="108,284 114,296 22,324 16,301 24,292" fill="#090b10" stroke="#1e293b" stroke-width="1" />
-            <polygon points="82,290 87,304 34,320 30,298" fill="${av.bladeTape}" />
-            <g transform="translate(46, 308)">
-              <path d="M0,8 L0,20 A24,8 0 0,0 48,20 L48,8 Z" fill="#090b0e" />
-              <ellipse cx="24" cy="8" rx="24" ry="8" fill="#1e242d" stroke="#cbd5e1" stroke-width="1" />
-              <text x="24" y="10.5" text-anchor="middle" fill="#e2e8f0" font-family="'Barlow Condensed', sans-serif" font-weight="900" font-size="8" letter-spacing="1.5">PUCK</text>
-            </g>
-          </g>
-        </svg>
-      `;
-    }
-
-    // -----------------------------------------------------------------------
-    // 3. RENDER ALL VIEWS
-    // -----------------------------------------------------------------------
-    function renderAll() {
-      const approvedTeams = getApprovedTeams();
-      document.getElementById('topStatsCounter').textContent =
-        `${allPlayers.length} registrerade spelare • ${approvedTeams.length} lag • ${allMatches.filter(m => m.status === 'completed').length} spelade matcher`;
-
-      renderHeaderAuthArea();
-      renderScoreTicker();
-      renderHomeMatches();
-      renderStandingsTables();
-      renderHomeTopScorers();
-      renderFullScheduleView();
-      renderFullStatsView();
-      renderTeamsView();
-      renderAdminView();
-
-      if (activeProfileSteamId) {
-        renderProfileView(activeProfileSteamId);
-      }
-    }
-
-    function renderHeaderAuthArea() {
-      const container = document.getElementById('headerAuthArea');
-      const hint = document.getElementById('topAuthHint');
-      const navAdmin = document.getElementById('nav-admin');
-      const mobileAdmin = document.getElementById('mobileAdminBtn');
-
-      if (!currentUser) {
-        hint.textContent = 'Utloggad besökare';
-        navAdmin.classList.add('hidden');
-        navAdmin.classList.remove('flex');
-        mobileAdmin.classList.add('hidden');
-
-        container.innerHTML = `
-          <a href="/api/auth?action=login" class="bg-[#171a21] hover:bg-[#2a475e] text-white text-xs font-bold px-3.5 py-2 rounded border border-white/20 flex items-center gap-2 transition shadow">
-            <i class="fa-brands fa-steam text-base"></i> Logga in med Steam
-          </a>
-        `;
-      } else {
-        const me = allPlayers.find(p => p.steamId === currentUser.steam_id) || normalizePlayer(currentUser);
-        const isAdmin = me.accountRole === 'admin';
-        hint.innerHTML = `Inloggad via Steam: <strong class="text-white">${me.name}</strong> (${me.steamId})`;
-
-        if (isAdmin) {
-          navAdmin.classList.remove('hidden');
-          navAdmin.classList.add('flex');
-          mobileAdmin.classList.remove('hidden');
-        } else {
-          navAdmin.classList.add('hidden');
-          navAdmin.classList.remove('flex');
-          mobileAdmin.classList.add('hidden');
-        }
-
-        const roleBadge = isAdmin
-          ? `<span class="text-[10px] bg-amber-400 text-slate-950 font-extrabold px-1.5 py-0.2 rounded uppercase">ADMIN</span>`
-          : `<span class="text-[10px] text-emerald-400 font-mono">#${me.number}</span>`;
-
-        container.innerHTML = `
-          <div class="flex items-center gap-2">
-            <button onclick="openPlayerProfile('${me.steamId}')" class="flex items-center gap-2.5 bg-white/5 hover:bg-white/15 border border-white/15 px-3 py-1 rounded transition">
-              <div class="w-7 h-8 rounded bg-slate-800 overflow-hidden flex items-center justify-center">
-                ${renderPuckCharacterSVG(me)}
-              </div>
-              <div class="text-left leading-tight hidden sm:block">
-                <div class="text-xs font-bold text-white flex items-center gap-1.5">${me.name}${roleBadge}</div>
-                <div class="text-[10px] text-gray-400">Min Puck-Profil</div>
-              </div>
-            </button>
-            <a href="/api/auth?action=logout" title="Logga ut" class="p-2 rounded bg-white/5 hover:bg-rose-600/30 border border-white/10 text-gray-300 hover:text-white text-xs transition">
-              <i class="fa-solid fa-right-from-bracket"></i>
-            </a>
-          </div>
-        `;
-      }
-    }
-
-    // -----------------------------------------------------------------------
-    // 4. SCORE TICKER & MATCHLISTOR
-    // -----------------------------------------------------------------------
-    function formatDateShort(dateStr) {
-      if (!dateStr) return 'Datum ej satt';
-      const d = new Date(dateStr);
-      return d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-    }
-
-    function renderScoreTicker() {
-      const container = document.getElementById('scoreTickerContainer');
-      if (allMatches.length === 0) {
-        container.innerHTML = `
-          <div class="flex items-center justify-center w-full text-xs text-gray-500 font-medium px-4">
-            Inga matcher har schemalagts eller spelats ännu.
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = allMatches.map(m => {
-        const isPlayed = m.status === 'completed';
-        const statusText = isPlayed
-          ? (m.is_shootout ? 'SPELAD SO' : m.is_overtime ? 'SPELAD ÖT' : 'SPELAD')
-          : 'KOMMANDE';
-        const centerText = isPlayed ? `${m.home_score} -${m.away_score}` : formatDateShort(m.played_at);
-
-        return `
-          <div onclick="openMatchModal(${m.id})" class="px-4 py-1.5 flex flex-col justify-between min-w-[185px] bg-[#f8fafc] hover:bg-white cursor-pointer transition shrink-0">
-            <div class="text-[9px] font-extrabold uppercase tracking-wider text-center ${isPlayed ? 'text-slate-600' : 'text-shl-blue'}">
-              ${statusText}
-            </div>
-            <div class="flex items-center justify-between gap-2 my-auto">
-              <div class="flex items-center gap-1.5">
-                <span class="font-shl font-bold text-xs text-slate-800">${m.home_tag \vert{}\vert{} 'HEM'}</span>${renderTeamCrestSVG(m.home_team_id, 'w-5 h-5')}
-              </div>
-              <span class="font-shl ${isPlayed ? 'text-base font-black text-slate-900' : 'text-xs font-bold text-shl-blue'} px-1">${centerText}</span>
-              <div class="flex items-center gap-1.5">
-                ${renderTeamCrestSVG(m.away_team_id, 'w-5 h-5')}
-                <span class="font-shl font-bold text-xs text-slate-800">${m.away_tag || 'BOR'}</span>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function scrollTicker(amount) {
-      document.getElementById('scoreTickerContainer').scrollBy({ left: amount, behavior: 'smooth' });
-    }
-
-    function setHomeMatchFilter(filter) {
-      homeMatchFilter = filter;
-      const btnUp = document.getElementById('homeMatchFilterUpcoming');
-      const btnPl = document.getElementById('homeMatchFilterPlayed');
-      if (filter === 'upcoming') {
-        btnUp.className = 'px-3.5 py-1.5 rounded-sm text-xs font-bold uppercase tracking-wider bg-[#4a8af4] text-white shadow-sm transition';
-        btnPl.className = 'px-3.5 py-1.5 rounded-sm text-xs font-bold uppercase tracking-wider bg-gray-100 text-gray-600 hover:bg-gray-200 transition';
-      } else {
-        btnPl.className = 'px-3.5 py-1.5 rounded-sm text-xs font-bold uppercase tracking-wider bg-[#4a8af4] text-white shadow-sm transition';
-        btnUp.className = 'px-3.5 py-1.5 rounded-sm text-xs font-bold uppercase tracking-wider bg-gray-100 text-gray-600 hover:bg-gray-200 transition';
-      }
-      renderHomeMatches();
-    }
-
-    function renderHomeMatches() {
-      const container = document.getElementById('homeMatchesContainer');
-      const filtered = allMatches.filter(m => homeMatchFilter === 'upcoming' ? m.status !== 'completed' : m.status === 'completed');
-
-      if (filtered.length === 0) {
-        container.innerHTML = `
-          <div class="bg-[#f8fafc] border border-gray-200 rounded-sm p-8 text-center text-xs text-gray-500">
-            Inga ${homeMatchFilter === 'upcoming' ? 'kommande' : 'spelade'} matcher registrerade ännu.
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = filtered.slice(0, 6).map(m => {
-        const isPlayed = m.status === 'completed';
-        const centerDisplay = isPlayed ? `${m.home_score} -${m.away_score}` : 'VS';
-        return `
-          <div class="bg-[#f8fafc] border border-gray-200 rounded-sm p-4 match-card-hover">
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div class="text-xs text-gray-600 font-medium w-32 text-center sm:text-left shrink-0">
-                ${formatDateShort(m.played_at || m.created_at)}
-              </div>
-              <div class="flex items-center justify-center gap-3 sm:gap-5 flex-1">
-                <div class="flex items-center justify-end gap-2.5 flex-1 text-right">
-                  <span class="font-shl text-lg font-extrabold uppercase text-slate-900">${m.home_name \vert{}\vert{} 'Hemmalag'}</span>${renderTeamCrestSVG(m.home_team_id, 'w-8 h-8')}
-                </div>
-                <div class="text-center px-2 shrink-0">
-                  <div class="font-shl text-3xl font-black text-slate-900 leading-none">${centerDisplay}</div>
-                  <div class="text-[10px] text-gray-500 mt-1 font-medium">${m.server_ip || 'ELITSERIEN Server'}</div>
-                </div>
-                <div class="flex items-center justify-start gap-2.5 flex-1 text-left">
-                  ${renderTeamCrestSVG(m.away_team_id, 'w-8 h-8')}
-                  <span class="font-shl text-lg font-extrabold uppercase text-slate-900">${m.away_name || 'Bortalag'}</span>
-                </div>
-              </div>
-              <div class="flex items-center gap-2 shrink-0">
-                <button onclick="openMatchModal(${m.id})" class="border border-[#649eff] text-[#4a8af4] hover:bg-[#4a8af4] hover:text-white text-xs font-semibold px-4 py-1.5 rounded-sm transition">
-                  Matchfakta
-                </button>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    // -----------------------------------------------------------------------
-    // 5. SERIETABELL (BERÄKNAS FRÅN DATABASENS LAG OCH MATCHER)
-    // -----------------------------------------------------------------------
-    function computeStandings() {
-      const statsMap = {};
-      getApprovedTeams().forEach(t => {
-        statsMap[t.id] = {
-          id: t.id,
-          name: t.name,
-          tag: t.tag,
-          gp: 0, w: 0, otw: 0, otl: 0, l: 0, gf: 0, ga: 0, pts: 0
-        };
-      });
-
-      allMatches.filter(m => m.status === 'completed').forEach(m => {
-        const h = statsMap[m.home_team_id];
-        const a = statsMap[m.away_team_id];
-        if (!h || !a) return;
-
-        const hs = Number(m.home_score || 0);
-        const as = Number(m.away_score || 0);
-        const isOT = Boolean(m.is_overtime || m.is_shootout);
-
-        h.gp++; a.gp++;
-        h.gf += hs; h.ga += as;
-        a.gf += as; a.ga += hs;
-
-        if (hs > as) {
-          if (isOT) { h.otw++; h.pts += 2; a.otl++; a.pts += 1; }
-          else { h.w++; h.pts += 3; a.l++; }
-        } else if (as > hs) {
-          if (isOT) { a.otw++; a.pts += 2; h.otl++; h.pts += 1; }
-          else { a.w++; a.pts += 3; h.l++; }
-        } else {
-          h.pts += 1; a.pts += 1;
-        }
-      });
-
-      return Object.values(statsMap).sort((a, b) => {
-        if (b.pts !== a.pts) return b.pts - a.pts;
-        const diffB = b.gf - b.ga;
-        const diffA = a.gf - a.ga;
-        if (diffB !== diffA) return diffB - diffA;
-        return b.gf - a.gf;
-      });
-    }
-
-    function renderStandingsTables() {
-      const sorted = computeStandings();
-      const homeBody = document.getElementById('homeStandingsBody');
-      const fullBody = document.getElementById('fullStandingsBody');
-
-      if (sorted.length === 0) {
-        const emptyRow = `<tr><td colspan="10" class="py-8 text-center text-xs text-gray-500">Inga godkända lag i tabellen ännu. Ansök med ett lag och godkänn det i Adminpanelen!</td></tr>`;
-        homeBody.innerHTML = emptyRow;
-        if (fullBody) fullBody.innerHTML = emptyRow;
-        return;
-      }
-
-      homeBody.innerHTML = sorted.map((t, idx) => {
-        const diff = t.gf - t.ga;
-        const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
-        return `
-          <tr onclick="switchView('teams')" class="hover:bg-blue-50/50 cursor-pointer transition">
-            <td class="py-3 pl-4 pr-2 font-bold text-slate-900">${idx + 1}</td>
-            <td class="py-3 px-2">
-              <div class="flex items-center gap-2.5">
-                ${renderTeamCrestSVG(t.id, 'w-6 h-6')}
-                <span class="font-medium text-slate-800">${t.name}</span>
-              </div>
-            </td>
-            <td class="py-3 px-2 text-center text-gray-600">${t.gp}</td>
-            <td class="py-3 px-2 text-center text-gray-600">${diffStr}</td>
-            <td class="py-3 pl-2 pr-4 text-right font-bold text-slate-900">${t.pts}</td>
-          </tr>
-        `;
-      }).join('');
-
-      if (fullBody) {
-        fullBody.innerHTML = sorted.map((t, idx) => {
-          const diff = t.gf - t.ga;
-          const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
-          return `
-            <tr class="hover:bg-gray-50 transition">
-              <td class="py-3.5 pl-4 pr-2 font-bold text-slate-900">${idx + 1}</td>
-              <td class="py-3.5 px-3">
-                <div class="flex items-center gap-3">
-                  ${renderTeamCrestSVG(t.id, 'w-7 h-7')}
-                  <span class="font-bold text-slate-900">${t.name}</span>
-                </div>
-              </td>
-              <td class="py-3.5 px-3 text-center">${t.gp}</td>
-              <td class="py-3.5 px-3 text-center">${t.w}</td>
-              <td class="py-3.5 px-3 text-center">${t.otw}</td>
-              <td class="py-3.5 px-3 text-center">${t.otl}</td>
-              <td class="py-3.5 px-3 text-center">${t.l}</td>
-              <td class="py-3.5 px-3 text-center text-gray-600">${t.gf} -${t.ga}</td>
-              <td class="py-3.5 px-3 text-center font-semibold ${diff >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${diffStr}</td>
-              <td class="py-3.5 pl-3 pr-5 text-right font-shl text-xl font-black text-slate-900">${t.pts}</td>
-            </tr>
-          `;
-        }).join('');
-      }
-    }
-
-    function renderHomeTopScorers() {
-      const container = document.getElementById('homeTopScorersGrid');
-      if (allPlayers.length === 0) {
-        container.innerHTML = `
-          <div class="col-span-3 bg-gray-50 border border-gray-200 rounded-sm p-6 text-center text-xs text-gray-500">
-            Inga spelare har loggat in ännu. Var först med att logga in med Steam uppe till höger!
-          </div>
-        `;
-        return;
-      }
-
-      const top3 = allPlayers.slice(0, 3);
-      container.innerHTML = top3.map((p, i) => `
-        <div onclick="openPlayerProfile('${p.steamId}')" class="bg-[#0e1420] text-white rounded-sm p-4 border border-slate-800 hover:border-shl-lightBlue cursor-pointer transition group relative overflow-hidden">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-[10px] font-bold uppercase tracking-widest text-shl-lightBlue">#${i + 1} SPELARE</span>${renderTeamCrestSVG(p.teamId, 'w-5 h-5')}
-          </div>
-          <div class="flex items-center gap-3">
-            <div class="w-14 h-16 shrink-0 bg-white/5 rounded overflow-hidden flex items-center justify-center">
-              ${renderPuckCharacterSVG(p)}
-            </div>
-            <div>
-              <div class="font-shl text-xl font-black uppercase group-hover:text-shl-lightBlue transition">#${p.number}${p.name}</div>
-              <div class="text-xs text-gray-400">${p.g} Mål • ${p.a} Assist</div>
-              <div class="text-sm font-extrabold text-amber-400 mt-0.5">${p.tp} Poäng</div>
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    // -----------------------------------------------------------------------
-    // 6. SPELARPROFIL & PUCK LOCKER ROOM
-    // -----------------------------------------------------------------------
-    function openMyProfile() {
-      if (currentUser) {
-        openPlayerProfile(currentUser.steam_id);
-      } else if (allPlayers.length > 0) {
-        openPlayerProfile(allPlayers[0].steamId);
-      } else {
-        showToast('Logga in med Steam uppe till höger för att skapa din profil!', 'info');
-      }
-    }
-
-    function openPlayerProfile(steamId) {
-      activeProfileSteamId = steamId;
-      renderProfileView(steamId);
-      switchView('profile');
-    }
-
-    function renderProfileView(steamId) {
-      const p = allPlayers.find(x => x.steamId === steamId) || allPlayers[0];
-      if (!p) return;
-
-      const team = getTeamById(p.teamId);
-      const canEdit = currentUser && (currentUser.steam_id === p.steamId || currentUser.role === 'admin');
-
-      document.getElementById('profilePuckAvatarContainer').innerHTML = renderPuckCharacterSVG(p);
-      document.getElementById('profilePlayerName').textContent = p.name;
-      document.getElementById('profileNumberAndPos').textContent = `#${p.number}${p.position}`;
-      document.getElementById('profileTeamCrest').innerHTML = renderTeamCrestSVG(p.teamId, 'w-6 h-6');
-      document.getElementById('profileTeamName').textContent = team.name;
-      document.getElementById('profileSteamId').textContent = p.steamId;
-      document.getElementById('profileHandedness').textContent = p.handedness;
-      document.getElementById('profileHardestShot').textContent = `${p.hardestShot.toFixed(1)} km/h`;
-      document.getElementById('profilePassAcc').textContent = `${p.passAccuracy}%`;
-
-      const adminBadge = document.getElementById('profileAdminBadge');
-      if (p.accountRole === 'admin') adminBadge.classList.remove('hidden');
-      else adminBadge.classList.add('hidden');
-
-      const btnFloat = document.getElementById('btnEditAvatarFloating');
-      const btnOpen = document.getElementById('btnOpenLockerRoom');
-      if (canEdit) {
-        btnFloat.classList.remove('hidden');
-        btnFloat.classList.add('flex');
-        btnOpen.classList.remove('hidden');
-        btnOpen.classList.add('flex');
-      } else {
-        btnFloat.classList.add('hidden');
-        btnFloat.classList.remove('flex');
-        btnOpen.classList.add('hidden');
-        btnOpen.classList.remove('flex');
-        document.getElementById('avatarEditorDrawer').classList.add('hidden');
-      }
-
-      document.getElementById('careerGP').textContent = p.gp;
-      document.getElementById('careerTP').textContent = p.tp;
-      document.getElementById('careerG').textContent = p.g;
-      document.getElementById('careerA').textContent = p.a;
-
-      const gauges = [
-        { label: 'GP', value: p.gp },
-        { label: 'TP', value: p.tp },
-        { label: 'G', value: p.g },
-        { label: 'A', value: p.a }
-      ];
-      document.getElementById('profileSeasonGauges').innerHTML = gauges.map(g => `
-        <div class="relative w-32 h-32 flex items-center justify-center">
-          <svg viewBox="0 0 120 120" class="w-full h-full">
-            <circle cx="60" cy="60" r="52" fill="none" stroke="#d1d5db" stroke-width="7" stroke-dasharray="2 3.2" />
-          </svg>
-          <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
-            <span class="font-sans text-2xl font-extrabold text-[#4a8af4] leading-none">${g.value}</span>
-            <span class="text-[11px] font-bold text-slate-800 uppercase mt-1">${g.label}</span>
-          </div>
-        </div>
-      `).join('');
-
-      populateAvatarCustomizerInputs(p);
-    }
-
-    function populateAvatarCustomizerInputs(p) {
-      const teamSel = document.getElementById('custTeamId');
-      const approved = getApprovedTeams();
-      teamSel.innerHTML = `<option value="">Fria Agenter (Inget lag)</option>` +
-        approved.map(t => `<option value="${t.id}" ${Number(t.id) === Number(p.teamId) ? 'selected' : ''}>${t.name} (${t.tag})</option>`).join('');
-
-      document.getElementById('custName').value = p.name;
-      document.getElementById('custNumber').value = p.number;
-      document.getElementById('custRole').value = p.position;
-      document.getElementById('custHand').value = p.handedness;
-      document.getElementById('custJerseyPrimary').value = p.avatar.jerseyPrimary;
-      document.getElementById('custJerseyStripe').value = p.avatar.jerseyStripe;
-      document.getElementById('custHelmetColor').value = p.avatar.helmetColor;
-      document.getElementById('custSkinColor').value = p.avatar.skinColor;
-      document.getElementById('custVisor').value = p.avatar.visor;
-      document.getElementById('custBeard').value = p.avatar.beard;
-      document.getElementById('custHairColor').value = p.avatar.hairColor;
-      document.getElementById('custShaftTape').value = p.avatar.shaftTape;
-      document.getElementById('custBladeTape').value = p.avatar.bladeTape;
-      document.getElementById('custShowChestNum').checked = p.avatar.showChestNum;
-    }
-
-    function previewAvatarFromInputs() {
-      const p = allPlayers.find(x => x.steamId === activeProfileSteamId);
-      if (!p) return;
-
-      p.name = document.getElementById('custName').value || 'Spelare';
-      p.number = parseInt(document.getElementById('custNumber').value, 10) || 12;
-      p.position = document.getElementById('custRole').value;
-      p.handedness = document.getElementById('custHand').value;
-      const tVal = document.getElementById('custTeamId').value;
-      p.teamId = tVal ? parseInt(tVal, 10) : null;
-
-      p.avatar.jerseyPrimary = document.getElementById('custJerseyPrimary').value;
-      p.avatar.jerseyStripe = document.getElementById('custJerseyStripe').value;
-      p.avatar.helmetColor = document.getElementById('custHelmetColor').value;
-      p.avatar.skinColor = document.getElementById('custSkinColor').value;
-      p.avatar.visor = document.getElementById('custVisor').value;
-      p.avatar.beard = document.getElementById('custBeard').value;
-      p.avatar.hairColor = document.getElementById('custHairColor').value;
-      p.avatar.shaftTape = document.getElementById('custShaftTape').value;
-      p.avatar.bladeTape = document.getElementById('custBladeTape').value;
-      p.avatar.showChestNum = document.getElementById('custShowChestNum').checked;
-
-      const team = getTeamById(p.teamId);
-      document.getElementById('profilePuckAvatarContainer').innerHTML = renderPuckCharacterSVG(p);
-      document.getElementById('profilePlayerName').textContent = p.name;
-      document.getElementById('profileNumberAndPos').textContent = `#${p.number}${p.position}`;
-      document.getElementById('profileTeamCrest').innerHTML = renderTeamCrestSVG(p.teamId, 'w-6 h-6');
-      document.getElementById('profileTeamName').textContent = team.name;
-      document.getElementById('profileHandedness').textContent = p.handedness;
-    }
-
-    function applyTeamPresetToAvatar(teamId) {
-      if (teamId) {
-        const t = getTeamById(teamId);
-        if (t.primary_color) document.getElementById('custJerseyPrimary').value = t.primary_color;
-        if (t.secondary_color) document.getElementById('custJerseyStripe').value = t.secondary_color;
-      }
-      previewAvatarFromInputs();
-    }
-
-    function setQuickTape(shaftHex, bladeHex) {
-      document.getElementById('custShaftTape').value = shaftHex;
-      document.getElementById('custBladeTape').value = bladeHex;
-      previewAvatarFromInputs();
-    }
-
-    function toggleAvatarEditor() {
-      document.getElementById('avatarEditorDrawer').classList.toggle('hidden');
-    }
-
-    async function saveAvatarChangesToDB() {
-      const p = allPlayers.find(x => x.steamId === activeProfileSteamId);
-      if (!p) return;
-
-      const btn = document.getElementById('btnSaveCharacter');
-      btn.disabled = true;
-      btn.textContent = 'Sparar...';
-
-      try {
-        const res = await fetch('/api/data', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'save_character',
-            targetSteamId: p.steamId,
-            username: p.name,
-            jerseyNumber: p.number,
-            preferredPosition: p.position,
-            stickHandedness: p.handedness,
-            teamId: p.teamId,
-            jerseyPrimary: p.avatar.jerseyPrimary,
-            jerseyStripe: p.avatar.jerseyStripe,
-            showChestNum: p.avatar.showChestNum,
-            helmetColor: p.avatar.helmetColor,
-            skinColor: p.avatar.skinColor,
-            visorTint: p.avatar.visor,
-            facialHair: p.avatar.beard,
-            hairColor: p.avatar.hairColor,
-            shaftTape: p.avatar.shaftTape,
-            bladeTape: p.avatar.bladeTape
-          })
-        });
-
-        const out = await res.json();
-        if (!res.ok) throw new Error(out.error || 'Kunde inte spara');
-
-        showToast('Din Puck-karaktär har sparats i databasen!', 'success');
-        document.getElementById('avatarEditorDrawer').classList.add('hidden');
-        await loadLeagueData();
-      } catch (err) {
-        showToast(err.message, 'error');
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Spara Puck-Karaktär';
-      }
-    }
-
-    // -----------------------------------------------------------------------
-    // 7. SPELSCHEMA, SPELARSTATISTIK, LAGEN & ADMIN
-    // -----------------------------------------------------------------------
-    function renderFullScheduleView() {
-      const container = document.getElementById('fullScheduleContainer');
-      if (allMatches.length === 0) {
-        container.innerHTML = `<div class="bg-gray-50 border border-gray-200 rounded-sm p-8 text-center text-xs text-gray-500">Inga matcher i spelschemat ännu.</div>`;
-        return;
-      }
-
-      const isAdmin = currentUser && currentUser.role === 'admin';
-      container.innerHTML = allMatches.map(m => {
-        const isPlayed = m.status === 'completed';
-        return `
-          <div class="bg-white border border-gray-200 rounded-sm p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
-            <div class="flex items-center gap-3 w-48">
-              <span class="text-xs font-bold px-2 py-0.5 rounded ${isPlayed ? 'bg-gray-200 text-gray-700' : 'bg-blue-100 text-blue-800'}">
-                ${isPlayed ? 'SPELAD' : 'KOMMANDE'}
-              </span>
-              <span class="text-xs text-gray-600 font-medium">${formatDateShort(m.played_at || m.created_at)}</span>
-            </div>
-            <div class="flex items-center justify-center gap-4 flex-1">
-              <div class="flex items-center justify-end gap-2 flex-1 text-right font-shl text-xl font-bold uppercase">
-                ${m.home_name \vert{}\vert{} 'Hemmalag'}${renderTeamCrestSVG(m.home_team_id, 'w-7 h-7')}
-              </div>
-              <div class="font-shl text-2xl font-black px-3 py-1 bg-gray-100 rounded min-w-[75px] text-center">
-                ${isPlayed ? `${m.home_score} - ${m.away_score}` : 'VS'}
-              </div>
-              <div class="flex items-center justify-start gap-2 flex-1 text-left font-shl text-xl font-bold uppercase">
-                ${renderTeamCrestSVG(m.away_team_id, 'w-7 h-7')}${m.away_name || 'Bortalag'}
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <button onclick="openMatchModal(${m.id})" class="border border-shl-blue text-shl-blue hover:bg-shl-blue hover:text-white text-xs font-bold px-3.5 py-1.5 rounded-sm transition">
-                Detaljer
-              </button>
-              ${isAdmin ? `<button onclick="adminDeleteMatch(${m.id})" class="text-rose-600 hover:bg-rose-50 px-2.5 py-1.5 rounded text-xs" title="Radera match"><i class="fa-solid fa-trash"></i></button>` : ''}
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function renderFullStatsView() {
-      const tbody = document.getElementById('fullPlayerStatsBody');
-      if (allPlayers.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="10" class="py-8 text-center text-xs text-gray-500">Inga spelare har loggat in med Steam ännu.</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = allPlayers.map((p, idx) => {
-        const team = getTeamById(p.teamId);
-        return `
-          <tr onclick="openPlayerProfile('${p.steamId}')" class="hover:bg-blue-50/60 cursor-pointer transition">
-            <td class="py-3.5 pl-4 pr-2 font-bold text-gray-600">${idx + 1}</td>
-            <td class="py-3.5 px-3">
-              <div class="flex items-center gap-3">
-                <div class="w-9 h-10 bg-slate-900 rounded overflow-hidden flex items-center justify-center shrink-0">
-                  ${renderPuckCharacterSVG(p)}
-                </div>
-                <div>
-                  <div class="font-bold text-slate-900 hover:text-shl-blue">#${p.number}${p.name}</div>
-                  <div class="text-[11px] text-gray-400 font-mono">SteamID: ${p.steamId}</div>
-                </div>
-              </div>
-            </td>
-            <td class="py-3.5 px-3">
-              <div class="flex items-center gap-2">
-                ${renderTeamCrestSVG(p.teamId, 'w-5 h-5')}
-                <span class="font-semibold">${team.tag}</span>
-              </div>
-            </td>
-            <td class="py-3.5 px-3 text-center text-xs font-bold text-gray-600">${p.position}</td>
-            <td class="py-3.5 px-3 text-center">${p.gp}</td>
-            <td class="py-3.5 px-3 text-center font-semibold">${p.g}</td>
-            <td class="py-3.5 px-3 text-center font-semibold">${p.a}</td>
-            <td class="py-3.5 px-3 text-center font-shl text-xl font-black text-shl-blue bg-blue-50/50">${p.tp}</td>
-            <td class="py-3.5 px-3 text-center font-semibold text-emerald-600">${p.passAccuracy}%</td>
-            <td class="py-3.5 px-4 text-right font-mono text-xs font-bold text-amber-600">${p.hardestShot.toFixed(1)} km/h</td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    function renderTeamsView() {
-      const container = document.getElementById('teamsGridContainer');
-      const approved = getApprovedTeams();
-
-      if (approved.length === 0) {
-        container.innerHTML = `
-          <div class="col-span-4 bg-gray-50 border border-gray-200 rounded-sm p-10 text-center space-y-3">
-            <p class="text-sm font-bold text-slate-800">Inga lag är godkända i ligan ännu.</p>
-            <p class="text-xs text-gray-500">Klicka på "Ansök med ditt lag" för att skicka in den första lagansökan!</p>
-          </div>
-        `;
-        return;
-      }
-
-      const standingsMap = {};
-      computeStandings().forEach(s => { standingsMap[s.id] = s; });
-
-      container.innerHTML = approved.map(t => {
-        const teamPlayers = allPlayers.filter(p => Number(p.teamId) === Number(t.id));
-        const st = standingsMap[t.id] || { pts: 0, gp: 0, gf: 0, ga: 0 };
-        return `
-          <div class="bg-white border border-gray-200 rounded-sm shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition">
-            <div>
-              <div class="h-2" style="background-color: ${t.
+  <!-- LADDAR IN LOGIKEN PÅ SLUTET -->
+  <script src="app.js"></script>
+</body>
+</html>
