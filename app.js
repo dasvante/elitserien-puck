@@ -2,12 +2,18 @@ let currentUser = null;
 let allTeams = [];
 let allPlayers = [];
 let allMatches = [];
+let allRosters = [];
+let allTransfers = [];
+let myInvites = [];
 
 let currentView = 'home';
 let homeMatchFilter = 'upcoming';
 let activeProfileSteamId = null;
+let activeTeamProfileId = null;
 
-// Huvudfunktion för att ladda data
+// =========================================================================
+// 1. LADDA LIGADATA FRÅN NEON (/api/data)
+// =========================================================================
 async function loadLeagueData() {
   try {
     const res = await fetch('/api/data');
@@ -18,6 +24,9 @@ async function loadLeagueData() {
     allTeams = data.teams || [];
     allPlayers = (data.players || []).map(normalizePlayer);
     allMatches = data.matches || [];
+    allRosters = data.rosters || [];
+    allTransfers = data.transfers || [];
+    myInvites = data.myInvites || [];
 
     if (!activeProfileSteamId) {
       if (currentUser) activeProfileSteamId = currentUser.steam_id;
@@ -28,12 +37,10 @@ async function loadLeagueData() {
   } catch (err) {
     console.error(err);
     document.getElementById('topStatsCounter').textContent = 'Databasen är tom eller otillgänglig';
-    // Även om det kraschar måste vi rita upp sidan så att man kan logga in!
-    renderAll(); 
+    renderAll();
   }
 }
 
-// Städar och normaliserar spelardata från databasen
 function normalizePlayer(p) {
   const passAtt = p.passes_attempted || 0;
   const passComp = p.passes_completed || 0;
@@ -44,6 +51,7 @@ function normalizePlayer(p) {
     name: p.username || 'Spelare',
     avatarUrl: p.avatar_url || '',
     accountRole: p.role || 'player',
+    teamRole: p.team_role || 'player',
     number: p.jersey_number || 12,
     position: (p.preferred_position || 'FORWARD').toUpperCase(),
     handedness: p.stick_handedness === 'Right' ? 'Right' : 'Left',
@@ -83,7 +91,6 @@ function getTeamById(id) {
   return allTeams.find(t => Number(t.id) === Number(id)) || { id, name: 'Okänt lag', tag: 'LAG', primary_color: '#1e293b', secondary_color: '#649eff' };
 }
 
-// Renderar lag-logotyper (SVG)
 function renderTeamCrestSVG(teamId, sizeClass = 'w-6 h-6') {
   const t = getTeamById(teamId);
   const primary = t.primary_color || '#0284c7';
@@ -98,21 +105,17 @@ function renderTeamCrestSVG(teamId, sizeClass = 'w-6 h-6') {
   `;
 }
 
-// Renderar Puck-karaktären i 3D/SVG
+// =========================================================================
+// 2. 3D/SVG PUCK KARAKTÄR (UTESPELARE ELLER MÅLVAKT / GK)
+// =========================================================================
+function isGoaliePos(pos) {
+  const p = String(pos || '').toUpperCase();
+  return p === 'MÅLVAKT' || p === 'GK' || p === 'GOALIE';
+}
+
 function renderPuckCharacterSVG(player) {
   const av = player.avatar;
-  let visorFill = 'rgba(20, 18, 18, 0.78)';
-  let visorShine = 'rgba(255, 255, 255, 0.25)';
-  if (av.visor === 'mirror') {
-    visorFill = 'rgba(37, 99, 235, 0.78)';
-    visorShine = 'rgba(147, 197, 253, 0.65)';
-  } else if (av.visor === 'gold') {
-    visorFill = 'rgba(217, 119, 6, 0.8)';
-    visorShine = 'rgba(253, 224, 71, 0.75)';
-  } else if (av.visor === 'clear') {
-    visorFill = 'rgba(226, 232, 240, 0.32)';
-    visorShine = 'rgba(255, 255, 255, 0.55)';
-  }
+  const isGK = isGoaliePos(player.position);
 
   let facialHairSVG = '';
   if (av.beard === 'full') {
@@ -129,8 +132,126 @@ function renderPuckCharacterSVG(player) {
     `;
   }
 
-  const chestNumberSVG = av.showChestNum ? `<text x="150" y="182" text-anchor="middle" font-family="'Barlow Condensed', sans-serif" font-weight="900" font-style="italic" font-size="38" fill="#ffffff" stroke="${av.jerseyStripe}" stroke-width="4" paint-order="stroke fill" opacity="0.95">#${player.number}</text>` : '';
+  const chestNumberSVG = av.showChestNum
+    ? `<text x="150" y="182" text-anchor="middle" font-family="'Barlow Condensed', sans-serif" font-weight="900" font-style="italic" font-size="36" fill="#ffffff" stroke="${av.jerseyStripe}" stroke-width="4" paint-order="stroke fill" opacity="0.95">#${player.number}</text>`
+    : '';
   const stickTransform = player.handedness === 'Right' ? 'transform="translate(310, 0) scale(-1, 1)"' : '';
+
+  // =======================================================================
+  // MÅLVAKTSMODELL (GK) - Matchar Puck-målvakten med galler, benskydd & CLASSIC-klubba
+  // =======================================================================
+  if (isGK) {
+    return `
+      <svg viewBox="0 0 320 340" class="w-full h-full drop-shadow-[0_18px_28px_rgba(0,0,0,0.75)]">
+        <defs>
+          <linearGradient id="iceShadowGK" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#000000" stop-opacity="0.55"/>
+            <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Skugga på isen -->
+        <ellipse cx="155" cy="312" rx="115" ry="16" fill="url(#iceShadowGK)" />
+
+        <!-- 1. MÅLVAKTS-BENSKYDD PÅ ISEN (Butterfly Stance) -->
+        <g>
+          <!-- Vänster benskydd (svart/mörkt low-poly block) -->
+          <polygon points="28,236 106,262 94,302 18,272" fill="#0d1016" stroke="#262d3d" stroke-width="1.5" />
+          <polygon points="28,236 106,262 100,275 23,249" fill="#ffffff" opacity="0.08" />
+          <!-- Höger benskydd -->
+          <polygon points="154,268 246,246 258,282 166,308" fill="#0d1016" stroke="#262d3d" stroke-width="1.5" />
+          <polygon points="154,268 246,246 250,260 158,282" fill="#ffffff" opacity="0.08" />
+        </g>
+
+        <!-- 2. MÅLVAKTENS FRAMÅTLUTADE TORSO & UNDERKROPP -->
+        <g>
+          <!-- Underkropp / Byxblock -->
+          <polygon points="104,212 178,214 166,274 96,264" fill="${av.jerseyPrimary}" />
+          <polygon points="104,212 178,214 166,274 96,264" fill="#000000" opacity="0.18" />
+
+          <!-- Bred framåtlutad bröstplatta (Low-Poly) -->
+          <polygon points="82,126 206,132 196,216 92,212" fill="${av.jerseyPrimary}" />
+          <!-- Skuggade sidofacetter på målvaktströjan -->
+          <polygon points="82,126 112,138 106,212 72,184" fill="${av.jerseyPrimary}" />
+          <polygon points="82,126 112,138 106,212 72,184" fill="#000000" opacity="0.22" />
+          <polygon points="206,132 222,172 196,216 184,144" fill="${av.jerseyPrimary}" />
+          <polygon points="206,132 222,172 196,216 184,144" fill="#000000" opacity="0.26" />
+          <!-- Midjerand -->
+          <polygon points="92,202 198,206 194,218 94,214" fill="${av.jerseyStripe}" />
+          ${chestNumberSVG}
+        </g>
+
+        <!-- 3. MÅLVAKTSHJÄLM MED GALLER (CAGE) & SVART HALSSKYDD -->
+        <g>
+          <!-- Ansikte bakom gallret -->
+          <polygon points="124,62 182,62 178,98 156,112 132,108 122,88" fill="${av.skinColor}" />
+          ${facialHairSVG}
+
+          <!-- Svart hängande halsskydd / throat guard (som på bilden!) -->
+          <polygon points="130,96 172,96 164,138 142,144 126,122" fill="${av.helmetColor}" />
+          <polygon points="130,96 172,96 164,138 142,144 126,122" fill="#000000" opacity="0.25" />
+
+          <!-- Målvaktsmaskens kåpa -->
+          <polygon points="112,48 134,22 174,22 194,46 188,88 174,98 156,64 124,64 114,88" fill="${av.helmetColor}" />
+          <polygon points="134,22 174,22 182,42 126,42" fill="#ffffff" opacity="0.1" />
+
+          <!-- Metallgaller (Silver/Grått rutnät över ansiktet) -->
+          <polygon points="122,60 184,60 176,98 154,104 126,96" fill="rgba(15,23,42,0.35)" stroke="#cbd5e1" stroke-width="2" />
+          <!-- Vertikala gallerstänger -->
+          <line x1="136" y1="60" x2="134" y2="98" stroke="#cbd5e1" stroke-width="1.8" />
+          <line x1="152" y1="60" x2="152" y2="103" stroke="#cbd5e1" stroke-width="1.8" />
+          <line x1="168" y1="60" x2="166" y2="99" stroke="#cbd5e1" stroke-width="1.8" />
+          <!-- Horisontella gallerstänger -->
+          <line x1="123" y1="71" x2="182" y2="71" stroke="#cbd5e1" stroke-width="1.8" />
+          <line x1="124" y1="82" x2="180" y2="82" stroke="#cbd5e1" stroke-width="1.8" />
+          <line x1="126" y1="92" x2="177" y2="92" stroke="#cbd5e1" stroke-width="1.8" />
+        </g>
+
+        <!-- 4. MÅLVAKTSKLUBBA ("CLASSIC" TRÄPADDEL + BRETT BLAD) -->
+        <g ${stickTransform}>
+          <!-- Övre skaft med grepp-tejp -->
+          <polygon points="42,118 56,108 112,162 98,174" fill="${av.shaftTape}" />
+          
+          <!-- Bred Målvaktspaddel i ljust trä med "CLASSIC" och svarta ränder -->
+          <polygon points="112,162 96,178 192,268 210,250" fill="#d5b384" stroke="#9c7a4c" stroke-width="1" />
+          <!-- Övre dubbla svarta ränder på paddeln -->
+          <line x1="103" y1="171" x2="119" y2="155" stroke="#18181b" stroke-width="3" />
+          <line x1="109" y1="177" x2="125" y2="161" stroke="#18181b" stroke-width="2" />
+          <!-- Nedre dubbla svarta ränder på paddeln -->
+          <line x1="176" y1="252" x2="194" y2="234" stroke="#18181b" stroke-width="2" />
+          <line x1="182" y1="258" x2="200" y2="240" stroke="#18181b" stroke-width="3" />
+
+          <!-- "CLASSIC"-text längs paddeln -->
+          <g transform="translate(152, 212) rotate(43)">
+            <text x="0" y="0" text-anchor="middle" font-family="'Barlow Condensed', sans-serif" font-weight="900" font-style="italic" font-size="18" letter-spacing="2" fill="#18181b">CLASSIC</text>
+          </g>
+
+          <!-- Träklack mellan paddel och blad -->
+          <polygon points="192,268 210,250 232,264 218,284" fill="#c69f6d" />
+
+          <!-- Brett målvaktsblad med bladtejp + träspets -->
+          <polygon points="218,284 228,262 304,284 294,312" fill="#c69f6d" />
+          <polygon points="220,283 230,262 294,281 284,309" fill="${av.bladeTape}" />
+        </g>
+      </svg>
+    `;
+  }
+
+  // =======================================================================
+  // UTESPELARMODELL (DEFAULT)
+  // =======================================================================
+  let visorFill = 'rgba(20, 18, 18, 0.78)';
+  let visorShine = 'rgba(255, 255, 255, 0.25)';
+  if (av.visor === 'mirror') {
+    visorFill = 'rgba(37, 99, 235, 0.78)';
+    visorShine = 'rgba(147, 197, 253, 0.65)';
+  } else if (av.visor === 'gold') {
+    visorFill = 'rgba(217, 119, 6, 0.8)';
+    visorShine = 'rgba(253, 224, 71, 0.75)';
+  } else if (av.visor === 'clear') {
+    visorFill = 'rgba(226, 232, 240, 0.32)';
+    visorShine = 'rgba(255, 255, 255, 0.55)';
+  }
 
   return `
     <svg viewBox="0 0 320 340" class="w-full h-full drop-shadow-[0_18px_28px_rgba(0,0,0,0.75)]">
@@ -190,10 +311,13 @@ function renderPuckCharacterSVG(player) {
   `;
 }
 
-// Kallar på alla under-funktioner
+// =========================================================================
+// 3. RENDER ALL VIEWS & HEADER (INKLUSIVE INKORG)
+// =========================================================================
 function renderAll() {
   const approvedTeams = getApprovedTeams();
-  document.getElementById('topStatsCounter').textContent = `${allPlayers.length} registrerade spelare • ${approvedTeams.length} lag`;
+  document.getElementById('topStatsCounter').textContent =
+    `${allPlayers.length} spelare • ${approvedTeams.length} lag • ${allMatches.filter(m => m.status === 'completed').length} matcher`;
 
   renderHeaderAuthArea();
   renderScoreTicker();
@@ -205,12 +329,10 @@ function renderAll() {
   renderTeamsView();
   renderAdminView();
 
-  if (activeProfileSteamId) {
-    renderProfileView(activeProfileSteamId);
-  }
+  if (activeProfileSteamId) renderProfileView(activeProfileSteamId);
+  if (activeTeamProfileId) renderTeamProfileView(activeTeamProfileId);
 }
 
-// FIX FÖR INLOGGNINGSKNAPPEN
 function renderHeaderAuthArea() {
   const container = document.getElementById('headerAuthArea');
   const hint = document.getElementById('topAuthHint');
@@ -219,11 +341,8 @@ function renderHeaderAuthArea() {
 
   if (!currentUser) {
     hint.textContent = 'Utloggad besökare';
-    if(navAdmin) {
-      navAdmin.classList.add('hidden');
-      navAdmin.classList.remove('flex');
-    }
-    if(mobileAdmin) mobileAdmin.classList.add('hidden');
+    if (navAdmin) { navAdmin.classList.add('hidden'); navAdmin.classList.remove('flex'); }
+    if (mobileAdmin) mobileAdmin.classList.add('hidden');
 
     container.innerHTML = `
       <a href="/api/auth?action=login" class="bg-[#171a21] hover:bg-[#2a475e] text-white text-xs font-bold px-3.5 py-2 rounded border border-white/20 flex items-center gap-2 transition shadow">
@@ -249,8 +368,18 @@ function renderHeaderAuthArea() {
       ? `<span class="text-[10px] bg-amber-400 text-slate-950 font-extrabold px-1.5 py-0.2 rounded uppercase">ADMIN</span>`
       : `<span class="text-[10px] text-emerald-400 font-mono">#${me.number}</span>`;
 
+    const inviteBadge = myInvites.length > 0
+      ? `<span class="absolute -top-1 -right-1 bg-rose-600 text-white text-[10px] font-bold px-1.5 rounded-full animate-pulse">${myInvites.length}</span>`
+      : '';
+
     container.innerHTML = `
       <div class="flex items-center gap-2">
+        <!-- INKORG FÖR LAGINBJUDNINGAR -->
+        <button onclick="openInboxModal()" class="relative p-2 rounded bg-white/5 hover:bg-white/15 border border-white/15 text-gray-200 hover:text-white transition" title="Inkorg (Laginbjudningar)">
+          <i class="fa-solid fa-envelope text-sm"></i>
+          ${inviteBadge}
+        </button>
+
         <button onclick="openPlayerProfile('${me.steamId}')" class="flex items-center gap-2.5 bg-white/5 hover:bg-white/15 border border-white/15 px-3 py-1 rounded transition">
           <div class="w-7 h-8 rounded bg-slate-800 overflow-hidden flex items-center justify-center">
             ${renderPuckCharacterSVG(me)}
@@ -260,6 +389,7 @@ function renderHeaderAuthArea() {
             <div class="text-[10px] text-gray-400">Min Puck-Profil</div>
           </div>
         </button>
+
         <a href="/api/auth?action=logout" title="Logga ut" class="p-2 rounded bg-white/5 hover:bg-rose-600/30 border border-white/10 text-gray-300 hover:text-white text-xs transition">
           <i class="fa-solid fa-right-from-bracket"></i>
         </a>
@@ -268,7 +398,9 @@ function renderHeaderAuthArea() {
   }
 }
 
-// FIX FÖR RULLANDE SPELSCEHMAT (DÖLJS OM DET ÄR TOMT)
+// =========================================================================
+// 4. SCORE TICKER & MATCHLISTOR
+// =========================================================================
 function formatDateShort(dateStr) {
   if (!dateStr) return 'Datum ej satt';
   const d = new Date(dateStr);
@@ -278,12 +410,12 @@ function formatDateShort(dateStr) {
 function renderScoreTicker() {
   const wrapper = document.getElementById('tickerWrapper');
   const container = document.getElementById('scoreTickerContainer');
-  
+
   if (allMatches.length === 0) {
-    wrapper.classList.add('hidden'); // Döljer hela rutan om den är tom!
+    wrapper.classList.add('hidden');
     return;
   }
-  
+
   wrapper.classList.remove('hidden');
   container.innerHTML = allMatches.map(m => {
     const isPlayed = m.status === 'completed';
@@ -336,7 +468,6 @@ function renderHomeMatches() {
   if (filtered.length === 0) {
     container.innerHTML = `
       <div class="bg-[#f8fafc] border border-gray-200 rounded-sm p-8 text-center text-sm font-semibold text-gray-500">
-        <i class="fa-solid fa-calendar-xmark text-2xl text-gray-300 mb-2"></i><br/>
         Inga ${homeMatchFilter === 'upcoming' ? 'kommande' : 'spelade'} matcher registrerade.
       </div>
     `;
@@ -353,18 +484,18 @@ function renderHomeMatches() {
             ${formatDateShort(m.played_at || m.created_at)}
           </div>
           <div class="flex items-center justify-center gap-3 sm:gap-5 flex-1">
-            <div class="flex items-center justify-end gap-2.5 flex-1 text-right">
+            <button onclick="openTeamProfile(${m.home_team_id})" class="flex items-center justify-end gap-2.5 flex-1 text-right hover:text-shl-blue transition">
               <span class="font-shl text-lg font-extrabold uppercase text-slate-900">${m.home_name || 'Hemmalag'}</span>
               ${renderTeamCrestSVG(m.home_team_id, 'w-8 h-8')}
-            </div>
+            </button>
             <div class="text-center px-2 shrink-0">
               <div class="font-shl text-3xl font-black text-slate-900 leading-none">${centerDisplay}</div>
               <div class="text-[10px] text-gray-500 mt-1 font-medium">${m.server_ip || 'ELITSERIEN Server'}</div>
             </div>
-            <div class="flex items-center justify-start gap-2.5 flex-1 text-left">
+            <button onclick="openTeamProfile(${m.away_team_id})" class="flex items-center justify-start gap-2.5 flex-1 text-left hover:text-shl-blue transition">
               ${renderTeamCrestSVG(m.away_team_id, 'w-8 h-8')}
               <span class="font-shl text-lg font-extrabold uppercase text-slate-900">${m.away_name || 'Bortalag'}</span>
-            </div>
+            </button>
           </div>
           <div class="flex items-center gap-2 shrink-0">
             <button onclick="openMatchModal(${m.id})" class="border border-[#649eff] text-[#4a8af4] hover:bg-[#4a8af4] hover:text-white text-xs font-semibold px-4 py-1.5 rounded-sm transition">
@@ -377,7 +508,9 @@ function renderHomeMatches() {
   }).join('');
 }
 
-// Beräknar Serietabellen
+// =========================================================================
+// 5. SERIETABELL (KLICKBARA LAG SOM ÖPPNAR LAGPROFILEN)
+// =========================================================================
 function computeStandings() {
   const statsMap = {};
   getApprovedTeams().forEach(t => {
@@ -421,23 +554,23 @@ function renderStandingsTables() {
   const fullBody = document.getElementById('fullStandingsBody');
 
   if (sorted.length === 0) {
-    const emptyRow = `<tr><td colspan="10" class="py-8 text-center text-xs text-gray-500"><i class="fa-solid fa-ghost text-2xl text-gray-300 mb-2 block"></i>Inga godkända lag i tabellen ännu. Ansök med ett lag!</td></tr>`;
-    if(homeBody) homeBody.innerHTML = emptyRow;
+    const emptyRow = `<tr><td colspan="10" class="py-8 text-center text-xs text-gray-500">Inga godkända lag i tabellen ännu. Ansök med ett lag!</td></tr>`;
+    if (homeBody) homeBody.innerHTML = emptyRow;
     if (fullBody) fullBody.innerHTML = emptyRow;
     return;
   }
 
-  if(homeBody) {
+  if (homeBody) {
     homeBody.innerHTML = sorted.map((t, idx) => {
       const diff = t.gf - t.ga;
       const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
       return `
-        <tr onclick="switchView('teams')" class="hover:bg-blue-50/50 cursor-pointer transition">
+        <tr onclick="openTeamProfile(${t.id})" class="hover:bg-blue-50/70 cursor-pointer transition">
           <td class="py-3 pl-4 pr-2 font-bold text-slate-900">${idx + 1}</td>
           <td class="py-3 px-2">
             <div class="flex items-center gap-2.5">
               ${renderTeamCrestSVG(t.id, 'w-6 h-6')}
-              <span class="font-medium text-slate-800">${t.name}</span>
+              <span class="font-medium text-slate-800 hover:text-shl-blue">${t.name}</span>
             </div>
           </td>
           <td class="py-3 px-2 text-center text-gray-600">${t.gp}</td>
@@ -453,12 +586,12 @@ function renderStandingsTables() {
       const diff = t.gf - t.ga;
       const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
       return `
-        <tr class="hover:bg-gray-50 transition">
+        <tr onclick="openTeamProfile(${t.id})" class="hover:bg-blue-50/60 cursor-pointer transition">
           <td class="py-3.5 pl-4 pr-2 font-bold text-slate-900">${idx + 1}</td>
           <td class="py-3.5 px-3">
             <div class="flex items-center gap-3">
               ${renderTeamCrestSVG(t.id, 'w-7 h-7')}
-              <span class="font-bold text-slate-900">${t.name}</span>
+              <span class="font-bold text-slate-900 hover:text-shl-blue">${t.name}</span>
             </div>
           </td>
           <td class="py-3.5 px-3 text-center">${t.gp}</td>
@@ -480,7 +613,6 @@ function renderHomeTopScorers() {
   if (allPlayers.length === 0) {
     container.innerHTML = `
       <div class="col-span-3 bg-gray-50 border border-gray-200 rounded-sm p-6 text-center text-xs text-gray-500">
-        <i class="fa-solid fa-user-astronaut text-2xl text-gray-300 block mb-2"></i>
         Inga spelare har loggat in ännu. Var först med att logga in med Steam uppe till höger!
       </div>
     `;
@@ -491,7 +623,7 @@ function renderHomeTopScorers() {
   container.innerHTML = top3.map((p, i) => `
     <div onclick="openPlayerProfile('${p.steamId}')" class="bg-[#0e1420] text-white rounded-sm p-4 border border-slate-800 hover:border-shl-lightBlue cursor-pointer transition group relative overflow-hidden">
       <div class="flex items-center justify-between mb-2">
-        <span class="text-[10px] font-bold uppercase tracking-widest text-shl-lightBlue">#${i + 1} SPELARE</span>
+        <span class="text-[10px] font-bold uppercase tracking-widest text-shl-lightBlue">#${i + 1} ${isGoaliePos(p.position) ? 'MÅLVAKT (GK)' : p.position}</span>
         ${renderTeamCrestSVG(p.teamId, 'w-5 h-5')}
       </div>
       <div class="flex items-center gap-3">
@@ -508,21 +640,28 @@ function renderHomeTopScorers() {
   `).join('');
 }
 
-// Spelarprofil & Locker Room
+// =========================================================================
+// 6. SPELARPROFIL & PUCK LOCKER ROOM (UTESPELARE VS MÅLVAKT)
+// =========================================================================
 function openMyProfile() {
-  if (currentUser) {
-    openPlayerProfile(currentUser.steam_id);
-  } else if (allPlayers.length > 0) {
-    openPlayerProfile(allPlayers[0].steamId);
-  } else {
-    showToast('Logga in med Steam uppe till höger för att skapa din profil!', 'info');
-  }
+  if (currentUser) openPlayerProfile(currentUser.steam_id);
+  else if (allPlayers.length > 0) openPlayerProfile(allPlayers[0].steamId);
+  else showToast('Logga in med Steam uppe till höger för att skapa din profil!', 'info');
 }
 
 function openPlayerProfile(steamId) {
   activeProfileSteamId = steamId;
   renderProfileView(steamId);
   switchView('profile');
+}
+
+function openProfilePlayerTeam() {
+  const p = allPlayers.find(x => x.steamId === activeProfileSteamId);
+  if (p && p.teamId) {
+    openTeamProfile(p.teamId);
+  } else {
+    switchView('teams');
+  }
 }
 
 function renderProfileView(steamId) {
@@ -534,13 +673,24 @@ function renderProfileView(steamId) {
 
   document.getElementById('profilePuckAvatarContainer').innerHTML = renderPuckCharacterSVG(p);
   document.getElementById('profilePlayerName').textContent = p.name;
-  document.getElementById('profileNumberAndPos').textContent = `#${p.number} ${p.position}`;
+  document.getElementById('profileNumberAndPos').textContent = `#${p.number} ${isGoaliePos(p.position) ? 'MÅLVAKT (GK)' : p.position}`;
   document.getElementById('profileTeamCrest').innerHTML = renderTeamCrestSVG(p.teamId, 'w-6 h-6');
   document.getElementById('profileTeamName').textContent = team.name;
   document.getElementById('profileSteamId').textContent = p.steamId;
   document.getElementById('profileHandedness').textContent = p.handedness;
   document.getElementById('profileHardestShot').textContent = `${p.hardestShot.toFixed(1)} km/h`;
   document.getElementById('profilePassAcc').textContent = `${p.passAccuracy}%`;
+
+  const tRoleBadge = document.getElementById('profileTeamRoleBadge');
+  if (p.teamId && p.teamRole === 'captain') {
+    tRoleBadge.textContent = 'LAGKAPTEN (C)';
+    tRoleBadge.classList.remove('hidden');
+  } else if (p.teamId && p.teamRole === 'assistant') {
+    tRoleBadge.textContent = 'ASSISTERANDE KAPTEN (A)';
+    tRoleBadge.classList.remove('hidden');
+  } else {
+    tRoleBadge.classList.add('hidden');
+  }
 
   const adminBadge = document.getElementById('profileAdminBadge');
   if (p.accountRole === 'admin') adminBadge.classList.remove('hidden');
@@ -549,15 +699,11 @@ function renderProfileView(steamId) {
   const btnFloat = document.getElementById('btnEditAvatarFloating');
   const btnOpen = document.getElementById('btnOpenLockerRoom');
   if (canEdit) {
-    btnFloat.classList.remove('hidden');
-    btnFloat.classList.add('flex');
-    btnOpen.classList.remove('hidden');
-    btnOpen.classList.add('flex');
+    btnFloat.classList.remove('hidden'); btnFloat.classList.add('flex');
+    btnOpen.classList.remove('hidden'); btnOpen.classList.add('flex');
   } else {
-    btnFloat.classList.add('hidden');
-    btnFloat.classList.remove('flex');
-    btnOpen.classList.add('hidden');
-    btnOpen.classList.remove('flex');
+    btnFloat.classList.add('hidden'); btnFloat.classList.remove('flex');
+    btnOpen.classList.add('hidden'); btnOpen.classList.remove('flex');
     document.getElementById('avatarEditorDrawer').classList.add('hidden');
   }
 
@@ -587,15 +733,34 @@ function renderProfileView(steamId) {
   populateAvatarCustomizerInputs(p);
 }
 
-function populateAvatarCustomizerInputs(p) {
-  const teamSel = document.getElementById('custTeamId');
-  const approved = getApprovedTeams();
-  teamSel.innerHTML = `<option value="">Fria Agenter (Inget lag)</option>` +
-    approved.map(t => `<option value="${t.id}" ${Number(t.id) === Number(p.teamId) ? 'selected' : ''}>${t.name} (${t.tag})</option>`).join('');
+function updatePlayerTypeButtons(pos) {
+  const btnSkater = document.getElementById('btnTypeSkater');
+  const btnGoalie = document.getElementById('btnTypeGoalie');
+  if (!btnSkater || !btnGoalie) return;
 
+  if (isGoaliePos(pos)) {
+    btnGoalie.className = 'py-1.5 rounded font-bold uppercase text-[11px] bg-shl-blue text-white transition';
+    btnSkater.className = 'py-1.5 rounded font-bold uppercase text-[11px] text-gray-400 hover:text-white transition';
+  } else {
+    btnSkater.className = 'py-1.5 rounded font-bold uppercase text-[11px] bg-shl-blue text-white transition';
+    btnGoalie.className = 'py-1.5 rounded font-bold uppercase text-[11px] text-gray-400 hover:text-white transition';
+  }
+}
+
+function setPlayerType(type) {
+  const roleSelect = document.getElementById('custRole');
+  if (type === 'goalie') {
+    roleSelect.value = 'MÅLVAKT';
+  } else {
+    if (isGoaliePos(roleSelect.value)) roleSelect.value = 'FORWARD';
+  }
+  previewAvatarFromInputs();
+}
+
+function populateAvatarCustomizerInputs(p) {
   document.getElementById('custName').value = p.name;
   document.getElementById('custNumber').value = p.number;
-  document.getElementById('custRole').value = p.position;
+  document.getElementById('custRole').value = isGoaliePos(p.position) ? 'MÅLVAKT' : p.position;
   document.getElementById('custHand').value = p.handedness;
   document.getElementById('custJerseyPrimary').value = p.avatar.jerseyPrimary;
   document.getElementById('custJerseyStripe').value = p.avatar.jerseyStripe;
@@ -607,6 +772,7 @@ function populateAvatarCustomizerInputs(p) {
   document.getElementById('custShaftTape').value = p.avatar.shaftTape;
   document.getElementById('custBladeTape').value = p.avatar.bladeTape;
   document.getElementById('custShowChestNum').checked = p.avatar.showChestNum;
+  updatePlayerTypeButtons(p.position);
 }
 
 function previewAvatarFromInputs() {
@@ -617,8 +783,6 @@ function previewAvatarFromInputs() {
   p.number = parseInt(document.getElementById('custNumber').value, 10) || 12;
   p.position = document.getElementById('custRole').value;
   p.handedness = document.getElementById('custHand').value;
-  const tVal = document.getElementById('custTeamId').value;
-  p.teamId = tVal ? parseInt(tVal, 10) : null;
 
   p.avatar.jerseyPrimary = document.getElementById('custJerseyPrimary').value;
   p.avatar.jerseyStripe = document.getElementById('custJerseyStripe').value;
@@ -631,22 +795,12 @@ function previewAvatarFromInputs() {
   p.avatar.bladeTape = document.getElementById('custBladeTape').value;
   p.avatar.showChestNum = document.getElementById('custShowChestNum').checked;
 
-  const team = getTeamById(p.teamId);
+  updatePlayerTypeButtons(p.position);
+
   document.getElementById('profilePuckAvatarContainer').innerHTML = renderPuckCharacterSVG(p);
   document.getElementById('profilePlayerName').textContent = p.name;
-  document.getElementById('profileNumberAndPos').textContent = `#${p.number} ${p.position}`;
-  document.getElementById('profileTeamCrest').innerHTML = renderTeamCrestSVG(p.teamId, 'w-6 h-6');
-  document.getElementById('profileTeamName').textContent = team.name;
+  document.getElementById('profileNumberAndPos').textContent = `#${p.number} ${isGoaliePos(p.position) ? 'MÅLVAKT (GK)' : p.position}`;
   document.getElementById('profileHandedness').textContent = p.handedness;
-}
-
-function applyTeamPresetToAvatar(teamId) {
-  if (teamId) {
-    const t = getTeamById(teamId);
-    if (t.primary_color) document.getElementById('custJerseyPrimary').value = t.primary_color;
-    if (t.secondary_color) document.getElementById('custJerseyStripe').value = t.secondary_color;
-  }
-  previewAvatarFromInputs();
 }
 
 function setQuickTape(shaftHex, bladeHex) {
@@ -678,7 +832,6 @@ async function saveAvatarChangesToDB() {
         jerseyNumber: p.number,
         preferredPosition: p.position,
         stickHandedness: p.handedness,
-        teamId: p.teamId,
         jerseyPrimary: p.avatar.jerseyPrimary,
         jerseyStripe: p.avatar.jerseyStripe,
         showChestNum: p.avatar.showChestNum,
@@ -695,7 +848,7 @@ async function saveAvatarChangesToDB() {
     const out = await res.json();
     if (!res.ok) throw new Error(out.error || 'Kunde inte spara');
 
-    showToast('Din Puck-karaktär har sparats i databasen!', 'success');
+    showToast('Din Puck-karaktär har sparats!', 'success');
     document.getElementById('avatarEditorDrawer').classList.add('hidden');
     await loadLeagueData();
   } catch (err) {
@@ -706,7 +859,354 @@ async function saveAvatarChangesToDB() {
   }
 }
 
-// Spelschema, Statistik & Lag-Vyer
+// =========================================================================
+// 7. HELSKÄRMS LAGPROFIL (ROSTER, KAPTEN-VERKTYG, MATCHER & TRANSFERS)
+// =========================================================================
+function openTeamProfile(teamId) {
+  if (!teamId) return;
+  activeTeamProfileId = Number(teamId);
+  renderTeamProfileView(activeTeamProfileId);
+  switchView('team-profile');
+}
+
+function renderTeamProfileView(teamId) {
+  const team = allTeams.find(t => Number(t.id) === Number(teamId));
+  if (!team) return;
+
+  const standings = computeStandings();
+  const rankIdx = standings.findIndex(s => Number(s.id) === Number(team.id));
+  const st = standings[rankIdx] || { gp: 0, pts: 0, gf: 0, ga: 0 };
+  const diff = st.gf - st.ga;
+  const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
+
+  const teamPlayers = allPlayers.filter(p => Number(p.teamId) === Number(team.id));
+  const isAdmin = currentUser && currentUser.role === 'admin';
+  const myMemberRow = currentUser
+    ? allRosters.find(r => Number(r.team_id) === Number(team.id) && r.steam_id === currentUser.steam_id)
+    : null;
+  const isCaptain = myMemberRow && myMemberRow.team_role === 'captain';
+  const isAssistant = myMemberRow && myMemberRow.team_role === 'assistant';
+  const isMember = Boolean(myMemberRow);
+  const canManage = isAdmin || isCaptain || isAssistant;
+
+  document.getElementById('teamProfileCrest').innerHTML = renderTeamCrestSVG(team.id, 'w-24 h-28');
+  document.getElementById('teamProfileRankBadge').textContent = rankIdx >= 0 ? `#${rankIdx + 1} I SERIETABELLEN` : 'EJ I TABELL';
+  document.getElementById('teamProfileRosterCount').textContent = `${teamPlayers.length} / 10 SPELARE`;
+  document.getElementById('teamProfileName').textContent = `${team.name} (${team.tag})`;
+  document.getElementById('teamProfileMeta').textContent = `Lagkapten: ${team.captain_name || 'Ej utsedd'}`;
+
+  document.getElementById('tpStatGP').textContent = st.gp;
+  document.getElementById('tpStatPTS').textContent = st.pts;
+  document.getElementById('tpStatDiff').textContent = diffStr;
+  document.getElementById('tpStatGoals').textContent = `${st.gf} - ${st.ga}`;
+
+  // Knappar uppe till höger (Lämna lag för medlemmar / Radera lag för Admin)
+  const actionsDiv = document.getElementById('teamProfileHeaderActions');
+  let actionButtonsHTML = '';
+  if (isMember && !isCaptain) {
+    actionButtonsHTML += `
+      <button onclick="leaveTeam(${team.id})" class="bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded shadow transition">
+        <i class="fa-solid fa-person-walking-arrow-right mr-1"></i> Lämna laget
+      </button>
+    `;
+  } else if (isMember && isCaptain && teamPlayers.length > 1) {
+    actionButtonsHTML += `
+      <button onclick="leaveTeam(${team.id})" class="bg-white/10 hover:bg-rose-600 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded border border-white/20 transition">
+        Lämna laget
+      </button>
+    `;
+  }
+  if (isAdmin) {
+    actionButtonsHTML += `
+      <button onclick="adminHandleTeam(${team.id}, 'delete')" class="bg-rose-900/80 hover:bg-rose-700 text-rose-100 text-xs font-bold uppercase tracking-wider px-4 py-2 rounded border border-rose-500/40 transition">
+        <i class="fa-solid fa-trash mr-1"></i> Radera lag (Admin)
+      </button>
+    `;
+  }
+  actionsDiv.innerHTML = actionButtonsHTML;
+
+  // Kapten / Assisterande / Admin kontrollpanel för att bjuda in Free Agents
+  const capPanel = document.getElementById('teamCaptainControlPanel');
+  const directBtn = document.getElementById('btnAdminDirectAddPlayer');
+  if (canManage) {
+    capPanel.classList.remove('hidden');
+    if (isAdmin) directBtn.classList.remove('hidden');
+    else directBtn.classList.add('hidden');
+
+    const freeAgents = allPlayers.filter(p => !p.teamId);
+    const faSelect = document.getElementById('captainFreeAgentSelect');
+    if (teamPlayers.length >= 10) {
+      faSelect.innerHTML = `<option value="">Laget är fullt (10 / 10 spelare)</option>`;
+    } else if (freeAgents.length === 0) {
+      faSelect.innerHTML = `<option value="">Inga lediga Free Agents registrerade just nu</option>`;
+    } else {
+      faSelect.innerHTML = freeAgents.map(fa =>
+        `<option value="${fa.steamId}">#${fa.number} ${fa.name} (${isGoaliePos(fa.position) ? 'Målvakt GK' : fa.position})</option>`
+      ).join('');
+    }
+  } else {
+    capPanel.classList.add('hidden');
+  }
+
+  // Render Roster Cards
+  const rosterGrid = document.getElementById('teamProfileRosterGrid');
+  if (teamPlayers.length === 0) {
+    rosterGrid.innerHTML = `<div class="col-span-2 bg-gray-50 border border-gray-200 rounded p-6 text-center text-xs text-gray-500">Inga spelare i laget ännu.</div>`;
+  } else {
+    rosterGrid.innerHTML = teamPlayers.map(tp => {
+      const rRow = allRosters.find(r => Number(r.team_id) === Number(team.id) && r.steam_id === tp.steamId);
+      const tRole = rRow?.team_role || 'player';
+      const roleBadge = tRole === 'captain'
+        ? `<span class="bg-amber-400 text-slate-950 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase">LAGKAPTEN (C)</span>`
+        : tRole === 'assistant'
+        ? `<span class="bg-sky-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded uppercase">ASSISTERANDE (A)</span>`
+        : `<span class="bg-gray-200 text-gray-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">SPELARE</span>`;
+
+      const posBadge = isGoaliePos(tp.position)
+        ? `<span class="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase">MÅLVAKT (GK)</span>`
+        : `<span class="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">${tp.position}</span>`;
+
+      let controlsHTML = '';
+      if (canManage) {
+        controlsHTML = `
+          <div class="mt-3 pt-3 border-t border-gray-100 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+            <div class="flex items-center gap-1.5">
+              <select onchange="updateMemberRoleOrPos(${team.id}, '${tp.steamId}', this.value, null)" class="border border-gray-300 rounded px-2 py-1 text-xs bg-white">
+                <option value="player" ${tRole === 'player' ? 'selected' : ''}>Roll: Spelare</option>
+                <option value="assistant" ${tRole === 'assistant' ? 'selected' : ''}>Roll: Assisterande (A)</option>
+                ${(isCaptain || isAdmin) ? `<option value="captain" ${tRole === 'captain' ? 'selected' : ''}>Roll: Gör till Kapten (C)</option>` : ''}
+              </select>
+              <select onchange="updateMemberRoleOrPos(${team.id}, '${tp.steamId}', null, this.value)" class="border border-gray-300 rounded px-2 py-1 text-xs bg-white">
+                <option value="FORWARD" ${tp.position === 'FORWARD' ? 'selected' : ''}>Forward</option>
+                <option value="CENTER" ${tp.position === 'CENTER' ? 'selected' : ''}>Center</option>
+                <option value="BACK" ${tp.position === 'BACK' ? 'selected' : ''}>Back</option>
+                <option value="MÅLVAKT" ${isGoaliePos(tp.position) ? 'selected' : ''}>Målvakt (GK)</option>
+              </select>
+            </div>
+            ${(tRole !== 'captain' || isAdmin) ? `
+              <button onclick="kickMember(${team.id}, '${tp.steamId}')" class="text-rose-600 hover:bg-rose-50 font-bold px-2 py-1 rounded transition">
+                Sparka
+              </button>
+            ` : ''}
+          </div>
+        `;
+      }
+
+      return `
+        <div class="bg-white border border-gray-200 rounded-sm p-4 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between gap-4">
+            <div onclick="openPlayerProfile('${tp.steamId}')" class="flex items-center gap-3.5 cursor-pointer group">
+              <div class="w-14 h-16 bg-slate-900 rounded overflow-hidden flex items-center justify-center shrink-0">
+                ${renderPuckCharacterSVG(tp)}
+              </div>
+              <div>
+                <div class="flex flex-wrap items-center gap-1.5 mb-1">
+                  ${roleBadge}
+                  ${posBadge}
+                </div>
+                <div class="font-shl text-2xl font-black uppercase text-slate-900 group-hover:text-shl-blue transition">#${tp.number} ${tp.name}</div>
+                <div class="text-xs text-gray-500">${tp.gp} GP • ${tp.g} G • ${tp.a} A • <strong>${tp.tp} TP</strong></div>
+              </div>
+            </div>
+          </div>
+          ${controlsHTML}
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Render Team Matches
+  const teamMatches = allMatches.filter(m => Number(m.home_team_id) === Number(team.id) || Number(m.away_team_id) === Number(team.id));
+  const mList = document.getElementById('teamProfileMatchesList');
+  if (teamMatches.length === 0) {
+    mList.innerHTML = `<div class="bg-gray-50 border border-gray-200 rounded p-6 text-center text-xs text-gray-500">Inga matcher registrerade för ${team.name} ännu.</div>`;
+  } else {
+    mList.innerHTML = teamMatches.map(m => {
+      const isPlayed = m.status === 'completed';
+      return `
+        <div onclick="openMatchModal(${m.id})" class="bg-gray-50 hover:bg-white border border-gray-200 rounded p-3 flex items-center justify-between cursor-pointer transition text-xs">
+          <span class="text-gray-500 font-medium">${formatDateShort(m.played_at || m.created_at)}</span>
+          <div class="flex items-center gap-2 font-shl text-base font-bold uppercase">
+            <span>${m.home_name}</span>
+            <span class="px-2 py-0.5 bg-slate-900 text-white rounded font-black">${isPlayed ? `${m.home_score} - ${m.away_score}` : 'VS'}</span>
+            <span>${m.away_name}</span>
+          </div>
+          <span class="text-[10px] font-bold uppercase ${isPlayed ? 'text-emerald-600' : 'text-shl-blue'}">${isPlayed ? 'SPELAD' : 'KOMMANDE'}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Render Team Transfer History
+  const teamTransfers = allTransfers.filter(th => Number(th.from_team_id) === Number(team.id) || Number(th.to_team_id) === Number(team.id));
+  const tList = document.getElementById('teamProfileTransfersList');
+  if (teamTransfers.length === 0) {
+    tList.innerHTML = `<div class="bg-gray-50 border border-gray-200 rounded p-6 text-center text-xs text-gray-500">Ingen transferhistorik ännu.</div>`;
+  } else {
+    tList.innerHTML = teamTransfers.map(th => {
+      let badge = `<span class="bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded text-[10px]">ANSLÖT</span>`;
+      if (th.transfer_type === 'leave') badge = `<span class="bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded text-[10px]">LÄMNADE</span>`;
+      if (th.transfer_type === 'kick') badge = `<span class="bg-rose-100 text-rose-800 font-bold px-1.5 py-0.5 rounded text-[10px]">SPARKAD</span>`;
+
+      return `
+        <div class="bg-white border border-gray-200 rounded p-3 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2">
+            ${badge}
+            <span class="font-bold text-slate-900">${th.player_name || th.steam_id}</span>
+          </div>
+          <span class="text-[11px] text-gray-400">${formatDateShort(th.transfer_date)}</span>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+async function sendTeamInvite(directAdd = false) {
+  const sel = document.getElementById('captainFreeAgentSelect');
+  const targetSteamId = sel ? sel.value : '';
+  if (!targetSteamId) {
+    showToast('Välj en Free Agent i listan först.', 'error');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'invite_player',
+        teamId: activeTeamProfileId,
+        targetSteamId,
+        directAdd
+      })
+    });
+    const out = await res.json();
+    if (!res.ok) throw new Error(out.error);
+
+    showToast(out.direct ? 'Spelaren lades in i laget direkt!' : 'Inbjudan har skickats till spelarens inkorg!', 'success');
+    await loadLeagueData();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function leaveTeam(teamId) {
+  if (!confirm('Är du säker på att du vill lämna laget?')) return;
+  try {
+    const res = await fetch('/api/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'leave_team', teamId })
+    });
+    const out = await res.json();
+    if (!res.ok) throw new Error(out.error);
+    showToast('Du har lämnat laget och är nu Free Agent.', 'info');
+    await loadLeagueData();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function kickMember(teamId, targetSteamId) {
+  if (!confirm('Vill du sparka spelaren från laget?')) return;
+  try {
+    const res = await fetch('/api/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'kick_member', teamId, targetSteamId })
+    });
+    const out = await res.json();
+    if (!res.ok) throw new Error(out.error);
+    showToast('Spelaren togs bort från laget.', 'info');
+    await loadLeagueData();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function updateMemberRoleOrPos(teamId, targetSteamId, newTeamRole, newPosition) {
+  try {
+    const res = await fetch('/api/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'update_team_member',
+        teamId,
+        targetSteamId,
+        newTeamRole,
+        newPosition
+      })
+    });
+    const out = await res.json();
+    if (!res.ok) throw new Error(out.error);
+    showToast('Spelarens roll/position har uppdaterats!', 'success');
+    await loadLeagueData();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// =========================================================================
+// 8. INKORG FÖR LAGINBJUDNINGAR
+// =========================================================================
+function openInboxModal() {
+  const list = document.getElementById('inboxListContainer');
+  if (myInvites.length === 0) {
+    list.innerHTML = `<div class="text-center text-xs text-gray-500 py-6">Du har inga väntande laginbjudningar i din inkorg.</div>`;
+  } else {
+    list.innerHTML = myInvites.map(inv => `
+      <div class="border border-gray-200 rounded p-4 flex flex-col gap-3 bg-gray-50">
+        <div class="flex items-center gap-3">
+          ${renderTeamCrestSVG(inv.team_id, 'w-10 h-10')}
+          <div>
+            <div class="font-shl text-xl font-black uppercase text-slate-900">${inv.team_name} (${inv.team_tag})</div>
+            <div class="text-xs text-gray-500">Inbjuden av: <strong>${inv.inviter_name || 'Lagkapten'}</strong></div>
+          </div>
+        </div>
+        <div class="flex items-center justify-end gap-2">
+          <button onclick="respondToInvite(${inv.id}, 'decline')" class="px-3 py-1.5 rounded text-xs font-bold text-gray-600 hover:bg-gray-200">
+            Neka
+          </button>
+          <button onclick="respondToInvite(${inv.id}, 'accept')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded text-xs font-bold uppercase shadow">
+            Acceptera & Gå med
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
+  document.getElementById('inboxModal').classList.remove('hidden');
+}
+
+function closeInboxModal() {
+  document.getElementById('inboxModal').classList.add('hidden');
+}
+
+async function respondToInvite(inviteId, decision) {
+  try {
+    const res = await fetch('/api/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'respond_invite', inviteId, decision })
+    });
+    const out = await res.json();
+    if (!res.ok) throw new Error(out.error);
+
+    closeInboxModal();
+    await loadLeagueData();
+    if (decision === 'accept' && out.teamId) {
+      showToast('Du har gått med i laget!', 'success');
+      openTeamProfile(out.teamId);
+    } else {
+      showToast('Inbjudan avböjdes.', 'info');
+    }
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// =========================================================================
+// 9. SPELSCHEMA, STATISTIK, LAGEN & ADMINPANEL
+// =========================================================================
 function renderFullScheduleView() {
   const container = document.getElementById('fullScheduleContainer');
   if (allMatches.length === 0) {
@@ -726,15 +1226,15 @@ function renderFullScheduleView() {
           <span class="text-xs text-gray-600 font-medium">${formatDateShort(m.played_at || m.created_at)}</span>
         </div>
         <div class="flex items-center justify-center gap-4 flex-1">
-          <div class="flex items-center justify-end gap-2 flex-1 text-right font-shl text-xl font-bold uppercase">
+          <button onclick="openTeamProfile(${m.home_team_id})" class="flex items-center justify-end gap-2 flex-1 text-right font-shl text-xl font-bold uppercase hover:text-shl-blue">
             ${m.home_name || 'Hemmalag'} ${renderTeamCrestSVG(m.home_team_id, 'w-7 h-7')}
-          </div>
+          </button>
           <div class="font-shl text-2xl font-black px-3 py-1 bg-gray-100 rounded min-w-[75px] text-center">
-            ${isPlayed ? `${m.home_score} -${m.away_score}` : 'VS'}
+            ${isPlayed ? `${m.home_score} - ${m.away_score}` : 'VS'}
           </div>
-          <div class="flex items-center justify-start gap-2 flex-1 text-left font-shl text-xl font-bold uppercase">
+          <button onclick="openTeamProfile(${m.away_team_id})" class="flex items-center justify-start gap-2 flex-1 text-left font-shl text-xl font-bold uppercase hover:text-shl-blue">
             ${renderTeamCrestSVG(m.away_team_id, 'w-7 h-7')} ${m.away_name || 'Bortalag'}
-          </div>
+          </button>
         </div>
         <div class="flex items-center gap-2">
           <button onclick="openMatchModal(${m.id})" class="border border-shl-blue text-shl-blue hover:bg-shl-blue hover:text-white text-xs font-bold px-3.5 py-1.5 rounded-sm transition">
@@ -776,7 +1276,7 @@ function renderFullStatsView() {
             <span class="font-semibold">${team.tag}</span>
           </div>
         </td>
-        <td class="py-3.5 px-3 text-center text-xs font-bold text-gray-600">${p.position}</td>
+        <td class="py-3.5 px-3 text-center text-xs font-bold text-gray-600">${isGoaliePos(p.position) ? 'GK' : p.position}</td>
         <td class="py-3.5 px-3 text-center">${p.gp}</td>
         <td class="py-3.5 px-3 text-center font-semibold">${p.g}</td>
         <td class="py-3.5 px-3 text-center font-semibold">${p.a}</td>
@@ -796,7 +1296,7 @@ function renderTeamsView() {
     container.innerHTML = `
       <div class="col-span-4 bg-gray-50 border border-gray-200 rounded-sm p-10 text-center space-y-3">
         <p class="text-sm font-bold text-slate-800">Inga lag är godkända i ligan ännu.</p>
-        <p class="text-xs text-gray-500">Klicka på "Ansök med ditt lag" för att skicka in den första lagansökan!</p>
+        <p class="text-xs text-gray-500">Klicka på "Ansök med ditt lag" för att skicka in en lagansökan!</p>
       </div>
     `;
     return;
@@ -809,29 +1309,29 @@ function renderTeamsView() {
     const teamPlayers = allPlayers.filter(p => Number(p.teamId) === Number(t.id));
     const st = standingsMap[t.id] || { pts: 0, gp: 0, gf: 0, ga: 0 };
     return `
-      <div class="bg-white border border-gray-200 rounded-sm shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition">
+      <div onclick="openTeamProfile(${t.id})" class="bg-white border border-gray-200 rounded-sm shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md cursor-pointer transition group">
         <div>
           <div class="h-2" style="background-color: ${t.primary_color || '#0284c7'}"></div>
           <div class="p-5 flex items-center gap-4 border-b border-gray-100">
             ${renderTeamCrestSVG(t.id, 'w-12 h-12')}
             <div>
-              <h3 class="font-shl text-2xl font-black uppercase text-slate-900 leading-none">${t.name}</h3>
-              <span class="text-xs text-gray-500 font-medium">${st.pts} poäng • ${st.gp} matcher</span>
+              <h3 class="font-shl text-2xl font-black uppercase text-slate-900 group-hover:text-shl-blue leading-none">${t.name}</h3>
+              <span class="text-xs text-gray-500 font-medium">${st.pts} poäng • ${teamPlayers.length}/10 spelare</span>
             </div>
           </div>
-          <div class="p-4 space-y-2">
-            <div class="text-[11px] font-bold uppercase tracking-wider text-gray-400">Spelare i truppen</div>
-            ${teamPlayers.length > 0 ? teamPlayers.map(tp => `
-              <div onclick="openPlayerProfile('${tp.steamId}')" class="flex items-center justify-between text-xs py-1 px-2 rounded hover:bg-gray-100 cursor-pointer">
-                <span class="font-bold text-slate-800">#${tp.number}${tp.name}</span>
-                <span class="text-shl-blue font-semibold">${tp.tp} TP</span>
+          <div class="p-4 space-y-1.5">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-gray-400">Kapten: ${t.captain_name || '-'}</div>
+            ${teamPlayers.slice(0, 5).map(tp => `
+              <div class="flex items-center justify-between text-xs py-1 px-2 rounded bg-gray-50">
+                <span class="font-bold text-slate-800">#${tp.number} ${tp.name}</span>
+                <span class="text-[10px] font-bold text-gray-500">${isGoaliePos(tp.position) ? 'GK' : tp.position}</span>
               </div>
-            `).join('') : `<div class="text-xs text-gray-400 italic py-2">${t.roster_notes || 'Inga spelare har valt laget i Locker Room ännu'}</div>`}
+            `).join('')}
           </div>
         </div>
         <div class="bg-gray-50 px-4 py-2.5 border-t border-gray-100 flex items-center justify-between text-xs">
           <span class="text-gray-500">Målskillnad: <strong>${st.gf}-${st.ga}</strong></span>
-          <span class="font-mono text-[11px] text-gray-400">${t.tag}</span>
+          <span class="text-shl-blue font-bold">Öppna lagprofil →</span>
         </div>
       </div>
     `;
@@ -845,6 +1345,7 @@ function renderAdminView() {
   document.getElementById('navAdminCount').textContent = pending.length;
   document.getElementById('adminPendingBadge').textContent = `${pending.length} väntar`;
 
+  // 1. Väntande ansökningar
   const appList = document.getElementById('adminApplicationsList');
   if (pending.length === 0) {
     appList.innerHTML = `
@@ -860,21 +1361,74 @@ function renderAdminView() {
             <span class="w-4 h-4 rounded-full inline-block border border-gray-300" style="background:${app.primary_color || '#0284c7'}"></span>
             <span class="font-shl text-xl font-black uppercase text-slate-900">${app.name} (${app.tag})</span>
           </div>
-          <div class="text-xs text-gray-500"><strong>Kapten SteamID:</strong> ${app.captain_steam_id || '-'}</div>
-          <div class="text-xs text-gray-600"><strong>Trupp/Notering:</strong> ${app.roster_notes || '-'}</div>
+          <div class="text-xs text-gray-600"><strong>Sökande Lagkapten:</strong> ${app.captain_name || app.captain_steam_id || '-'}</div>
+          <div class="text-xs text-gray-500"><strong>Notering:</strong> ${app.roster_notes || '-'}</div>
         </div>
         <div class="flex items-center gap-2 shrink-0">
           <button onclick="adminHandleTeam(${app.id}, 'approve')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase px-3.5 py-2 rounded-sm shadow transition">
             Godkänn
           </button>
           <button onclick="adminHandleTeam(${app.id}, 'delete')" class="bg-rose-100 hover:bg-rose-200 text-rose-700 text-xs font-bold uppercase px-3 py-2 rounded-sm transition">
-            Ta bort
+            Neka
           </button>
         </div>
       </div>
     `).join('');
   }
 
+  // 2. Kapten-dropdown för att skapa nytt lag direkt + lista aktiva lag
+  const capSelect = document.getElementById('adminNewTeamCaptain');
+  if (capSelect) {
+    capSelect.innerHTML = `<option value="">-- Välj lagkapten (valfritt) --</option>` +
+      allPlayers.map(p => `<option value="${p.steamId}">#${p.number} ${p.name}</option>`).join('');
+  }
+
+  const activeTeamsDiv = document.getElementById('adminActiveTeamsList');
+  if (activeTeamsDiv) {
+    if (approved.length === 0) {
+      activeTeamsDiv.innerHTML = `<div class="text-xs text-gray-400 py-2">Inga godkända lag ännu.</div>`;
+    } else {
+      activeTeamsDiv.innerHTML = approved.map(t => `
+        <div class="flex items-center justify-between py-2 px-3 bg-gray-50 rounded border border-gray-200 text-xs">
+          <button onclick="openTeamProfile(${t.id})" class="flex items-center gap-2 font-bold text-slate-900 hover:text-shl-blue">
+            ${renderTeamCrestSVG(t.id, 'w-5 h-5')}
+            <span>${t.name} (${t.tag})</span>
+          </button>
+          <div class="flex items-center gap-2">
+            <button onclick="openTeamProfile(${t.id})" class="text-shl-blue font-semibold hover:underline">Hantera trupp</button>
+            <button onclick="adminHandleTeam(${t.id}, 'delete')" class="text-rose-600 hover:bg-rose-100 px-2 py-1 rounded font-bold">Radera lag</button>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+
+  // 3. Spelarlista för att ge/ta bort Admin-behörighet
+  const roleListDiv = document.getElementById('adminPlayersRoleList');
+  if (roleListDiv) {
+    roleListDiv.innerHTML = allPlayers.map(p => {
+      const isSuper = p.steamId === '76561198360771568';
+      const isPlayerAdmin = p.accountRole === 'admin';
+      return `
+        <div class="py-2.5 flex items-center justify-between gap-2">
+          <div>
+            <span class="font-bold text-slate-900">#${p.number} ${p.name}</span>
+            <span class="text-gray-400 font-mono text-[11px] ml-1">(${p.steamId})</span>
+            ${isPlayerAdmin ? `<span class="ml-1 bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded text-[10px]">ADMIN</span>` : ''}
+          </div>
+          <div>
+            ${isSuper ? `<span class="text-[11px] text-gray-400 font-semibold">Huvud-Admin</span>` : `
+              <button onclick="adminSetPlayerRole('${p.steamId}', '${isPlayerAdmin ? 'player' : 'admin'}')" class="px-2.5 py-1 rounded font-bold ${isPlayerAdmin ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' : 'bg-amber-500 text-slate-950 hover:bg-amber-400'}">
+                ${isPlayerAdmin ? 'Ta bort Admin' : 'Gör till Admin'}
+              </button>
+            `}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // 4. Dropdowns för matcher
   const teamOptions = approved.map(t => `<option value="${t.id}">${t.name} (${t.tag})</option>`).join('');
   ['simHomeTeam', 'simAwayTeam', 'schedHomeTeam', 'schedAwayTeam'].forEach(selId => {
     const el = document.getElementById(selId);
@@ -888,10 +1442,206 @@ function renderAdminView() {
   }
 }
 
-// Navigation och Gränssnitt
+// =========================================================================
+// 10. ADMIN & FORMULÄR-ACTIONS MOT /api/data
+// =========================================================================
+async function submitTeamApplication(e) {
+  e.preventDefault();
+  const name = document.getElementById('appTeamName').value.trim();
+  const tag = document.getElementById('appTeamShort').value.trim().toUpperCase();
+  const primaryColor = document.getElementById('appTeamColor').value;
+  const secondaryColor = document.getElementById('appTeamSecondary').value;
+  const rosterNotes = document.getElementById('appTeamRoster').value.trim();
+
+  try {
+    const res = await fetch('/api/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'apply_team',
+        name,
+        tag,
+        primaryColor,
+        secondaryColor,
+        rosterNotes
+      })
+    });
+    const out = await res.json();
+    if (!res.ok) throw new Error(out.error);
+
+    closeTeamApplicationModal();
+    e.target.reset();
+    showToast(`Lagansökan för ${name} har skickats till Admin!`, 'success');
+    await loadLeagueData();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function adminCreateTeamDirect(e) {
+  e.preventDefault();
+  const name = document.getElementById('adminNewTeamName').value.trim();
+  const tag = document.getElementById('adminNewTeamTag').value.trim().toUpperCase();
+  const primaryColor = document.getElementById('adminNewTeamPrimary').value;
+  const secondaryColor = document.getElementById('adminNewTeamSecondary').value;
+  const captainSteamId = document.getElementById('adminNewTeamCaptain').value || null;
+
+  try {
+    const res = await fetch('/api/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'admin_create_team',
+        name,
+        tag,
+        primaryColor,
+        secondaryColor,
+        captainSteamId
+      })
+    });
+    const out = await res.json();
+    if (!res.ok) throw new Error(out.error);
+
+    e.target.reset();
+    showToast(`Laget ${name} (${tag}) har skapats!`, 'success');
+    await loadLeagueData();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function adminHandleTeam(teamId, decision) {
+  if (decision === 'delete' && !confirm('Är du säker på att du vill radera laget helt?')) return;
+  try {
+    const res = await fetch('/api/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'admin_team_status', teamId, decision })
+    });
+    const out = await res.json();
+    if (!res.ok) throw new Error(out.error);
+
+    showToast(decision === 'approve' ? 'Laget godkändes och skaparen är nu Lagkapten!' : 'Laget togs bort.', 'success');
+    await loadLeagueData();
+    if (decision === 'delete' && currentView === 'team-profile') {
+      switchView('teams');
+    }
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function adminSetPlayerRole(targetSteamId, newRole) {
+  try {
+    const res = await fetch('/api/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'admin_set_role', targetSteamId, newRole })
+    });
+    const out = await res.json();
+    if (!res.ok) throw new Error(out.error);
+    showToast('Spelarens behörighet har uppdaterats!', 'success');
+    await loadLeagueData();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function adminScheduleMatch() {
+  const homeTeamId = document.getElementById('schedHomeTeam').value;
+  const awayTeamId = document.getElementById('schedAwayTeam').value;
+  if (!homeTeamId || !awayTeamId || homeTeamId === awayTeamId) {
+    showToast('Välj två olika godkända lag.', 'error');
+    return;
+  }
+  const playedAt = document.getElementById('schedDateTime').value;
+  const serverIp = document.getElementById('schedServer').value;
+
+  try {
+    const res = await fetch('/api/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'admin_schedule_match', homeTeamId, awayTeamId, playedAt, serverIp })
+    });
+    const out = await res.json();
+    if (!res.ok) throw new Error(out.error);
+    showToast('Matchen har lagts till i spelschemat!', 'success');
+    await loadLeagueData();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function adminDeleteMatch(matchId) {
+  try {
+    const res = await fetch('/api/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'admin_delete_match', matchId })
+    });
+    if (res.ok) {
+      showToast('Matchen raderades.', 'info');
+      await loadLeagueData();
+    }
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function submitMatchReportToDB() {
+  const homeTeamId = document.getElementById('simHomeTeam').value;
+  const awayTeamId = document.getElementById('simAwayTeam').value;
+  if (!homeTeamId || !awayTeamId || homeTeamId === awayTeamId) {
+    showToast('Välj två olika godkända lag först!', 'error');
+    return;
+  }
+
+  const homeScore = parseInt(document.getElementById('simHomeGoals').value, 10) || 0;
+  const awayScore = parseInt(document.getElementById('simAwayGoals').value, 10) || 0;
+  const isOvertime = document.getElementById('simIsOvertime').checked;
+  const starSteamId = document.getElementById('simStarPlayer').value;
+
+  const playerStats = [];
+  if (starSteamId) {
+    playerStats.push({
+      steamId: starSteamId,
+      teamId: homeTeamId,
+      goals: parseInt(document.getElementById('simPlayerG').value, 10) || 0,
+      assists: parseInt(document.getElementById('simPlayerA').value, 10) || 0,
+      topShotSpeedKmh: parseFloat(document.getElementById('simPlayerShotKmh').value) || 0
+    });
+  }
+
+  try {
+    const res = await fetch('/api/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'server_match_report',
+        homeTeamId,
+        awayTeamId,
+        homeScore,
+        awayScore,
+        isOvertime,
+        playerStats
+      })
+    });
+    const out = await res.json();
+    if (!res.ok) throw new Error(out.error);
+
+    showToast('Matchresultatet har sparats i databasen!', 'success');
+    await loadLeagueData();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// =========================================================================
+// 11. NAVIGATION, SÖK & MODALER
+// =========================================================================
 function switchView(viewName) {
   currentView = viewName;
-  const views = ['home', 'profile', 'schedule', 'standings', 'stats', 'teams', 'admin'];
+  const views = ['home', 'profile', 'team-profile', 'schedule', 'standings', 'stats', 'teams', 'admin'];
   views.forEach(v => {
     const el = document.getElementById('view-' + v);
     if (el) {
@@ -903,7 +1653,7 @@ function switchView(viewName) {
   document.querySelectorAll('.nav-link').forEach(btn => {
     btn.classList.remove('text-shl-lightBlue', 'font-semibold');
   });
-  const activeNav = document.getElementById('nav-' + viewName);
+  const activeNav = document.getElementById('nav-' + (viewName === 'team-profile' ? 'teams' : viewName));
   if (activeNav) activeNav.classList.add('text-shl-lightBlue', 'font-semibold');
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -913,7 +1663,6 @@ function toggleMobileMenu() {
   document.getElementById('mobileMenuDrawer').classList.toggle('hidden');
 }
 
-// Sökfunktion
 function handleQuickSearch(query) {
   const box = document.getElementById('quickSearchResults');
   const q = query.trim().toLowerCase();
@@ -933,13 +1682,13 @@ function handleQuickSearch(query) {
       html += `
         <button onclick="openPlayerProfile('${p.steamId}'); document.getElementById('quickSearchResults').classList.add('hidden');" class="w-full text-left px-4 py-2 hover:bg-white/10 flex items-center justify-between">
           <span class="font-bold text-white">#${p.number} ${p.name}</span>
-          <span class="text-xs text-shl-lightBlue">${p.position}</span>
+          <span class="text-xs text-shl-lightBlue">${isGoaliePos(p.position) ? 'GK' : p.position}</span>
         </button>
       `;
     });
     matchedTeams.forEach(t => {
       html += `
-        <button onclick="switchView('teams'); document.getElementById('quickSearchResults').classList.add('hidden');" class="w-full text-left px-4 py-2 hover:bg-white/10 flex items-center justify-between border-t border-white/5">
+        <button onclick="openTeamProfile(${t.id}); document.getElementById('quickSearchResults').classList.add('hidden');" class="w-full text-left px-4 py-2 hover:bg-white/10 flex items-center justify-between border-t border-white/5">
           <span class="font-semibold text-gray-200">${t.name}</span>
           <span class="text-xs text-amber-400">${t.tag}</span>
         </button>
@@ -950,7 +1699,6 @@ function handleQuickSearch(query) {
   box.classList.remove('hidden');
 }
 
-// Toast-meddelanden
 function showToast(message, type = 'info') {
   const container = document.getElementById('toastContainer');
   const colors = {
@@ -968,7 +1716,6 @@ function showToast(message, type = 'info') {
   }, 3800);
 }
 
-// Modaler
 function openMatchModal(matchId) {
   const m = allMatches.find(x => Number(x.id) === Number(matchId));
   if (!m) return;
@@ -977,22 +1724,23 @@ function openMatchModal(matchId) {
   document.getElementById('modalMatchHeaderStatus').textContent = `${isPlayed ? 'SLUTRESULTAT' : 'KOMMANDE MATCH'} • ${m.server_ip || 'ELITSERIEN'}`;
   document.getElementById('modalMatchContent').innerHTML = `
     <div class="flex items-center justify-between bg-slate-900 text-white p-6 rounded-sm">
-      <div class="flex flex-col items-center gap-2 flex-1">
+      <button onclick="closeMatchModal(); openTeamProfile(${m.home_team_id})" class="flex flex-col items-center gap-2 flex-1 hover:text-shl-lightBlue transition">
         ${renderTeamCrestSVG(m.home_team_id, 'w-14 h-14')}
         <span class="font-shl text-2xl font-black uppercase">${m.home_name || 'Hemmalag'}</span>
-      </div>
+      </button>
       <div class="text-center px-4">
-        <div class="font-shl text-5xl font-black text-amber-400">${isPlayed ? `${m.home_score} -${m.away_score}` : 'VS'}</div>
+        <div class="font-shl text-5xl font-black text-amber-400">${isPlayed ? `${m.home_score} - ${m.away_score}` : 'VS'}</div>
         <div class="text-xs text-gray-400 mt-1">${formatDateShort(m.played_at || m.created_at)}</div>
       </div>
-      <div class="flex flex-col items-center gap-2 flex-1">
+      <button onclick="closeMatchModal(); openTeamProfile(${m.away_team_id})" class="flex flex-col items-center gap-2 flex-1 hover:text-shl-lightBlue transition">
         ${renderTeamCrestSVG(m.away_team_id, 'w-14 h-14')}
         <span class="font-shl text-2xl font-black uppercase">${m.away_name || 'Bortalag'}</span>
-      </div>
+      </button>
     </div>
   `;
   document.getElementById('matchDetailModal').classList.remove('hidden');
 }
+
 function closeMatchModal() { document.getElementById('matchDetailModal').classList.add('hidden'); }
 function openTeamApplicationModal() {
   if (!currentUser) return showToast('Logga in med Steam först.', 'info');
@@ -1010,7 +1758,7 @@ function openPlayerSelectorModal() {
           ${renderTeamCrestSVG(p.teamId, 'w-6 h-6')}
           <div>
             <div class="font-bold text-sm text-slate-900">#${p.number} ${p.name}</div>
-            <div class="text-xs text-gray-500">${p.position} • ${p.tp} Poäng</div>
+            <div class="text-xs text-gray-500">${isGoaliePos(p.position) ? 'MÅLVAKT (GK)' : p.position} • ${p.tp} Poäng</div>
           </div>
         </div>
         <span class="text-xs font-bold text-shl-blue">Visa →</span>
@@ -1021,8 +1769,7 @@ function openPlayerSelectorModal() {
 }
 function closePlayerSelectorModal() { document.getElementById('playerSelectorModal').classList.add('hidden'); }
 
-// Kör igång när sidan laddas
 window.addEventListener('DOMContentLoaded', () => {
-  renderHeaderAuthArea(); // Visar inloggningsknappen DIRKET, utan att vänta på databasen
-  loadLeagueData();       // Hämtar datan i bakgrunden
+  renderHeaderAuthArea();
+  loadLeagueData();
 });
