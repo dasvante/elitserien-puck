@@ -1,13 +1,14 @@
 body {
-  font-family: 'Inter', sans-serif;
-  background-color: #ffffff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #f8fafc;
   color: #0f172a;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 .font-shl {
   font-family: 'Barlow Condensed', sans-serif;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.015em;
 }
 
 .ticker-scroll::-webkit-scrollbar {
@@ -21,46 +22,43 @@ body {
 
 .hero-arena-bg {
   background: 
-    radial-gradient(circle at 18% 35%, rgba(110, 215, 215, 0.25) 0%, rgba(110, 215, 215, 0) 18%),
-    radial-gradient(circle at 32% 72%, rgba(96, 165, 250, 0.20) 0%, rgba(96, 165, 250, 0) 22%),
-    radial-gradient(circle at 60% 25%, rgba(125, 211, 252, 0.22) 0%, rgba(125, 211, 252, 0) 16%),
-    linear-gradient(115deg, #0d1b2a 0%, #1b3a4b 48%, #0f172a 100%);
+    radial-gradient(circle at 20% 30%, rgba(56, 189, 248, 0.14) 0%, transparent 35%),
+    linear-gradient(120deg, #090d16 0%, #111c2d 55%, #0a0f18 100%);
 }
 
 .profile-hero-bg {
   background:
-    radial-gradient(circle at 38% 30%, rgba(56, 189, 248, 0.14) 0%, transparent 45%),
-    radial-gradient(circle at 65% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 40%),
-    linear-gradient(180deg, #161920 0%, #090b0e 100%);
+    radial-gradient(circle at 35% 30%, rgba(56, 189, 248, 0.10) 0%, transparent 45%),
+    linear-gradient(180deg, #111622 0%, #07090e 100%);
 }
 
 .shl-career-gradient {
-  background: linear-gradient(90deg, #131c2e 0%, #25416b 45%, #4a8af4 100%);
+  background: linear-gradient(90deg, #0e1525 0%, #1b3154 50%, #2b599e 100%);
 }
 
 .puck-3d {
   background: 
-    radial-gradient(circle at 30% 28%, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 45%),
-    radial-gradient(circle at 50% 50%, #1e2229 0%, #0c0e12 72%, #050608 100%);
+    radial-gradient(circle at 30% 28%, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 45%),
+    radial-gradient(circle at 50% 50%, #1c2026 0%, #0b0d11 72%, #050608 100%);
   box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.85),
-    inset 0 2px 5px rgba(255, 255, 255, 0.25),
-    inset 0 -8px 18px rgba(0, 0, 0, 0.9);
+    0 20px 45px -10px rgba(0, 0, 0, 0.8),
+    inset 0 2px 4px rgba(255, 255, 255, 0.2),
+    inset 0 -8px 16px rgba(0, 0, 0, 0.9);
   position: relative;
 }
 
 .match-card-hover {
-  transition: all 0.18s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .match-card-hover:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+  border-color: #94a3b8;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
 }
 
 @keyframes floatSlow {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-5px); }
+  50% { transform: translateY(-4px); }
 }
 .puck-avatar-float {
-  animation: floatSlow 4s ease-in-out infinite;
+  animation: floatSlow 4.5s ease-in-out infinite;
 }
