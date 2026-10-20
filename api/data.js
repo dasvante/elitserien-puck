@@ -976,86 +976,47 @@ module.exports = async function handler(req, res) {
 
       // 19B. C# SERVER-MOD ELLER ADMIN: LIVE-UPPDATERING ELLER SLUTRESULTAT
       if (action === 'server_match_report' || action === 'server_match_live_update') {
-        const isAuthSrv = isServerAuthorized(req);
-        if (!isAuthSrv && !isAdmin) {
-          return res.status(403).json({ error: 'Obehörigt anrop. Kontrollera SERVER_API_KEY i Vercel.' });
-        }
-
-        const isFinalReport = (action === 'server_match_report');
-        let matchId = body.matchId ? parseInt(body.matchId, 10) : null;
-        let homeTeamId = body.homeTeamId ? parseInt(body.homeTeamId, 10) : null;
-        let awayTeamId = body.awayTeamId ? parseInt(body.awayTeamId, 10) : null;
-
-        if (body.matchCode) {
-          const code = String(body.matchCode).trim().toUpperCase();
-          const mRows = await sql`SELECT * FROM matches WHERE UPPER(match_code) = ${code} LIMIT 1`;
-          if (!mRows[0]) {
-            return res.status(404).json({ error: `Ingen match hittades med matchkod ${code}.` });
-          }
-          matchId = mRows[0].id;
-          homeTeamId = mRows[0].home_team_id;
-          awayTeamId = mRows[0].away_team_id;
-        } else if (matchId) {
-          const mRows = await sql`SELECT * FROM matches WHERE id = ${matchId} LIMIT 1`;
-          if (mRows[0]) {
-            homeTeamId = mRows[0].home_team_id;
-            awayTeamId = mRows[0].away_team_id;
+        const knownPlayers = await sql`SELECT steam_id, username, team_id FROM players`;
+        const playerTeamMap = new Map();
+        const usernameToPlayerMap = new Map();
+        for (const p of knownPlayers) {
+          playerTeamMap.set(String(p.steam_id), p.team_id ? Number(p.team_id) : null);
+          if (p.username) {
+            usernameToPlayerMap.set(String(p.username).toLowerCase(), {
+              steamId: String(p.steam_id),
+              teamId: p.team_id ? Number(p.team_id) : null
+            });
           }
         }
-
-        const homeScore = parseInt(body.homeScore, 10) || 0;
-        const awayScore = parseInt(body.awayScore, 10) || 0;
-        const isOvertime = Boolean(body.isOvertime);
-        const isShootout = Boolean(body.isShootout);
-        const homeShots = parseInt(body.homeShots, 10) || 0;
-        const awayShots = parseInt(body.awayShots, 10) || 0;
-        const serverIp = String(body.serverIp || 'ELITSERIEN Server').slice(0, 64);
-        const newStatus = isFinalReport ? 'completed' : 'live';
-
-        if (matchId) {
-          await sql`
-            UPDATE matches SET
-              home_score = ${homeScore},
-              away_score = ${awayScore},
-              is_overtime = ${isOvertime},
-              is_shootout = ${isShootout},
-              home_shots = ${homeShots},
-              away_shots = ${awayShots},
-              status = ${newStatus},
-              played_at = COALESCE(played_at, CURRENT_TIMESTAMP),
-              rematch_requested_by_team_id = NULL,
-              rematch_reason = NULL
-            WHERE id = ${matchId}
-          `;
-        } else {
-          const inserted = await sql`
-            INSERT INTO matches (
-              home_team_id, away_team_id, home_score, away_score,
-              is_overtime, is_shootout, home_shots, away_shots,
-              match_code, server_ip, status, played_at
-            ) VALUES (
-              ${homeTeamId}, ${awayTeamId}, ${homeScore}, ${awayScore},
-              ${isOvertime}, ${isShootout}, ${homeShots}, ${awayShots},
-              ${generateMatchCode()}, ${serverIp}, ${newStatus}, CURRENT_TIMESTAMP
-            ) RETURNING id
-          `;
-          matchId = inserted[0].id;
-        }
-
-        const knownPlayers = await sql`SELECT steam_id, team_id FROM players`;
-        const playerTeamMap = new Map(knownPlayers.map(p => [String(p.steam_id), p.team_id ? Number(p.team_id) : null]));
 
         if (Array.isArray(body.playerStats)) {
           await sql`DELETE FROM player_match_stats WHERE match_id = ${matchId}`;
 
           for (const ps of body.playerStats) {
-            const sId = String(ps.steamId || '').trim();
-            if (!sId || !playerTeamMap.has(sId)) continue;
+            let sId = String(ps.steamId || '').trim();
+            const uName = String(ps.username || sId || 'Spelare').trim();
+            if (!sId) continue;
 
-            const dbTeamId = playerTeamMap.get(sId);
-            const pTeamId = (dbTeamId === Number(homeTeamId) || dbTeamId === Number(awayTeamId))
-              ? dbTeamId
-              : (ps.teamId ? parseInt(ps.teamId, 10) : homeTeamId);
+            // Om modden skickade visningsnamn istället för SteamID, matcha mot känd spelare
+            if (!playerTeamMap.has(sId) && usernameToPlayerMap.has(sId.toLowerCase())) {
+              sId = usernameToPlayerMap.get(sId.toLowerCase()).steamId;
+            } else if (!playerTeamMap.has(sId) && usernameToPlayerMap.has(uName.toLowerCase())) {
+              sId = usernameToPlayerMap.get(uName.toLowerCase()).steamId;
+            }
+
+            const pTeamId = ps.teamId
+              ? parseInt(ps.teamId, 10)
+              : (playerTeamMap.get(sId) || homeTeamId);
+
+            // Om spelaren inte finns i players-tabellen ännu, skapa spelaren så att inga stats går förlorade
+            if (!playerTeamMap.has(sId)) {
+              await sql`
+                INSERT INTO players (steam_id, username, team_id, role)
+                VALUES (${sId}, ${uName.slice(0, 64)}, ${pTeamId}, 'player')
+                ON CONFLICT (steam_id) DO NOTHING
+              `;
+              playerTeamMap.set(sId, pTeamId);
+            }
 
             const g = parseInt(ps.goals, 10) || 0;
             const a = parseInt(ps.assists, 10) || 0;
