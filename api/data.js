@@ -20,6 +20,14 @@ function getVerifiedSteamId(req) {
   return sig === expected ? steamId : null;
 }
 
+function isServerAuthorized(req) {
+  const serverKey = req.headers['x-server-key'];
+  if (!serverKey) return false;
+  if (process.env.SERVER_API_KEY && serverKey === process.env.SERVER_API_KEY) return true;
+  if (process.env.STEAM_API_KEY && serverKey === process.env.STEAM_API_KEY) return true;
+  return false;
+}
+
 function generateMatchCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = 'ES-';
@@ -65,7 +73,6 @@ function buildRoundRobinSchedule(teamIds, meetingsPerPair = 2) {
   return fixtures;
 }
 
-// Säkerställer att alla tabeller och kolumner finns utan att krascha
 async function ensureSchema(sql) {
   await sql`
     CREATE TABLE IF NOT EXISTS team_invites (
@@ -165,7 +172,8 @@ module.exports = async function handler(req, res) {
       if (!code) return res.status(400).json({ error: 'Matchkod saknas.' });
 
       const mRows = await sql`
-        SELECT m.*, ht.name AS home_name, ht.tag AS home_tag, at.name AS away_name, at.tag AS away_tag
+        SELECT m.*, ht.name AS home_name, ht.tag AS home_tag, ht.captain_steam_id AS home_captain,
+               at.name AS away_name, at.tag AS away_tag, at.captain_steam_id AS away_captain
         FROM matches m
         LEFT JOIN teams ht ON m.home_team_id = ht.id
         LEFT JOIN teams at ON m.away_team_id = at.id
@@ -179,10 +187,20 @@ module.exports = async function handler(req, res) {
       }
 
       const rosters = await sql`
-        SELECT tm.team_id, tm.steam_id, tm.team_role, p.username, p.jersey_number, p.preferred_position
-        FROM team_members tm
-        JOIN players p ON tm.steam_id = p.steam_id
-        WHERE tm.team_id IN (${match.home_team_id}, ${match.away_team_id})
+        SELECT 
+          p.team_id,
+          p.steam_id,
+          CASE
+            WHEN t.captain_steam_id = p.steam_id THEN 'captain'
+            ELSE COALESCE(tm.team_role, 'player')
+          END AS team_role,
+          p.username,
+          p.jersey_number,
+          p.preferred_position
+        FROM players p
+        LEFT JOIN teams t ON p.team_id = t.id
+        LEFT JOIN team_members tm ON p.steam_id = tm.steam_id AND p.team_id = tm.team_id
+        WHERE p.team_id IN (${match.home_team_id}, ${match.away_team_id})
       `;
 
       return res.status(200).json({
@@ -305,6 +323,9 @@ module.exports = async function handler(req, res) {
           .filter(r => r.steam_id === steamId && (r.team_role === 'captain' || r.team_role === 'assistant'))
           .map(r => Number(r.team_id))
       );
+      dbTeams.forEach(t => {
+        if (t.captain_steam_id === steamId) myLeaderTeamIds.add(Number(t.id));
+      });
 
       const dbMatches = dbMatchesRaw.map(m => {
         const canSeeCode =
@@ -404,7 +425,6 @@ module.exports = async function handler(req, res) {
 
         if (!name || !tag) return res.status(400).json({ error: 'Lagnamn och förkortning krävs.' });
 
-        // Kontrollera om lagnamnet eller förkortningen redan finns i databasen
         const existing = await sql`
           SELECT id, name, tag, status FROM teams
           WHERE LOWER(name) = LOWER(${name}) OR UPPER(tag) = UPPER(${tag})
@@ -915,14 +935,53 @@ module.exports = async function handler(req, res) {
         return res.status(200).json({ ok: true });
       }
 
-      // 19. C# SERVER-MOD ELLER ADMIN: RAPPORTERA SLUTRESULTAT & SPELARSTATISTIK
-      if (action === 'server_match_report') {
-        const serverKey = req.headers['x-server-key'];
-        const isAuthorizedServer = serverKey && process.env.STEAM_API_KEY && serverKey === process.env.STEAM_API_KEY;
-        if (!isAuthorizedServer && !isAdmin) {
-          return res.status(403).json({ error: 'Obehörigt anrop. Kräver x-server-key eller Admin.' });
+      // 19A. C# SERVER-MOD: MARKERA MATCH SOM LIVE ELLER AVBRUTEN
+      if (action === 'server_match_live' || action === 'server_match_cancel') {
+        if (!isServerAuthorized(req) && !isAdmin) {
+          return res.status(403).json({ error: 'Obehörigt anrop. Kräver giltig SERVER_API_KEY.' });
+        }
+        const code = String(body.matchCode || '').trim().toUpperCase();
+        if (!code) return res.status(400).json({ error: 'Matchkod saknas.' });
+
+        const mRows = await sql`SELECT * FROM matches WHERE UPPER(match_code) = ${code} LIMIT 1`;
+        if (!mRows[0]) return res.status(404).json({ error: 'Matchen hittades inte.' });
+
+        const matchId = mRows[0].id;
+        await sql`DELETE FROM player_match_stats WHERE match_id = ${matchId}`;
+
+        if (action === 'server_match_live') {
+          await sql`
+            UPDATE matches SET
+              status = 'live',
+              home_score = 0,
+              away_score = 0,
+              home_shots = 0,
+              away_shots = 0,
+              played_at = COALESCE(played_at, CURRENT_TIMESTAMP)
+            WHERE id = ${matchId}
+          `;
+        } else {
+          await sql`
+            UPDATE matches SET
+              status = 'scheduled',
+              home_score = 0,
+              away_score = 0,
+              home_shots = 0,
+              away_shots = 0
+            WHERE id = ${matchId}
+          `;
+        }
+        return res.status(200).json({ ok: true, matchId });
+      }
+
+      // 19B. C# SERVER-MOD ELLER ADMIN: LIVE-UPPDATERING ELLER SLUTRESULTAT
+      if (action === 'server_match_report' || action === 'server_match_live_update') {
+        const isAuthSrv = isServerAuthorized(req);
+        if (!isAuthSrv && !isAdmin) {
+          return res.status(403).json({ error: 'Obehörigt anrop. Kontrollera SERVER_API_KEY i Vercel.' });
         }
 
+        const isFinalReport = (action === 'server_match_report');
         let matchId = body.matchId ? parseInt(body.matchId, 10) : null;
         let homeTeamId = body.homeTeamId ? parseInt(body.homeTeamId, 10) : null;
         let awayTeamId = body.awayTeamId ? parseInt(body.awayTeamId, 10) : null;
@@ -951,6 +1010,7 @@ module.exports = async function handler(req, res) {
         const homeShots = parseInt(body.homeShots, 10) || 0;
         const awayShots = parseInt(body.awayShots, 10) || 0;
         const serverIp = String(body.serverIp || 'ELITSERIEN Server').slice(0, 64);
+        const newStatus = isFinalReport ? 'completed' : 'live';
 
         if (matchId) {
           await sql`
@@ -961,7 +1021,7 @@ module.exports = async function handler(req, res) {
               is_shootout = ${isShootout},
               home_shots = ${homeShots},
               away_shots = ${awayShots},
-              status = 'completed',
+              status = ${newStatus},
               played_at = COALESCE(played_at, CURRENT_TIMESTAMP),
               rematch_requested_by_team_id = NULL,
               rematch_reason = NULL
@@ -976,28 +1036,26 @@ module.exports = async function handler(req, res) {
             ) VALUES (
               ${homeTeamId}, ${awayTeamId}, ${homeScore}, ${awayScore},
               ${isOvertime}, ${isShootout}, ${homeShots}, ${awayShots},
-              ${generateMatchCode()}, ${serverIp}, 'completed', CURRENT_TIMESTAMP
+              ${generateMatchCode()}, ${serverIp}, ${newStatus}, CURRENT_TIMESTAMP
             ) RETURNING id
           `;
           matchId = inserted[0].id;
         }
 
-        const validMembers = await sql`
-          SELECT steam_id, team_id FROM team_members
-          WHERE team_id IN (${homeTeamId}, ${awayTeamId})
-        `;
-        const memberTeamMap = new Map(validMembers.map(m => [String(m.steam_id), Number(m.team_id)]));
+        const knownPlayers = await sql`SELECT steam_id, team_id FROM players`;
+        const playerTeamMap = new Map(knownPlayers.map(p => [String(p.steam_id), p.team_id ? Number(p.team_id) : null]));
 
         if (Array.isArray(body.playerStats)) {
+          await sql`DELETE FROM player_match_stats WHERE match_id = ${matchId}`;
+
           for (const ps of body.playerStats) {
             const sId = String(ps.steamId || '').trim();
-            if (!sId) continue;
+            if (!sId || !playerTeamMap.has(sId)) continue;
 
-            const verifiedTeamId = memberTeamMap.get(sId);
-            if (!verifiedTeamId && !isAdmin) {
-              continue;
-            }
-            const pTeamId = verifiedTeamId || (ps.teamId ? parseInt(ps.teamId, 10) : homeTeamId);
+            const dbTeamId = playerTeamMap.get(sId);
+            const pTeamId = (dbTeamId === Number(homeTeamId) || dbTeamId === Number(awayTeamId))
+              ? dbTeamId
+              : (ps.teamId ? parseInt(ps.teamId, 10) : homeTeamId);
 
             const g = parseInt(ps.goals, 10) || 0;
             const a = parseInt(ps.assists, 10) || 0;
@@ -1028,20 +1086,6 @@ module.exports = async function handler(req, res) {
                 ${passComp}, ${passAtt},
                 ${saves}, ${sa}, ${ga}, ${svPct}
               )
-              ON CONFLICT (match_id, steam_id) DO UPDATE SET
-                goals = EXCLUDED.goals,
-                assists = EXCLUDED.assists,
-                points = EXCLUDED.points,
-                shots_on_goal = EXCLUDED.shots_on_goal,
-                top_shot_speed_kmh = GREATEST(player_match_stats.top_shot_speed_kmh, EXCLUDED.top_shot_speed_kmh),
-                plus_minus = EXCLUDED.plus_minus,
-                possession_seconds = EXCLUDED.possession_seconds,
-                passes_completed = EXCLUDED.passes_completed,
-                passes_attempted = EXCLUDED.passes_attempted,
-                saves = EXCLUDED.saves,
-                shots_against = EXCLUDED.shots_against,
-                goals_against = EXCLUDED.goals_against,
-                save_percentage = EXCLUDED.save_percentage
             `;
           }
         }
