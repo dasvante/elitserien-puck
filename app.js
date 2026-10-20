@@ -558,7 +558,7 @@ function renderHeaderAuthArea() {
             ${renderPuckCharacterSVG(me)}
           </div>
           <div class="text-left leading-tight hidden sm:block">
-            <div class="text-xs font-bold text-white flex items-center gap-1.5">${me.name}${roleBadge}</div>
+            <div class="text-xs font-bold text-white flex items-center gap-1.5">${me.name} ${roleBadge}</div>
             <div class="text-[10px] text-gray-400">Min Puck-Profil</div>
           </div>
         </button>
@@ -594,7 +594,7 @@ function renderScoreTicker() {
   container.innerHTML = allMatches.map(m => {
     const isPlayed = m.status === 'completed';
     const statusText = isPlayed ? (m.is_shootout ? 'SPELAD SO' : m.is_overtime ? 'SPELAD ÖT' : 'SPELAD') : 'KOMMANDE';
-    const centerText = isPlayed ? `${m.home_score} -${m.away_score}` : formatDateShort(m.played_at);
+    const centerText = isPlayed ? `${m.home_score} - ${m.away_score}` : formatDateShort(m.played_at);
 
     return `
       <div onclick="openMatchModal(${m.id})" class="px-4 py-1.5 flex flex-col justify-between min-w-[185px] bg-[#f8fafc] hover:bg-white cursor-pointer transition shrink-0">
@@ -603,7 +603,8 @@ function renderScoreTicker() {
         </div>
         <div class="flex items-center justify-between gap-2 my-auto">
           <div class="flex items-center gap-1.5">
-            <span class="font-shl font-bold text-xs text-slate-800">${m.home_tag \vert{}\vert{} 'HEM'}</span>${renderTeamCrestSVG(m.home_team_id, 'w-5 h-5')}
+            <span class="font-shl font-bold text-xs text-slate-800">${m.home_tag || 'HEM'}</span>
+            ${renderTeamCrestSVG(m.home_team_id, 'w-5 h-5')}
           </div>
           <span class="font-shl ${isPlayed ? 'text-base font-black text-slate-900' : 'text-xs font-bold text-shl-blue'} px-1">${centerText}</span>
           <div class="flex items-center gap-1.5">
@@ -653,7 +654,7 @@ function renderHomeMatches() {
 
   container.innerHTML = filtered.slice(0, 6).map(m => {
     const isPlayed = m.status === 'completed';
-    const centerDisplay = isPlayed ? `${m.home_score} -${m.away_score}` : 'VS';
+    const centerDisplay = isPlayed ? `${m.home_score} - ${m.away_score}` : 'VS';
     return `
       <div class="bg-[#f8fafc] border border-gray-200 rounded-sm p-4 match-card-hover">
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -662,7 +663,8 @@ function renderHomeMatches() {
           </div>
           <div class="flex items-center justify-center gap-3 sm:gap-5 flex-1">
             <button type="button" onclick="openTeamProfile(${m.home_team_id})" class="flex items-center justify-end gap-2.5 flex-1 text-right hover:text-shl-blue transition">
-              <span class="font-shl text-lg font-extrabold uppercase text-slate-900">${m.home_name \vert{}\vert{} 'Hemmalag'}</span>${renderTeamCrestSVG(m.home_team_id, 'w-8 h-8')}
+              <span class="font-shl text-lg font-extrabold uppercase text-slate-900">${m.home_name || 'Hemmalag'}</span>
+              ${renderTeamCrestSVG(m.home_team_id, 'w-8 h-8')}
             </button>
             <div class="text-center px-2 shrink-0">
               <div class="font-shl text-3xl font-black text-slate-900 leading-none">${centerDisplay}</div>
@@ -775,7 +777,7 @@ function renderStandingsTables() {
           <td class="py-3.5 px-3 text-center">${t.otw}</td>
           <td class="py-3.5 px-3 text-center">${t.otl}</td>
           <td class="py-3.5 px-3 text-center">${t.l}</td>
-          <td class="py-3.5 px-3 text-center text-gray-600">${t.gf} -${t.ga}</td>
+          <td class="py-3.5 px-3 text-center text-gray-600">${t.gf} - ${t.ga}</td>
           <td class="py-3.5 px-3 text-center font-semibold ${diff >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${diffStr}</td>
           <td class="py-3.5 pl-3 pr-5 text-right font-shl text-xl font-black text-slate-900">${t.pts}</td>
         </tr>
@@ -801,7 +803,7 @@ function renderHomeTopScorers() {
   container.innerHTML = top3.map((p, i) => `
     <div onclick="openPlayerProfile('${p.steamId}')" class="bg-[#0e1420] text-white rounded-sm p-4 border border-slate-800 hover:border-shl-lightBlue cursor-pointer transition group relative overflow-hidden">
       <div class="flex items-center justify-between mb-2">
-        <span class="text-[10px] font-bold uppercase tracking-widest text-shl-lightBlue">#${i + 1}${isGoaliePos(p.position) ? 'MÅLVAKT (GK)' : p.position}</span>
+        <span class="text-[10px] font-bold uppercase tracking-widest text-shl-lightBlue">#${i + 1} ${isGoaliePos(p.position) ? 'MÅLVAKT (GK)' : p.position}</span>
         ${renderTeamCrestSVG(p.teamId, 'w-5 h-5')}
       </div>
       <div class="flex items-center gap-3">
@@ -809,7 +811,7 @@ function renderHomeTopScorers() {
           ${renderPuckCharacterSVG(p)}
         </div>
         <div>
-          <div class="font-shl text-xl font-black uppercase group-hover:text-shl-lightBlue transition">#${p.number}${p.name}</div>
+          <div class="font-shl text-xl font-black uppercase group-hover:text-shl-lightBlue transition">#${p.number} ${p.name}</div>
           <div class="text-xs text-gray-400">${p.g} Mål • ${p.a} Assist</div>
           <div class="text-sm font-extrabold text-amber-400 mt-0.5">${p.tp} Poäng</div>
         </div>
@@ -860,7 +862,7 @@ function renderProfileView(steamId) {
 
   setElHTML('profilePuckAvatarContainer', renderPuckCharacterSVG(p));
   setElText('profilePlayerName', p.name);
-  setElText('profileNumberAndPos', `#${p.number}${isGoaliePos(p.position) ? 'MÅLVAKT (GK)' : p.position}`);
+  setElText('profileNumberAndPos', `#${p.number} ${isGoaliePos(p.position) ? 'MÅLVAKT (GK)' : p.position}`);
   setElHTML('profileTeamCrest', renderTeamCrestSVG(p.teamId, 'w-6 h-6'));
   setElText('profileTeamName', team.name);
   setElText('profileSteamId', p.steamId);
@@ -1005,7 +1007,7 @@ function previewAvatarFromInputs() {
 
   setElHTML('profilePuckAvatarContainer', renderPuckCharacterSVG(p));
   setElText('profilePlayerName', p.name);
-  setElText('profileNumberAndPos', `#${p.number}${isGoaliePos(p.position) ? 'MÅLVAKT (GK)' : p.position}`);
+  setElText('profileNumberAndPos', `#${p.number} ${isGoaliePos(p.position) ? 'MÅLVAKT (GK)' : p.position}`);
   setElText('profileHandedness', p.handedness);
 }
 
@@ -1125,7 +1127,7 @@ function renderTeamProfileView(teamId) {
   setElText('tpStatGP', st.gp);
   setElText('tpStatPTS', st.pts);
   setElText('tpStatDiff', diffStr);
-  setElText('tpStatGoals', `${st.gf} -${st.ga}`);
+  setElText('tpStatGoals', `${st.gf} - ${st.ga}`);
 
   // Knappar uppe till höger (Lämna lag för medlemmar / Radera lag för Admin)
   const actionsDiv = document.getElementById('teamProfileHeaderActions');
@@ -1266,7 +1268,7 @@ function renderTeamProfileView(teamId) {
             <span class="text-gray-500 font-medium">${formatDateShort(m.played_at || m.created_at)}</span>
             <div class="flex items-center gap-2 font-shl text-base font-bold uppercase">
               <span>${m.home_name}</span>
-              <span class="px-2 py-0.5 bg-slate-900 text-white rounded font-black">${isPlayed ? `${m.home_score} - ${m.away_score}` : 'VS'}</span>
+              <span class="px-2 py-0.5 bg-slate-900 text-white rounded font-black">${isPlayed ? `${m.home_score} -${m.away_score}` : 'VS'}</span>
               <span>${m.away_name}</span>
             </div>
             <span class="text-[10px] font-bold uppercase ${isPlayed ? 'text-emerald-600' : 'text-shl-blue'}">${isPlayed ? 'SPELAD' : 'KOMMANDE'}</span>
