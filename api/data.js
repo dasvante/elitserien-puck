@@ -1042,62 +1042,40 @@ module.exports = async function handler(req, res) {
           matchId = inserted[0].id;
         }
 
-        // Spara spelarstatistik med eget skyddsnät per spelare så att matchresultatet aldrig kan fallera
+        // Spara spelarstatistik med absolut säkraste matchning mot steam_id
         try {
           const knownPlayers = await sql`SELECT steam_id, username, team_id FROM players`;
-          const playerTeamMap = new Map();
-          const usernameToPlayerMap = new Map();
-          for (const p of knownPlayers) {
-            playerTeamMap.set(String(p.steam_id), p.team_id ? Number(p.team_id) : null);
-            if (p.username) {
-              usernameToPlayerMap.set(String(p.username).toLowerCase(), {
-                steamId: String(p.steam_id),
-                teamId: p.team_id ? Number(p.team_id) : null
-              });
-            }
-          }
+          const playerSet = new Set(knownPlayers.map(p => String(p.steam_id)));
 
           if (Array.isArray(body.playerStats)) {
             await sql`DELETE FROM player_match_stats WHERE match_id = ${matchId}`;
 
             for (const ps of body.playerStats) {
               try {
-                let sId = String(ps.steamId || '').trim().slice(0, 32);
+                let sId = String(ps.steamId || '').trim();
                 const uName = String(ps.username || sId || 'Spelare').trim().slice(0, 64);
-                if (!sId) continue;
+                if (!sId || sId.length < 10) continue;
 
-                if (!playerTeamMap.has(sId) && usernameToPlayerMap.has(sId.toLowerCase())) {
-                  sId = usernameToPlayerMap.get(sId.toLowerCase()).steamId;
-                } else if (!playerTeamMap.has(sId) && usernameToPlayerMap.has(uName.toLowerCase())) {
-                  sId = usernameToPlayerMap.get(uName.toLowerCase()).steamId;
-                }
+                const dbTeamId = ps.teamId ? parseInt(ps.teamId, 10) : Number(homeTeamId);
+                const pTeamId = (dbTeamId === Number(homeTeamId) || dbTeamId === Number(awayTeamId)) ? dbTeamId : Number(homeTeamId);
 
-                const dbTeamId = playerTeamMap.get(sId);
-                let pTeamId = (dbTeamId === Number(homeTeamId) || dbTeamId === Number(awayTeamId))
-                  ? dbTeamId
-                  : (ps.teamId ? parseInt(ps.teamId, 10) : Number(homeTeamId));
-                if (pTeamId !== Number(homeTeamId) && pTeamId !== Number(awayTeamId)) {
-                  pTeamId = Number(homeTeamId);
-                }
-
-                if (!playerTeamMap.has(sId)) {
+                // Om spelaren inte finns registrerad sedan tidigare, skapa spelaren direkt i databasen
+                if (!playerSet.has(sId)) {
                   await sql`
                     INSERT INTO players (steam_id, username, team_id, role)
                     VALUES (${sId}, ${uName}, ${pTeamId}, 'player')
-                    ON CONFLICT (steam_id) DO NOTHING
+                    ON CONFLICT (steam_id) DO UPDATE SET team_id = EXCLUDED.team_id
                   `;
-                  playerTeamMap.set(sId, pTeamId);
+                  playerSet.add(sId);
                 }
 
                 const g = Math.max(0, parseInt(ps.goals, 10) || 0);
                 const a = Math.max(0, parseInt(ps.assists, 10) || 0);
                 const tp = g + a;
                 const sog = Math.max(0, parseInt(ps.shotsOnGoal, 10) || 0);
-                const rawSpeed = parseFloat(ps.topShotSpeedKmh) || 0;
-                const topSpeed = Math.min(250, Math.max(0, Number.isFinite(rawSpeed) ? rawSpeed : 0));
+                const topSpeed = Math.min(250, Math.max(0, parseFloat(ps.topShotSpeedKmh) || 0));
                 const pm = parseInt(ps.plusMinus, 10) || 0;
-                const rawPoss = parseFloat(ps.possessionSeconds) || 0;
-                const poss = Math.min(9999, Math.max(0, Number.isFinite(rawPoss) ? rawPoss : 0));
+                const poss = Math.min(9999, Math.max(0, parseFloat(ps.possessionSeconds) || 0));
                 const toi = Math.min(9999, Math.max(0, parseFloat(ps.timeOnIceSeconds) || 0));
                 const passComp = Math.max(0, parseInt(ps.passesCompleted, 10) || 0);
                 const passAtt = Math.max(passComp, parseInt(ps.passesAttempted, 10) || 0);
@@ -1121,13 +1099,13 @@ module.exports = async function handler(req, res) {
                     ${saves}, ${sa}, ${ga}, ${svPct}
                   )
                 `;
-              } catch (singlePlayerErr) {
-                console.error('Player stat insert skipped for row:', singlePlayerErr.message);
+              } catch (singleRowErr) {
+                console.error('Kunde inte spara stat för enskild spelare:', singleRowErr.message);
               }
             }
           }
         } catch (statsBlockErr) {
-          console.error('Player stats block error (match result still saved):', statsBlockErr.message);
+          console.error('Fel vid sparande av spelarstatistik:', statsBlockErr.message);
         }
 
         return res.status(200).json({ ok: true, matchId });
