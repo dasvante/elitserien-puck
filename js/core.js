@@ -89,11 +89,11 @@ function normalizePlayer(p) {
 }
 
 function getApprovedTeams() {
-  return allTeams.filter(t => t.status === 'approved');
+  return allTeams.filter(t => !t.status || String(t.status).toLowerCase() === 'approved');
 }
 
 function getPendingTeams() {
-  return allTeams.filter(t => t.status === 'pending');
+  return allTeams.filter(t => t.status && String(t.status).toLowerCase() === 'pending');
 }
 
 function getTeamById(id) {
@@ -146,20 +146,29 @@ function computeStandings() {
 
 function renderAll() {
   const approvedTeams = getApprovedTeams();
-  setElText('topStatsCounter', `${allPlayers.length} spelare • ${approvedTeams.length} lag • ${allMatches.filter(m => m.status === 'completed').length} spelade matcher`);
+  const playedCount = allMatches.filter(m => m.status === 'completed').length;
+  setElText(
+    'topStatsCounter',
+    allPlayers.length + ' spelare • ' + approvedTeams.length + ' lag • ' + playedCount + ' spelade matcher'
+  );
 
-  renderHeaderAuthArea();
-  renderScoreTicker();
-  renderHomeMatches();
-  renderStandingsTables();
-  renderHomeTopScorers();
-  renderFullScheduleView();
-  renderFullStatsView();
-  renderTeamsView();
-  renderAdminView();
+  const tasks = [
+    () => typeof renderHeaderAuthArea === 'function' && renderHeaderAuthArea(),
+    () => typeof renderScoreTicker === 'function' && renderScoreTicker(),
+    () => typeof renderHomeMatches === 'function' && renderHomeMatches(),
+    () => typeof renderStandingsTables === 'function' && renderStandingsTables(),
+    () => typeof renderHomeTopScorers === 'function' && renderHomeTopScorers(),
+    () => typeof renderFullScheduleView === 'function' && renderFullScheduleView(),
+    () => typeof renderFullStatsView === 'function' && renderFullStatsView(),
+    () => typeof renderTeamsView === 'function' && renderTeamsView(),
+    () => typeof renderAdminView === 'function' && renderAdminView(),
+    () => activeProfileSteamId && typeof renderProfileView === 'function' && renderProfileView(activeProfileSteamId),
+    () => activeTeamProfileId && typeof renderTeamProfileView === 'function' && renderTeamProfileView(activeTeamProfileId)
+  ];
 
-  if (activeProfileSteamId) renderProfileView(activeProfileSteamId);
-  if (activeTeamProfileId) renderTeamProfileView(activeTeamProfileId);
+  tasks.forEach(fn => {
+    try { fn(); } catch (e) { console.error('Render error:', e); }
+  });
 }
 
 function renderHeaderAuthArea() {
@@ -174,15 +183,11 @@ function renderHeaderAuthArea() {
     if (navAdmin) { navAdmin.classList.add('hidden'); navAdmin.classList.remove('flex'); }
     if (mobileAdmin) mobileAdmin.classList.add('hidden');
 
-    container.innerHTML = `
-      <a href="/api/auth?action=login" class="bg-[#171a21] hover:bg-[#2a475e] text-white text-xs font-bold px-3.5 py-2 rounded border border-white/20 flex items-center gap-2 transition shadow">
-        <i class="fa-brands fa-steam text-base"></i> Logga in med Steam
-      </a>
-    `;
+    container.innerHTML = '<a href="/api/auth?action=login" class="bg-[#171a21] hover:bg-[#2a475e] text-white text-xs font-bold px-3.5 py-2 rounded border border-white/20 flex items-center gap-2 transition shadow"><i class="fa-brands fa-steam text-base"></i> Logga in med Steam</a>';
   } else {
     const me = allPlayers.find(p => p.steamId === currentUser.steam_id) || normalizePlayer(currentUser);
     const isAdmin = me.accountRole === 'admin';
-    if (hint) hint.innerHTML = `Inloggad via Steam: <strong class="text-white">${me.name}</strong>`;
+    if (hint) hint.innerHTML = 'Inloggad via Steam: <strong class="text-white">' + me.name + '</strong>';
 
     if (isAdmin) {
       if (navAdmin) { navAdmin.classList.remove('hidden'); navAdmin.classList.add('flex'); }
@@ -193,33 +198,32 @@ function renderHeaderAuthArea() {
     }
 
     const roleBadge = isAdmin
-      ? `<span class="text-[10px] bg-amber-400 text-slate-950 font-extrabold px-1.5 py-0.2 rounded uppercase">ADMIN</span>`
-      : `<span class="text-[10px] text-emerald-400 font-mono">#${me.number}</span>`;
+      ? '<span class="text-[10px] bg-amber-400 text-slate-950 font-extrabold px-1.5 py-0.2 rounded uppercase">ADMIN</span>'
+      : ('<span class="text-[10px] text-emerald-400 font-mono">#' + me.number + '</span>');
 
     const inviteBadge = myInvites.length > 0
-      ? `<span class="absolute -top-1 -right-1 bg-rose-600 text-white text-[10px] font-bold px-1.5 rounded-full animate-pulse">${myInvites.length}</span>`
+      ? ('<span class="absolute -top-1 -right-1 bg-rose-600 text-white text-[10px] font-bold px-1.5 rounded-full animate-pulse">' + myInvites.length + '</span>')
       : '';
 
-    container.innerHTML = `
-      <div class="flex items-center gap-2">
-        <button type="button" onclick="openInboxModal()" class="relative p-2 rounded bg-white/5 hover:bg-white/15 border border-white/15 text-gray-200 hover:text-white transition" title="Inkorg (Laginbjudningar)">
-          <i class="fa-solid fa-envelope text-sm"></i>
-          ${inviteBadge}
-        </button>
-        <button type="button" onclick="openPlayerProfile('${me.steamId}')" class="flex items-center gap-2.5 bg-white/5 hover:bg-white/15 border border-white/15 px-3 py-1 rounded transition">
-          <div class="w-7 h-8 rounded bg-slate-800 overflow-hidden flex items-center justify-center">
-            ${renderPuckCharacterSVG(me)}
-          </div>
-          <div class="text-left leading-tight hidden sm:block">
-            <div class="text-xs font-bold text-white flex items-center gap-1.5">${me.name} ${roleBadge}</div>
-            <div class="text-[10px] text-gray-400">Min Profil</div>
-          </div>
-        </button>
-        <a href="/api/auth?action=logout" title="Logga ut" class="p-2 rounded bg-white/5 hover:bg-rose-600/30 border border-white/10 text-gray-300 hover:text-white text-xs transition">
-          <i class="fa-solid fa-right-from-bracket"></i>
-        </a>
-      </div>
-    `;
+    const charSvg = typeof renderPuckCharacterSVG === 'function' ? renderPuckCharacterSVG(me) : '';
+
+    container.innerHTML = [
+      '<div class="flex items-center gap-2">',
+        '<button type="button" onclick="openInboxModal()" class="relative p-2 rounded bg-white/5 hover:bg-white/15 border border-white/15 text-gray-200 hover:text-white transition" title="Inkorg (Laginbjudningar)">',
+          '<i class="fa-solid fa-envelope text-sm"></i>' + inviteBadge,
+        '</button>',
+        '<button type="button" onclick="openPlayerProfile(\'' + me.steamId + '\')" class="flex items-center gap-2.5 bg-white/5 hover:bg-white/15 border border-white/15 px-3 py-1 rounded transition">',
+          '<div class="w-7 h-8 rounded bg-slate-800 overflow-hidden flex items-center justify-center">' + charSvg + '</div>',
+          '<div class="text-left leading-tight hidden sm:block">',
+            '<div class="text-xs font-bold text-white flex items-center gap-1.5">' + me.name + ' ' + roleBadge + '</div>',
+            '<div class="text-[10px] text-gray-400">Min Profil</div>',
+          '</div>',
+        '</button>',
+        '<a href="/api/auth?action=logout" title="Logga ut" class="p-2 rounded bg-white/5 hover:bg-rose-600/30 border border-white/10 text-gray-300 hover:text-white text-xs transition">',
+          '<i class="fa-solid fa-right-from-bracket"></i>',
+        '</a>',
+      '</div>'
+    ].join('');
   }
 }
 
@@ -261,24 +265,15 @@ function handleQuickSearch(query) {
   const matchedTeams = getApprovedTeams().filter(t => t.name.toLowerCase().includes(q) || t.tag.toLowerCase().includes(q));
 
   if (matchedPlayers.length === 0 && matchedTeams.length === 0) {
-    box.innerHTML = `<div class="px-4 py-2 text-xs text-gray-400">Inga träffar på "${query}"</div>`;
+    box.innerHTML = '<div class="px-4 py-2 text-xs text-gray-400">Inga träffar på "' + query + '"</div>';
   } else {
     let html = '';
     matchedPlayers.forEach(p => {
-      html += `
-        <button type="button" onclick="openPlayerProfile('${p.steamId}'); document.getElementById('quickSearchResults').classList.add('hidden');" class="w-full text-left px-4 py-2 hover:bg-white/10 flex items-center justify-between">
-          <span class="font-bold text-white">#${p.number} ${p.name}</span>
-          <span class="text-xs text-shl-lightBlue">${isGoaliePos(p.position) ? 'GK' : p.position}</span>
-        </button>
-      `;
+      const posTxt = isGoaliePos(p.position) ? 'GK' : p.position;
+      html += '<button type="button" onclick="openPlayerProfile(\'' + p.steamId + '\'); document.getElementById(\'quickSearchResults\').classList.add(\'hidden\');" class="w-full text-left px-4 py-2 hover:bg-white/10 flex items-center justify-between"><span class="font-bold text-white">#' + p.number + ' ' + p.name + '</span><span class="text-xs text-shl-lightBlue">' + posTxt + '</span></button>';
     });
     matchedTeams.forEach(t => {
-      html += `
-        <button type="button" onclick="openTeamProfile(${t.id}); document.getElementById('quickSearchResults').classList.add('hidden');" class="w-full text-left px-4 py-2 hover:bg-white/10 flex items-center justify-between border-t border-white/5">
-          <span class="font-semibold text-gray-200">${t.name}</span>
-          <span class="text-xs text-amber-400">${t.tag}</span>
-        </button>
-      `;
+      html += '<button type="button" onclick="openTeamProfile(' + t.id + '); document.getElementById(\'quickSearchResults\').classList.add(\'hidden\');" class="w-full text-left px-4 py-2 hover:bg-white/10 flex items-center justify-between border-t border-white/5"><span class="font-semibold text-gray-200">' + t.name + '</span><span class="text-xs text-amber-400">' + t.tag + '</span></button>';
     });
     box.innerHTML = html;
   }
@@ -294,8 +289,8 @@ function showToast(message, type = 'info') {
     info: 'bg-[#0e1420] border-shl-lightBlue'
   };
   const toast = document.createElement('div');
-  toast.className = `${colors[type] || colors.info} text-white text-xs font-semibold px-4 py-3 rounded shadow-2xl border-l-4 flex items-center gap-2.5 pointer-events-auto transition duration-300`;
-  toast.innerHTML = `<i class="fa-solid fa-hockey-puck text-shl-lightBlue"></i> <span>${message}</span>`;
+  toast.className = (colors[type] || colors.info) + ' text-white text-xs font-semibold px-4 py-3 rounded shadow-2xl border-l-4 flex items-center gap-2.5 pointer-events-auto transition duration-300';
+  toast.innerHTML = '<i class="fa-solid fa-hockey-puck text-shl-lightBlue"></i> <span>' + message + '</span>';
   container.appendChild(toast);
   setTimeout(() => {
     toast.style.opacity = '0';
