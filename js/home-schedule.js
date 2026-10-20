@@ -11,19 +11,22 @@ function renderScoreTicker() {
   if (wrapper) wrapper.classList.remove('hidden');
   container.innerHTML = allMatches.map(m => {
     const isPlayed = m.status === 'completed';
+    const isLive = m.status === 'live';
     const roundNum = m.round_number || 1;
-    const statusText = isPlayed
+    const statusText = isLive
+      ? '🔴 LIVE NU'
+      : isPlayed
       ? (m.is_shootout ? 'SPELAD SO' : m.is_overtime ? 'SPELAD ÖT' : 'SPELAD')
       : ('OMGÅNG ' + roundNum);
-    const centerText = isPlayed
+    const centerText = (isPlayed || isLive)
       ? (m.home_score + ' - ' + m.away_score)
       : formatDateShort(m.played_at);
     const homeTag = m.home_tag || 'HEM';
     const awayTag = m.away_tag || 'BOR';
     const homeCrest = renderTeamCrestSVG(m.home_team_id, 'w-5 h-5');
     const awayCrest = renderTeamCrestSVG(m.away_team_id, 'w-5 h-5');
-    const statusColor = isPlayed ? 'text-slate-600' : 'text-shl-blue';
-    const centerClass = isPlayed ? 'text-base font-black text-slate-900' : 'text-xs font-bold text-shl-blue';
+    const statusColor = isLive ? 'text-rose-600 animate-pulse' : (isPlayed ? 'text-slate-600' : 'text-shl-blue');
+    const centerClass = (isPlayed || isLive) ? 'text-base font-black text-slate-900' : 'text-xs font-bold text-shl-blue';
 
     return [
       '<div onclick="openMatchModal(' + m.id + ')" class="px-4 py-1.5 flex flex-col justify-between min-w-[185px] bg-[#f8fafc] hover:bg-white cursor-pointer transition shrink-0">',
@@ -62,7 +65,9 @@ function setHomeMatchFilter(filter) {
 function renderHomeMatches() {
   const container = document.getElementById('homeMatchesContainer');
   if (!container) return;
-  const filtered = allMatches.filter(m => homeMatchFilter === 'upcoming' ? m.status !== 'completed' : m.status === 'completed');
+  const filtered = allMatches
+    .filter(m => homeMatchFilter === 'upcoming' ? m.status !== 'completed' : m.status === 'completed')
+    .sort((a, b) => (b.status === 'live' ? 1 : 0) - (a.status === 'live' ? 1 : 0));
 
   if (filtered.length === 0) {
     const label = homeMatchFilter === 'upcoming' ? 'kommande' : 'spelade';
@@ -72,27 +77,31 @@ function renderHomeMatches() {
 
   container.innerHTML = filtered.slice(0, 6).map(m => {
     const isPlayed = m.status === 'completed';
-    const centerDisplay = isPlayed ? (m.home_score + ' - ' + m.away_score) : 'VS';
+    const isLive = m.status === 'live';
+    const centerDisplay = (isPlayed || isLive) ? (m.home_score + ' - ' + m.away_score) : 'VS';
     const roundNum = m.round_number || 1;
     const homeName = m.home_name || 'Hemmalag';
     const awayName = m.away_name || 'Bortalag';
     const serverName = m.server_ip || 'ELITSERIEN Server';
     const homeCrest = renderTeamCrestSVG(m.home_team_id, 'w-8 h-8');
     const awayCrest = renderTeamCrestSVG(m.away_team_id, 'w-8 h-8');
+    const liveBadge = isLive
+      ? '<span class="inline-block bg-rose-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded uppercase animate-pulse mb-0.5">🔴 LIVE</span>'
+      : ('<div class="font-bold text-slate-800">Omgång ' + roundNum + '</div>');
 
     return [
-      '<div class="bg-white border border-gray-200 rounded-sm p-4 match-card-hover">',
+      '<div class="bg-white border ' + (isLive ? 'border-rose-400 ring-1 ring-rose-200' : 'border-gray-200') + ' rounded-sm p-4 match-card-hover">',
         '<div class="flex flex-col sm:flex-row items-center justify-between gap-4">',
           '<div class="text-xs text-gray-600 font-medium w-36 text-center sm:text-left shrink-0">',
-            '<div class="font-bold text-slate-800">Omgång ' + roundNum + '</div>',
-            '<div>' + formatDateShort(m.played_at) + '</div>',
+            liveBadge,
+            '<div>' + (isLive ? ('Omgång ' + roundNum) : formatDateShort(m.played_at)) + '</div>',
           '</div>',
           '<div class="flex items-center justify-center gap-3 sm:gap-5 flex-1">',
             '<button type="button" onclick="openTeamProfile(' + m.home_team_id + ')" class="flex items-center justify-end gap-2.5 flex-1 text-right hover:text-shl-blue transition">',
               '<span class="font-shl text-lg font-extrabold uppercase text-slate-900">' + homeName + '</span>' + homeCrest,
             '</button>',
             '<div class="text-center px-2 shrink-0">',
-              '<div class="font-shl text-3xl font-black text-slate-900 leading-none">' + centerDisplay + '</div>',
+              '<div class="font-shl text-3xl font-black ' + (isLive ? 'text-rose-600' : 'text-slate-900') + ' leading-none">' + centerDisplay + '</div>',
               '<div class="text-[10px] text-gray-500 mt-1 font-medium">' + serverName + '</div>',
             '</div>',
             '<button type="button" onclick="openTeamProfile(' + m.away_team_id + ')" class="flex items-center justify-start gap-2.5 flex-1 text-left hover:text-shl-blue transition">',
@@ -232,13 +241,18 @@ function renderFullScheduleView() {
   container.innerHTML = Object.keys(rounds).sort((a, b) => Number(a) - Number(b)).map(rNum => {
     const rowsHtml = rounds[rNum].map(m => {
       const isPlayed = m.status === 'completed';
-      const badgeClass = isPlayed ? 'bg-gray-200 text-gray-700' : 'bg-blue-100 text-blue-800';
-      const badgeText = isPlayed ? 'SPELAD' : 'KOMMANDE';
+      const isLive = m.status === 'live';
+      const badgeClass = isLive
+        ? 'bg-rose-600 text-white animate-pulse'
+        : isPlayed
+        ? 'bg-gray-200 text-gray-700'
+        : 'bg-blue-100 text-blue-800';
+      const badgeText = isLive ? '🔴 LIVE' : (isPlayed ? 'SPELAD' : 'KOMMANDE');
       const homeName = m.home_name || 'Hemmalag';
       const awayName = m.away_name || 'Bortalag';
       const homeCrest = renderTeamCrestSVG(m.home_team_id, 'w-7 h-7');
       const awayCrest = renderTeamCrestSVG(m.away_team_id, 'w-7 h-7');
-      const scoreText = isPlayed ? (m.home_score + ' - ' + m.away_score) : 'VS';
+      const scoreText = (isPlayed || isLive) ? (m.home_score + ' - ' + m.away_score) : 'VS';
       const codePill = m.match_code
         ? '<span class="font-mono text-[11px] bg-amber-100 text-amber-900 font-bold px-2 py-0.5 rounded border border-amber-300" title="Matchkod för C/A">Kod: ' + m.match_code + '</span>'
         : '';
@@ -250,7 +264,7 @@ function renderFullScheduleView() {
         : '';
 
       return [
-        '<div class="bg-white border border-gray-200 rounded-sm p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">',
+        '<div class="bg-white border ' + (isLive ? 'border-rose-400 ring-1 ring-rose-200' : 'border-gray-200') + ' rounded-sm p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">',
           '<div class="flex flex-wrap items-center gap-2 w-56">',
             '<span class="text-xs font-bold px-2 py-0.5 rounded ' + badgeClass + '">' + badgeText + '</span>',
             '<span class="text-xs text-gray-600 font-medium">' + formatDateShort(m.played_at) + '</span>',
@@ -258,7 +272,7 @@ function renderFullScheduleView() {
           '</div>',
           '<div class="flex items-center justify-center gap-4 flex-1">',
             '<button type="button" onclick="openTeamProfile(' + m.home_team_id + ')" class="flex items-center justify-end gap-2 flex-1 text-right font-shl text-xl font-bold uppercase hover:text-shl-blue">' + homeName + ' ' + homeCrest + '</button>',
-            '<div class="font-shl text-2xl font-black px-3 py-1 bg-gray-100 rounded min-w-[75px] text-center">' + scoreText + '</div>',
+            '<div class="font-shl text-2xl font-black px-3 py-1 ' + (isLive ? 'bg-rose-50 text-rose-600' : 'bg-gray-100 text-slate-900') + ' rounded min-w-[75px] text-center">' + scoreText + '</div>',
             '<button type="button" onclick="openTeamProfile(' + m.away_team_id + ')" class="flex items-center justify-start gap-2 flex-1 text-left font-shl text-xl font-bold uppercase hover:text-shl-blue">' + awayCrest + ' ' + awayName + '</button>',
           '</div>',
           '<div class="flex items-center gap-2">',
@@ -323,12 +337,13 @@ function openMatchModal(matchId) {
   const m = allMatches.find(x => Number(x.id) === Number(matchId));
   if (!m) return;
   const isPlayed = m.status === 'completed';
+  const isLive = m.status === 'live';
   const isAdmin = currentUser && currentUser.role === 'admin';
   const canManage = Boolean(m.can_manage_match) || isAdmin;
   const mStats = allMatchPlayerStats.filter(s => Number(s.match_id) === Number(m.id));
 
   const roundNum = m.round_number || 1;
-  const statusLabel = isPlayed ? 'SLUTRESULTAT' : 'KOMMANDE MATCH';
+  const statusLabel = isLive ? '🔴 PÅGÅENDE MATCH (LIVE)' : (isPlayed ? 'SLUTRESULTAT' : 'KOMMANDE MATCH');
   const serverLabel = m.server_ip || 'ELITSERIEN';
   setElText('modalMatchHeaderStatus', 'OMGÅNG ' + roundNum + ' • ' + statusLabel + ' • ' + serverLabel);
 
@@ -336,14 +351,14 @@ function openMatchModal(matchId) {
     '<div class="bg-amber-50 border border-amber-300 rounded p-4 flex flex-col sm:flex-row items-center justify-between gap-3">',
       '<div>',
         '<div class="text-[11px] font-bold uppercase text-amber-900">Officiell Matchkod (Endast synlig för Lagkaptener, Assisterande & Admin)</div>',
-        '<div class="text-xs text-amber-800">Skriv in koden i Puck-servern för att starta och logga matchen automatiskt.</div>',
+        '<div class="text-xs text-amber-800">Skriv <strong>!game ' + m.match_code + '</strong> i Puck-servern för att starta och logga matchen automatiskt.</div>',
       '</div>',
       '<div class="font-mono text-xl font-black bg-slate-900 text-amber-400 px-4 py-2 rounded select-all shrink-0">' + m.match_code + '</div>',
     '</div>'
   ].join('') : '';
 
   let timeBookingHTML = '';
-  if (!isPlayed && canManage) {
+  if (!isPlayed && !isLive && canManage) {
     const proposerTag = Number(m.proposed_by_team_id) === Number(m.home_team_id) ? m.home_tag : m.away_tag;
     const proposedInfo = m.proposed_time ? [
       '<div class="bg-blue-50 border border-blue-200 rounded p-3 flex items-center justify-between text-xs mb-3">',
@@ -402,16 +417,21 @@ function openMatchModal(matchId) {
   const statsTableHTML = mStats.length > 0 ? [
     '<div class="space-y-2">',
       '<div class="text-xs font-bold uppercase text-slate-700">Spelarstatistik i matchen</div>',
-      '<div class="border border-gray-200 rounded overflow-hidden">',
+      '<div class="border border-gray-200 rounded overflow-x-auto">',
         '<table class="w-full text-xs">',
-          '<thead class="bg-gray-100 text-gray-600 font-bold uppercase"><tr><th class="py-2 px-3 text-left">Spelare</th><th class="py-2 px-2 text-center">Lag</th><th class="py-2 px-2 text-center">G</th><th class="py-2 px-2 text-center">A</th><th class="py-2 px-2 text-center">TP</th><th class="py-2 px-3 text-right">Skott km/h</th></tr></thead>',
+          '<thead class="bg-gray-100 text-gray-600 font-bold uppercase"><tr><th class="py-2 px-3 text-left">Spelare</th><th class="py-2 px-2 text-center">Lag</th><th class="py-2 px-2 text-center">Mål</th><th class="py-2 px-2 text-center">Assist</th><th class="py-2 px-2 text-center">Poäng</th><th class="py-2 px-2 text-center">Passningar</th><th class="py-2 px-2 text-center">Possession</th><th class="py-2 px-3 text-right">Hårdaste skott</th></tr></thead>',
           '<tbody class="divide-y divide-gray-100">',
             mStats.map(s => {
               const jNum = s.jersey_number || 12;
               const pName = s.username || s.steam_id;
               const tTag = s.team_tag || '-';
-              const shotSpd = Number(s.top_shot_speed_kmh || 0).toFixed(1);
-              return '<tr><td class="py-2 px-3 font-bold">#' + jNum + ' ' + pName + '</td><td class="py-2 px-2 text-center">' + tTag + '</td><td class="py-2 px-2 text-center">' + s.goals + '</td><td class="py-2 px-2 text-center">' + s.assists + '</td><td class="py-2 px-2 text-center font-bold text-shl-blue">' + s.points + '</td><td class="py-2 px-3 text-right font-mono">' + shotSpd + '</td></tr>';
+              const pComp = Number(s.passes_completed || 0);
+              const pAtt = Number(s.passes_attempted || 0);
+              const pPct = pAtt > 0 ? Math.round((pComp / pAtt) * 100) : 0;
+              const passText = pComp + '/' + pAtt + ' (' + pPct + '%)';
+              const possSec = Number(s.possession_seconds || 0).toFixed(1) + ' s';
+              const shotSpd = Number(s.top_shot_speed_kmh || 0).toFixed(1) + ' km/h';
+              return '<tr><td class="py-2 px-3 font-bold">#' + jNum + ' ' + pName + '</td><td class="py-2 px-2 text-center">' + tTag + '</td><td class="py-2 px-2 text-center font-semibold">' + s.goals + '</td><td class="py-2 px-2 text-center font-semibold">' + s.assists + '</td><td class="py-2 px-2 text-center font-bold text-shl-blue">' + s.points + '</td><td class="py-2 px-2 text-center text-emerald-700 font-medium">' + passText + '</td><td class="py-2 px-2 text-center text-gray-600">' + possSec + '</td><td class="py-2 px-3 text-right font-mono font-bold text-amber-600">' + shotSpd + '</td></tr>';
             }).join(''),
           '</tbody>',
         '</table>',
@@ -423,12 +443,15 @@ function openMatchModal(matchId) {
   const awayCrestBig = renderTeamCrestSVG(m.away_team_id, 'w-14 h-14');
   const homeTitle = m.home_name || 'Hemmalag';
   const awayTitle = m.away_name || 'Bortalag';
-  const bigCenter = isPlayed ? (m.home_score + ' - ' + m.away_score) : 'VS';
+  const bigCenter = (isPlayed || isLive) ? (m.home_score + ' - ' + m.away_score) : 'VS';
+  const subStatus = isLive
+    ? '<span class="inline-block bg-rose-600 text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded uppercase animate-pulse mt-1">🔴 PÅGÅR LIVE</span>'
+    : ('<div class="text-xs text-gray-400 mt-1">' + formatDateShort(m.played_at) + '</div>');
 
   setElHTML('modalMatchContent', [
     '<div class="flex items-center justify-between bg-slate-900 text-white p-6 rounded-sm">',
       '<button type="button" onclick="closeMatchModal(); openTeamProfile(' + m.home_team_id + ')" class="flex flex-col items-center gap-2 flex-1 hover:text-shl-lightBlue transition">' + homeCrestBig + '<span class="font-shl text-2xl font-black uppercase">' + homeTitle + '</span></button>',
-      '<div class="text-center px-4"><div class="font-shl text-5xl font-black text-amber-400">' + bigCenter + '</div><div class="text-xs text-gray-400 mt-1">' + formatDateShort(m.played_at) + '</div></div>',
+      '<div class="text-center px-4"><div class="font-shl text-5xl font-black text-amber-400">' + bigCenter + '</div>' + subStatus + '</div>',
       '<button type="button" onclick="closeMatchModal(); openTeamProfile(' + m.away_team_id + ')" class="flex flex-col items-center gap-2 flex-1 hover:text-shl-lightBlue transition">' + awayCrestBig + '<span class="font-shl text-2xl font-black uppercase">' + awayTitle + '</span></button>',
     '</div>',
     codeBoxHTML,
@@ -517,3 +540,10 @@ async function resolveRematch(matchId, decision) {
     showToast(err.message, 'error');
   }
 }
+
+// Auto-uppdatera ligadata var 15:e sekund så att LIVE-matcher och mål uppdateras automatiskt
+setInterval(() => {
+  if (typeof loadLeagueData === 'function') {
+    loadLeagueData();
+  }
+}, 15000);
