@@ -440,12 +440,13 @@ module.exports = async function handler(req, res) {
             `;
           }
         } else if (body.decision === 'delete') {
-          await sql`UPDATE players SET team_id = NULL WHERE team_id = ${teamId}`;
-          await sql`DELETE FROM team_members WHERE team_id = ${teamId}`;
-          await sql`DELETE FROM team_invites WHERE team_id = ${teamId}`;
-          await sql`DELETE FROM matches WHERE home_team_id = ${teamId} OR away_team_id = ${teamId}`;
-          await sql`DELETE FROM teams WHERE id = ${teamId}`;
-        }
+  await sql`UPDATE players SET team_id = NULL WHERE team_id = ${teamId}`;
+  await sql`DELETE FROM transfer_history WHERE from_team_id = ${teamId} OR to_team_id = ${teamId}`;
+  await sql`DELETE FROM team_members WHERE team_id = ${teamId}`;
+  await sql`DELETE FROM team_invites WHERE team_id = ${teamId}`;
+  await sql`DELETE FROM matches WHERE home_team_id = ${teamId} OR away_team_id = ${teamId}`;
+  await sql`DELETE FROM teams WHERE id = ${teamId}`;
+}
         return res.status(200).json({ ok: true });
       }
 
