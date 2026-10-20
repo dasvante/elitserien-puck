@@ -29,11 +29,10 @@ function generateMatchCode() {
   return code;
 }
 
-// Round-Robin algoritm (Cirkelmetoden) för 2-14 lag
 function buildRoundRobinSchedule(teamIds, meetingsPerPair = 2) {
   const list = [...teamIds];
   if (list.length % 2 !== 0) {
-    list.push(null); // Bye-vecka vid udda antal lag
+    list.push(null);
   }
   const n = list.length;
   const roundsPerCycle = n - 1;
@@ -57,7 +56,6 @@ function buildRoundRobinSchedule(teamIds, meetingsPerPair = 2) {
           });
         }
       }
-      // Rotera alla utom första elementet
       const fixed = rotation[0];
       const moved = rotation.pop();
       rotation.splice(1, 0, moved);
@@ -67,6 +65,7 @@ function buildRoundRobinSchedule(teamIds, meetingsPerPair = 2) {
   return fixtures;
 }
 
+// Säkerställer att alla tabeller och kolumner finns utan att krascha
 async function ensureSchema(sql) {
   await sql`
     CREATE TABLE IF NOT EXISTS team_invites (
@@ -89,15 +88,65 @@ async function ensureSchema(sql) {
       transfer_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
     )
   `;
-  await sql`ALTER TABLE team_members ADD COLUMN IF NOT EXISTS team_role VARCHAR(16) DEFAULT 'player'`;
+  await sql`
+    ALTER TABLE players
+      ADD COLUMN IF NOT EXISTS team_id INT,
+      ADD COLUMN IF NOT EXISTS jersey_number INT DEFAULT 12,
+      ADD COLUMN IF NOT EXISTS preferred_position VARCHAR(16) DEFAULT 'FORWARD',
+      ADD COLUMN IF NOT EXISTS stick_handedness VARCHAR(16) DEFAULT 'Left',
+      ADD COLUMN IF NOT EXISTS jersey_primary_color VARCHAR(16) DEFAULT '#0284c7',
+      ADD COLUMN IF NOT EXISTS jersey_stripe_color VARCHAR(16) DEFAULT '#0a0d12',
+      ADD COLUMN IF NOT EXISTS show_chest_number BOOLEAN DEFAULT true,
+      ADD COLUMN IF NOT EXISTS helmet_color VARCHAR(16) DEFAULT '#0a0d12',
+      ADD COLUMN IF NOT EXISTS skin_color VARCHAR(16) DEFAULT '#c68b65',
+      ADD COLUMN IF NOT EXISTS visor_tint VARCHAR(16) DEFAULT 'tinted',
+      ADD COLUMN IF NOT EXISTS facial_hair VARCHAR(16) DEFAULT 'none',
+      ADD COLUMN IF NOT EXISTS hair_color VARCHAR(16) DEFAULT '#23170f',
+      ADD COLUMN IF NOT EXISTS stick_shaft_color VARCHAR(16) DEFAULT '#28b5e1',
+      ADD COLUMN IF NOT EXISTS stick_blade_tape VARCHAR(16) DEFAULT '#111111'
+  `;
+  await sql`
+    ALTER TABLE teams
+      ADD COLUMN IF NOT EXISTS primary_color VARCHAR(16) DEFAULT '#0284c7',
+      ADD COLUMN IF NOT EXISTS secondary_color VARCHAR(16) DEFAULT '#ffffff',
+      ADD COLUMN IF NOT EXISTS roster_notes TEXT
+  `;
+  await sql`
+    ALTER TABLE team_members
+      ADD COLUMN IF NOT EXISTS team_role VARCHAR(16) DEFAULT 'player',
+      ADD COLUMN IF NOT EXISTS joined_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+  `;
   await sql`
     ALTER TABLE matches
       ADD COLUMN IF NOT EXISTS round_number INT DEFAULT 1,
       ADD COLUMN IF NOT EXISTS match_code VARCHAR(16),
+      ADD COLUMN IF NOT EXISTS is_overtime BOOLEAN DEFAULT false,
+      ADD COLUMN IF NOT EXISTS is_shootout BOOLEAN DEFAULT false,
+      ADD COLUMN IF NOT EXISTS home_shots INT DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS away_shots INT DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS server_ip VARCHAR(64),
       ADD COLUMN IF NOT EXISTS proposed_time TIMESTAMP WITH TIME ZONE,
       ADD COLUMN IF NOT EXISTS proposed_by_team_id INT,
       ADD COLUMN IF NOT EXISTS rematch_requested_by_team_id INT,
       ADD COLUMN IF NOT EXISTS rematch_reason TEXT
+  `;
+  await sql`
+    ALTER TABLE player_match_stats
+      ADD COLUMN IF NOT EXISTS team_id INT,
+      ADD COLUMN IF NOT EXISTS goals INT DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS assists INT DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS points INT DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS shots_on_goal INT DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS top_shot_speed_kmh NUMERIC(5, 2) DEFAULT 0.00,
+      ADD COLUMN IF NOT EXISTS plus_minus INT DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS possession_seconds NUMERIC(6, 2) DEFAULT 0.00,
+      ADD COLUMN IF NOT EXISTS time_on_ice_seconds NUMERIC(6, 2) DEFAULT 0.00,
+      ADD COLUMN IF NOT EXISTS passes_completed INT DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS passes_attempted INT DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS saves INT DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS shots_against INT DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS goals_against INT DEFAULT 0,
+      ADD COLUMN IF NOT EXISTS save_percentage NUMERIC(5, 2) DEFAULT 0.00
   `;
 }
 
@@ -110,7 +159,6 @@ module.exports = async function handler(req, res) {
 
     // =========================================================================
     // C# SERVER-MOD ENDPOINT (GET): VERIFIERA MATCHKOD & HÄMTA ROSTERS
-    // Anropas av Puck-servermodden när en kapten skriver !match ES-XXXX i spelet
     // =========================================================================
     if (req.method === 'GET' && req.query.action === 'mod_verify_match') {
       const code = String(req.query.code || '').trim().toUpperCase();
@@ -184,7 +232,7 @@ module.exports = async function handler(req, res) {
         LEFT JOIN team_members tm ON p.steam_id = tm.steam_id AND p.team_id = tm.team_id
         LEFT JOIN player_match_stats pms ON p.steam_id = pms.steam_id
         GROUP BY p.steam_id, tm.team_role
-        ORDER BY tp DESC, g DESC, p.created_at ASC
+        ORDER BY tp DESC, g DESC, p.username ASC
       `;
 
       const dbRosters = await sql`
@@ -197,7 +245,7 @@ module.exports = async function handler(req, res) {
             WHEN 'assistant' THEN 2 
             ELSE 3 
           END,
-          tm.joined_at ASC
+          p.username ASC
       `;
 
       const dbMatchesRaw = await sql`
@@ -252,14 +300,12 @@ module.exports = async function handler(req, res) {
       const currentUser = steamId ? dbPlayers.find(p => p.steam_id === steamId) || null : null;
       const isAdmin = currentUser && (currentUser.role === 'admin' || currentUser.steam_id === SUPER_ADMIN_STEAM_ID);
 
-      // Vilka lag är inloggad spelare Kapten (C) eller Assisterande (A) för?
       const myLeaderTeamIds = new Set(
         dbRosters
           .filter(r => r.steam_id === steamId && (r.team_role === 'captain' || r.team_role === 'assistant'))
           .map(r => Number(r.team_id))
       );
 
-      // Filtrera match_code så att ENDAST Admin eller C/A i matchens två lag kan se den
       const dbMatches = dbMatchesRaw.map(m => {
         const canSeeCode =
           isAdmin ||
@@ -301,6 +347,9 @@ module.exports = async function handler(req, res) {
       async function canManageTeam(teamId, requireCaptainOrAdmin = false) {
         if (isAdmin) return true;
         if (!currentUser || !teamId) return false;
+        const teamRows = await sql`SELECT captain_steam_id FROM teams WHERE id = ${teamId}`;
+        if (teamRows[0]?.captain_steam_id === currentUser.steam_id) return true;
+
         const memberRows = await sql`
           SELECT team_role FROM team_members WHERE team_id = ${teamId} AND steam_id = ${currentUser.steam_id}
         `;
@@ -335,7 +384,7 @@ module.exports = async function handler(req, res) {
         return res.status(200).json({ ok: true });
       }
 
-      // 2. ANSÖK MED NYTT LAG (Max 14 godkända lag i ligan)
+      // 2. ANSÖK MED NYTT LAG
       if (action === 'apply_team') {
         if (!currentUser) return res.status(401).json({ error: 'Logga in med Steam för att ansöka med ett lag.' });
         if (currentUser.team_id && !isAdmin) {
@@ -354,6 +403,19 @@ module.exports = async function handler(req, res) {
         const rosterNotes = String(body.rosterNotes || '').trim();
 
         if (!name || !tag) return res.status(400).json({ error: 'Lagnamn och förkortning krävs.' });
+
+        // Kontrollera om lagnamnet eller förkortningen redan finns i databasen
+        const existing = await sql`
+          SELECT id, name, tag, status FROM teams
+          WHERE LOWER(name) = LOWER(${name}) OR UPPER(tag) = UPPER(${tag})
+          LIMIT 1
+        `;
+        if (existing[0]) {
+          const statusMsg = existing[0].status === 'pending'
+            ? 'Laget ligger redan under Väntande lagansökningar i Adminpanelen!'
+            : 'Laget finns redan registrerat i ligan.';
+          return res.status(400).json({ error: `${existing[0].name} (${existing[0].tag}) finns redan! ${statusMsg}` });
+        }
 
         await sql`
           INSERT INTO teams (name, tag, captain_steam_id, status, primary_color, secondary_color, roster_notes)
@@ -378,6 +440,15 @@ module.exports = async function handler(req, res) {
         const captainSteamId = body.captainSteamId || null;
 
         if (!name || !tag) return res.status(400).json({ error: 'Lagnamn och tagg krävs.' });
+
+        const existing = await sql`
+          SELECT id, name, tag FROM teams
+          WHERE LOWER(name) = LOWER(${name}) OR UPPER(tag) = UPPER(${tag})
+          LIMIT 1
+        `;
+        if (existing[0]) {
+          return res.status(400).json({ error: `Ett lag med namnet eller förkortningen ${existing[0].name} (${existing[0].tag}) finns redan.` });
+        }
 
         const created = await sql`
           INSERT INTO teams (name, tag, captain_steam_id, status, primary_color, secondary_color)
@@ -410,8 +481,8 @@ module.exports = async function handler(req, res) {
       // 4. ADMIN: GODKÄNN ELLER RADERA LAG
       if (action === 'admin_team_status') {
         if (!isAdmin) return res.status(403).json({ error: 'Endast Admin har behörighet.' });
-        const teamId = parseInt(body.teamId, 10);
 
+        const teamId = parseInt(body.teamId, 10);
         if (body.decision === 'approve') {
           const approvedCount = await sql`SELECT COUNT(*)::int AS cnt FROM teams WHERE status = 'approved'`;
           if (approvedCount[0].cnt >= MAX_TEAMS_IN_LEAGUE) {
@@ -440,13 +511,13 @@ module.exports = async function handler(req, res) {
             `;
           }
         } else if (body.decision === 'delete') {
-  await sql`UPDATE players SET team_id = NULL WHERE team_id = ${teamId}`;
-  await sql`DELETE FROM transfer_history WHERE from_team_id = ${teamId} OR to_team_id = ${teamId}`;
-  await sql`DELETE FROM team_members WHERE team_id = ${teamId}`;
-  await sql`DELETE FROM team_invites WHERE team_id = ${teamId}`;
-  await sql`DELETE FROM matches WHERE home_team_id = ${teamId} OR away_team_id = ${teamId}`;
-  await sql`DELETE FROM teams WHERE id = ${teamId}`;
-}
+          await sql`UPDATE players SET team_id = NULL WHERE team_id = ${teamId}`;
+          await sql`DELETE FROM transfer_history WHERE from_team_id = ${teamId} OR to_team_id = ${teamId}`;
+          await sql`DELETE FROM team_members WHERE team_id = ${teamId}`;
+          await sql`DELETE FROM team_invites WHERE team_id = ${teamId}`;
+          await sql`DELETE FROM matches WHERE home_team_id = ${teamId} OR away_team_id = ${teamId}`;
+          await sql`DELETE FROM teams WHERE id = ${teamId}`;
+        }
         return res.status(200).json({ ok: true });
       }
 
@@ -496,7 +567,7 @@ module.exports = async function handler(req, res) {
         return res.status(200).json({ ok: true });
       }
 
-      // 7. MATCHRUM: FÖRESLÅ SPELTID (KAPTEN / ASSISTERANDE / ADMIN)
+      // 7. MATCHRUM: FÖRESLÅ SPELTID
       if (action === 'propose_match_time') {
         const matchId = parseInt(body.matchId, 10);
         const proposedTime = body.proposedTime ? new Date(body.proposedTime).toISOString() : null;
@@ -512,7 +583,6 @@ module.exports = async function handler(req, res) {
           return res.status(403).json({ error: 'Endast lagkaptener, assisterande eller Admin kan föreslå matchtid.' });
         }
 
-        // Om Admin föreslår eller om man väljer att låsa direkt som Admin
         if (isAdmin && body.lockImmediately) {
           await sql`
             UPDATE matches SET played_at = ${proposedTime}, proposed_time = NULL, proposed_by_team_id = NULL
@@ -558,7 +628,7 @@ module.exports = async function handler(req, res) {
         return res.status(200).json({ ok: true });
       }
 
-      // 9. MATCHRUM: ANSÖK OM REMATCH / OMSPEL (VID SERVERKRASCH ETC.)
+      // 9. MATCHRUM: ANSÖK OM REMATCH
       if (action === 'request_rematch') {
         const matchId = parseInt(body.matchId, 10);
         const reason = String(body.reason || '').trim().slice(0, 300);
@@ -587,8 +657,7 @@ module.exports = async function handler(req, res) {
       // 10. MATCHRUM / ADMIN: GODKÄNN ELLER NEKA REMATCH
       if (action === 'resolve_rematch') {
         const matchId = parseInt(body.matchId, 10);
-        const decision = body.decision; // 'approve' | 'decline'
-
+        const decision = body.decision;
         const mRows = await sql`SELECT * FROM matches WHERE id = ${matchId}`;
         const match = mRows[0];
         if (!match) return res.status(404).json({ error: 'Matchen hittades inte.' });
@@ -611,7 +680,6 @@ module.exports = async function handler(req, res) {
           return res.status(200).json({ ok: true, reset: false });
         }
 
-        // Vid godkänd rematch: rensa matchens spelarstatistik och återställ matchen till Kommande med ny matchkod
         const newCode = generateMatchCode();
         await sql`DELETE FROM player_match_stats WHERE match_id = ${matchId}`;
         await sql`DELETE FROM match_events WHERE match_id = ${matchId}`;
@@ -630,39 +698,7 @@ module.exports = async function handler(req, res) {
         return res.status(200).json({ ok: true, reset: true, newCode });
       }
 
-      // 11. ADMIN: REDIGERA SPECIFIK MATCH (RESULTAT, STATUS, TID ELLER OMSKAPA KOD)
-      if (action === 'admin_edit_match') {
-        if (!isAdmin) return res.status(403).json({ error: 'Endast Admin.' });
-        const matchId = parseInt(body.matchId, 10);
-        const homeScore = parseInt(body.homeScore, 10) || 0;
-        const awayScore = parseInt(body.awayScore, 10) || 0;
-        const status = body.status === 'completed' ? 'completed' : 'scheduled';
-        const isOvertime = Boolean(body.isOvertime);
-        const isShootout = Boolean(body.isShootout);
-        const roundNumber = Math.max(1, parseInt(body.roundNumber, 10) || 1);
-        const playedAt = body.playedAt ? new Date(body.playedAt).toISOString() : null;
-
-        if (status === 'scheduled' && body.clearStatsOnReset) {
-          await sql`DELETE FROM player_match_stats WHERE match_id = ${matchId}`;
-          await sql`DELETE FROM match_events WHERE match_id = ${matchId}`;
-        }
-
-        await sql`
-          UPDATE matches SET
-            home_score = ${homeScore},
-            away_score = ${awayScore},
-            status = ${status},
-            is_overtime = ${isOvertime},
-            is_shootout = ${isShootout},
-            round_number = ${roundNumber},
-            played_at = COALESCE(${playedAt}, played_at),
-            match_code = COALESCE(match_code, ${generateMatchCode()})
-          WHERE id = ${matchId}
-        `;
-        return res.status(200).json({ ok: true });
-      }
-
-      // 12. BJUDA IN FREE AGENT TILL LAG (MAX 10 SPELARE)
+      // 11. BJUDA IN FREE AGENT TILL LAG (MAX 10 SPELARE)
       if (action === 'invite_player') {
         const teamId = parseInt(body.teamId, 10);
         const targetSteamId = String(body.targetSteamId || '').trim();
@@ -715,7 +751,7 @@ module.exports = async function handler(req, res) {
         return res.status(200).json({ ok: true, direct: false });
       }
 
-      // 13. SVARA PÅ LAGINBJUDAN I INKORGEN
+      // 12. SVARA PÅ LAGINBJUDAN I INKORGEN
       if (action === 'respond_invite') {
         if (!currentUser) return res.status(401).json({ error: 'Logga in först.' });
         const inviteId = parseInt(body.inviteId, 10);
@@ -759,10 +795,11 @@ module.exports = async function handler(req, res) {
           INSERT INTO transfer_history (steam_id, to_team_id, transfer_type)
           VALUES (${currentUser.steam_id}, ${invite.team_id}, 'join')
         `;
+
         return res.status(200).json({ ok: true, teamId: invite.team_id });
       }
 
-      // 14. LÄMNA LAGET SJÄLV
+      // 13. LÄMNA LAGET SJÄLV
       if (action === 'leave_team') {
         if (!currentUser) return res.status(401).json({ error: 'Logga in först.' });
         const teamId = parseInt(body.teamId, 10);
@@ -776,7 +813,7 @@ module.exports = async function handler(req, res) {
 
         const teamRows = await sql`SELECT * FROM teams WHERE id = ${teamId}`;
         if (teamRows[0] && teamRows[0].captain_steam_id === currentUser.steam_id) {
-          const remaining = await sql`SELECT * FROM team_members WHERE team_id = ${teamId} ORDER BY joined_at ASC LIMIT 1`;
+          const remaining = await sql`SELECT * FROM team_members WHERE team_id = ${teamId} ORDER BY steam_id ASC LIMIT 1`;
           const nextCap = remaining[0]?.steam_id || null;
           await sql`UPDATE teams SET captain_steam_id = ${nextCap} WHERE id = ${teamId}`;
           if (nextCap) {
@@ -786,7 +823,7 @@ module.exports = async function handler(req, res) {
         return res.status(200).json({ ok: true });
       }
 
-      // 15. SPARKA MEDLEM FRÅN LAGET
+      // 14. SPARKA MEDLEM FRÅN LAGET
       if (action === 'kick_member') {
         const teamId = parseInt(body.teamId, 10);
         const targetSteamId = String(body.targetSteamId || '');
@@ -809,7 +846,7 @@ module.exports = async function handler(req, res) {
         return res.status(200).json({ ok: true });
       }
 
-      // 16. ÄNDRA MEDLEMSROLL (C / A / SPELARE) ELLER POSITION (GK / UTESPELARE)
+      // 15. ÄNDRA MEDLEMSROLL ELLER POSITION
       if (action === 'update_team_member') {
         const teamId = parseInt(body.teamId, 10);
         const targetSteamId = String(body.targetSteamId || '');
@@ -839,7 +876,7 @@ module.exports = async function handler(req, res) {
         return res.status(200).json({ ok: true });
       }
 
-      // 17. ADMIN: TILLDELA ELLER TA BORT ADMIN-BEHÖRIGHET
+      // 16. ADMIN: TILLDELA ELLER TA BORT ADMIN-BEHÖRIGHET
       if (action === 'admin_set_role') {
         if (!isAdmin) return res.status(403).json({ error: 'Endast Admin.' });
         const targetSteamId = String(body.targetSteamId || '');
@@ -851,7 +888,7 @@ module.exports = async function handler(req, res) {
         return res.status(200).json({ ok: true });
       }
 
-      // 18. ADMIN: LÄGG TILL ENSTAKA KOMMANDE MATCH MANUELLT
+      // 17. ADMIN: LÄGG TILL ENSTAKA KOMMANDE MATCH MANUELLT
       if (action === 'admin_schedule_match') {
         if (!isAdmin) return res.status(403).json({ error: 'Endast Admin.' });
         const homeId = parseInt(body.homeTeamId, 10);
@@ -868,7 +905,7 @@ module.exports = async function handler(req, res) {
         return res.status(200).json({ ok: true, matchCode });
       }
 
-      // 19. ADMIN: RADERA ENSKILD MATCH
+      // 18. ADMIN: RADERA ENSKILD MATCH
       if (action === 'admin_delete_match') {
         if (!isAdmin) return res.status(403).json({ error: 'Endast Admin.' });
         const matchId = parseInt(body.matchId, 10);
@@ -878,12 +915,10 @@ module.exports = async function handler(req, res) {
         return res.status(200).json({ ok: true });
       }
 
-      // 20. C# SERVER-MOD ELLER ADMIN: RAPPORTERA SLUTRESULTAT & SPELARSTATISTIK
-      // Validerar matchCode (eller matchId) och bokför ENDAST spelare som tillhör de två lagen
+      // 19. C# SERVER-MOD ELLER ADMIN: RAPPORTERA SLUTRESULTAT & SPELARSTATISTIK
       if (action === 'server_match_report') {
         const serverKey = req.headers['x-server-key'];
         const isAuthorizedServer = serverKey && process.env.STEAM_API_KEY && serverKey === process.env.STEAM_API_KEY;
-
         if (!isAuthorizedServer && !isAdmin) {
           return res.status(403).json({ error: 'Obehörigt anrop. Kräver x-server-key eller Admin.' });
         }
@@ -892,7 +927,6 @@ module.exports = async function handler(req, res) {
         let homeTeamId = body.homeTeamId ? parseInt(body.homeTeamId, 10) : null;
         let awayTeamId = body.awayTeamId ? parseInt(body.awayTeamId, 10) : null;
 
-        // Om C#-modden skickar med matchCode (t.ex. "ES-7K9P"), slå upp matchen automatiskt
         if (body.matchCode) {
           const code = String(body.matchCode).trim().toUpperCase();
           const mRows = await sql`SELECT * FROM matches WHERE UPPER(match_code) = ${code} LIMIT 1`;
@@ -948,7 +982,6 @@ module.exports = async function handler(req, res) {
           matchId = inserted[0].id;
         }
 
-        // Hämta godkända lagmedlemmar för hemma- och bortalag så att endast medlemmar i lagen loggas
         const validMembers = await sql`
           SELECT steam_id, team_id FROM team_members
           WHERE team_id IN (${homeTeamId}, ${awayTeamId})
@@ -960,10 +993,9 @@ module.exports = async function handler(req, res) {
             const sId = String(ps.steamId || '').trim();
             if (!sId) continue;
 
-            // Strikt kontroll: Spelaren MÅSTE vara registrerad i antingen hemmalaget eller bortalaget
             const verifiedTeamId = memberTeamMap.get(sId);
             if (!verifiedTeamId && !isAdmin) {
-              continue; // Hoppa över oregistrerade publika spelare/inhoppare
+              continue;
             }
             const pTeamId = verifiedTeamId || (ps.teamId ? parseInt(ps.teamId, 10) : homeTeamId);
 
