@@ -589,3 +589,357 @@ function computeStandings() {
     if (diffB !== diffA) return diffB - diffA;
     return b.gf - a.gf;
   });
+}
+
+function renderStandingsTables() {
+  const sorted = computeStandings();
+  const homeBody = document.getElementById('homeStandingsBody');
+  const fullBody = document.getElementById('fullStandingsBody');
+
+  if (sorted.length === 0) {
+    const emptyRow = `<tr><td colspan="10" class="py-8 text-center text-xs text-gray-500">Inga godkända lag i tabellen ännu.</td></tr>`;
+    if (homeBody) homeBody.innerHTML = emptyRow;
+    if (fullBody) fullBody.innerHTML = emptyRow;
+    return;
+  }
+
+  if (homeBody) {
+    homeBody.innerHTML = sorted.map((t, idx) => {
+      const diff = t.gf - t.ga;
+      const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
+      return `
+        <tr onclick="openTeamProfile(${t.id})" class="hover:bg-gray-50 cursor-pointer transition">
+          <td class="py-3 pl-4 pr-2 font-bold text-slate-900">${idx + 1}</td>
+          <td class="py-3 px-2">
+            <div class="flex items-center gap-2.5">
+              ${renderTeamCrestSVG(t.id, 'w-6 h-6')}
+              <span class="font-semibold text-slate-800">${t.name}</span>
+            </div>
+          </td>
+          <td class="py-3 px-2 text-center text-gray-600">${t.gp}</td>
+          <td class="py-3 px-2 text-center text-gray-600">${diffStr}</td>
+          <td class="py-3 pl-2 pr-4 text-right font-bold text-slate-900">${t.pts}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  if (fullBody) {
+    fullBody.innerHTML = sorted.map((t, idx) => {
+      const diff = t.gf - t.ga;
+      const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
+      return `
+        <tr onclick="openTeamProfile(${t.id})" class="hover:bg-gray-50 cursor-pointer transition">
+          <td class="py-3.5 pl-4 pr-2 font-bold text-slate-900">${idx + 1}</td>
+          <td class="py-3.5 px-3">
+            <div class="flex items-center gap-3">
+              ${renderTeamCrestSVG(t.id, 'w-7 h-7')}
+              <span class="font-bold text-slate-900">${t.name}</span>
+            </div>
+          </td>
+          <td class="py-3.5 px-3 text-center">${t.gp}</td>
+          <td class="py-3.5 px-3 text-center">${t.w}</td>
+          <td class="py-3.5 px-3 text-center">${t.otw}</td>
+          <td class="py-3.5 px-3 text-center">${t.otl}</td>
+          <td class="py-3.5 px-3 text-center">${t.l}</td>
+          <td class="py-3.5 px-3 text-center text-gray-600">${t.gf} - ${t.ga}</td>
+          <td class="py-3.5 px-3 text-center font-semibold ${diff >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${diffStr}</td>
+          <td class="py-3.5 pl-3 pr-5 text-right font-shl text-xl font-black text-slate-900">${t.pts}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+}
+
+// =========================================================================
+// 6. SPELARPROFIL & PUCK LOCKER ROOM
+// =========================================================================
+function openMyProfile() {
+  if (currentUser) openPlayerProfile(currentUser.steam_id);
+  else if (allPlayers.length > 0) openPlayerProfile(allPlayers[0].steamId);
+  else showToast('Logga in med Steam uppe till höger för att skapa din profil.', 'info');
+}
+
+function openPlayerProfile(steamId) {
+  activeProfileSteamId = steamId;
+  renderProfileView(steamId);
+  switchView('profile');
+}
+
+function openProfilePlayerTeam() {
+  const p = allPlayers.find(x => x.steamId === activeProfileSteamId);
+  if (p && p.teamId) openTeamProfile(p.teamId);
+  else switchView('teams');
+}
+
+function renderProfileView(steamId) {
+  const p = allPlayers.find(x => x.steamId === steamId) || allPlayers[0];
+  if (!p) return;
+
+  const team = getTeamById(p.teamId);
+  const canEdit = currentUser && (currentUser.steam_id === p.steamId || currentUser.role === 'admin');
+
+  document.getElementById('profilePuckAvatarContainer').innerHTML = renderPuckCharacterSVG(p);
+  document.getElementById('profilePlayerName').textContent = p.name;
+  document.getElementById('profileNumberAndPos').textContent = `#${p.number} ${isGoaliePos(p.position) ? 'MÅLVAKT (GK)' : p.position}`;
+  document.getElementById('profileTeamCrest').innerHTML = renderTeamCrestSVG(p.teamId, 'w-6 h-6');
+  document.getElementById('profileTeamName').textContent = team.name;
+  document.getElementById('profileSteamId').textContent = p.steamId;
+  document.getElementById('profileHandedness').textContent = p.handedness;
+  document.getElementById('profileHardestShot').textContent = `${p.hardestShot.toFixed(1)} km/h`;
+  document.getElementById('profilePassAcc').textContent = `${p.passAccuracy}%`;
+
+  const tRoleBadge = document.getElementById('profileTeamRoleBadge');
+  if (p.teamId && p.teamRole === 'captain') {
+    tRoleBadge.textContent = 'LAGKAPTEN (C)';
+    tRoleBadge.classList.remove('hidden');
+  } else if (p.teamId && p.teamRole === 'assistant') {
+    tRoleBadge.textContent = 'ASSISTERANDE KAPTEN (A)';
+    tRoleBadge.classList.remove('hidden');
+  } else {
+    tRoleBadge.classList.add('hidden');
+  }
+
+  const adminBadge = document.getElementById('profileAdminBadge');
+  if (p.accountRole === 'admin') adminBadge.classList.remove('hidden');
+  else adminBadge.classList.add('hidden');
+
+  const btnOpen = document.getElementById('btnOpenLockerRoom');
+  if (canEdit) {
+    btnOpen.classList.remove('hidden');
+    btnOpen.classList.add('inline-flex');
+  } else {
+    btnOpen.classList.add('hidden');
+    btnOpen.classList.remove('inline-flex');
+    document.getElementById('avatarEditorDrawer').classList.add('hidden');
+  }
+
+  document.getElementById('careerGP').textContent = p.gp;
+  document.getElementById('careerTP').textContent = p.tp;
+  document.getElementById('careerG').textContent = p.g;
+  document.getElementById('careerA').textContent = p.a;
+
+  const gauges = [
+    { label: 'GP', value: p.gp },
+    { label: 'TP', value: p.tp },
+    { label: 'G', value: p.g },
+    { label: 'A', value: p.a }
+  ];
+  document.getElementById('profileSeasonGauges').innerHTML = gauges.map(g => `
+    <div class="relative w-28 h-28 flex items-center justify-center">
+      <svg viewBox="0 0 120 120" class="w-full h-full">
+        <circle cx="60" cy="60" r="52" fill="none" stroke="#cbd5e1" stroke-width="6" stroke-dasharray="2 3.2" />
+      </svg>
+      <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+        <span class="font-shl text-3xl font-black text-slate-900 leading-none">${g.value}</span>
+        <span class="text-[11px] font-bold text-gray-500 uppercase mt-1">${g.label}</span>
+      </div>
+    </div>
+  `).join('');
+
+  populateAvatarCustomizerInputs(p);
+}
+
+function updatePlayerTypeButtons(pos) {
+  const btnSkater = document.getElementById('btnTypeSkater');
+  const btnGoalie = document.getElementById('btnTypeGoalie');
+  if (!btnSkater || !btnGoalie) return;
+
+  if (isGoaliePos(pos)) {
+    btnGoalie.className = 'py-1.5 rounded font-bold uppercase text-[11px] bg-shl-blue text-white transition';
+    btnSkater.className = 'py-1.5 rounded font-bold uppercase text-[11px] text-gray-400 hover:text-white transition';
+  } else {
+    btnSkater.className = 'py-1.5 rounded font-bold uppercase text-[11px] bg-shl-blue text-white transition';
+    btnGoalie.className = 'py-1.5 rounded font-bold uppercase text-[11px] text-gray-400 hover:text-white transition';
+  }
+}
+
+function setPlayerType(type) {
+  const roleSelect = document.getElementById('custRole');
+  if (type === 'goalie') roleSelect.value = 'MÅLVAKT';
+  else if (isGoaliePos(roleSelect.value)) roleSelect.value = 'FORWARD';
+  previewAvatarFromInputs();
+}
+
+function populateAvatarCustomizerInputs(p) {
+  document.getElementById('custName').value = p.name;
+  document.getElementById('custNumber').value = p.number;
+  document.getElementById('custRole').value = isGoaliePos(p.position) ? 'MÅLVAKT' : p.position;
+  document.getElementById('custHand').value = p.handedness;
+  document.getElementById('custJerseyPrimary').value = p.avatar.jerseyPrimary;
+  document.getElementById('custJerseyStripe').value = p.avatar.jerseyStripe;
+  document.getElementById('custHelmetColor').value = p.avatar.helmetColor;
+  document.getElementById('custSkinColor').value = p.avatar.skinColor;
+  document.getElementById('custVisor').value = p.avatar.visor;
+  document.getElementById('custBeard').value = p.avatar.beard;
+  document.getElementById('custHairColor').value = p.avatar.hairColor;
+  document.getElementById('custShaftTape').value = p.avatar.shaftTape;
+  document.getElementById('custBladeTape').value = p.avatar.bladeTape;
+  document.getElementById('custShowChestNum').checked = p.avatar.showChestNum;
+  updatePlayerTypeButtons(p.position);
+}
+
+function previewAvatarFromInputs() {
+  const p = allPlayers.find(x => x.steamId === activeProfileSteamId);
+  if (!p) return;
+
+  p.name = document.getElementById('custName').value || 'Spelare';
+  p.number = parseInt(document.getElementById('custNumber').value, 10) || 12;
+  p.position = document.getElementById('custRole').value;
+  p.handedness = document.getElementById('custHand').value;
+
+  p.avatar.jerseyPrimary = document.getElementById('custJerseyPrimary').value;
+  p.avatar.jerseyStripe = document.getElementById('custJerseyStripe').value;
+  p.avatar.helmetColor = document.getElementById('custHelmetColor').value;
+  p.avatar.skinColor = document.getElementById('custSkinColor').value;
+  p.avatar.visor = document.getElementById('custVisor').value;
+  p.avatar.beard = document.getElementById('custBeard').value;
+  p.avatar.hairColor = document.getElementById('custHairColor').value;
+  p.avatar.shaftTape = document.getElementById('custShaftTape').value;
+  p.avatar.bladeTape = document.getElementById('custBladeTape').value;
+  p.avatar.showChestNum = document.getElementById('custShowChestNum').checked;
+
+  updatePlayerTypeButtons(p.position);
+
+  document.getElementById('profilePuckAvatarContainer').innerHTML = renderPuckCharacterSVG(p);
+  document.getElementById('profilePlayerName').textContent = p.name;
+  document.getElementById('profileNumberAndPos').textContent = `#${p.number} ${isGoaliePos(p.position) ? 'MÅLVAKT (GK)' : p.position}`;
+  document.getElementById('profileHandedness').textContent = p.handedness;
+}
+
+function toggleAvatarEditor() {
+  document.getElementById('avatarEditorDrawer').classList.toggle('hidden');
+}
+
+async function saveAvatarChangesToDB() {
+  const p = allPlayers.find(x => x.steamId === activeProfileSteamId);
+  if (!p) return;
+
+  const btn = document.getElementById('btnSaveCharacter');
+  btn.disabled = true;
+  btn.textContent = 'Sparar...';
+
+  try {
+    const res = await fetch('/api/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'save_character',
+        targetSteamId: p.steamId,
+        username: p.name,
+        jerseyNumber: p.number,
+        preferredPosition: p.position,
+        stickHandedness: p.handedness,
+        jerseyPrimary: p.avatar.jerseyPrimary,
+        jerseyStripe: p.avatar.jerseyStripe,
+        showChestNum: p.avatar.showChestNum,
+        helmetColor: p.avatar.helmetColor,
+        skinColor: p.avatar.skinColor,
+        visorTint: p.avatar.visor,
+        facialHair: p.avatar.beard,
+        hairColor: p.avatar.hairColor,
+        shaftTape: p.avatar.shaftTape,
+        bladeTape: p.avatar.bladeTape
+      })
+    });
+
+    const out = await res.json();
+    if (!res.ok) throw new Error(out.error || 'Kunde inte spara');
+
+    showToast('Karaktären har sparats!', 'success');
+    document.getElementById('avatarEditorDrawer').classList.add('hidden');
+    await loadLeagueData();
+  } catch (err) {
+    showToast(err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Spara ändringar';
+  }
+}
+
+// =========================================================================
+// 7. HELSKÄRMS LAGPROFIL
+// =========================================================================
+function openTeamProfile(teamId) {
+  if (!teamId) return;
+  activeTeamProfileId = Number(teamId);
+  renderTeamProfileView(activeTeamProfileId);
+  switchView('team-profile');
+}
+
+function renderTeamProfileView(teamId) {
+  const team = allTeams.find(t => Number(t.id) === Number(teamId));
+  if (!team) return;
+
+  const standings = computeStandings();
+  const rankIdx = standings.findIndex(s => Number(s.id) === Number(team.id));
+  const st = standings[rankIdx] || { gp: 0, pts: 0, gf: 0, ga: 0 };
+  const diff = st.gf - st.ga;
+  const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
+
+  const teamPlayers = allPlayers.filter(p => Number(p.teamId) === Number(team.id));
+  const isAdmin = currentUser && currentUser.role === 'admin';
+  const myMemberRow = currentUser
+    ? allRosters.find(r => Number(r.team_id) === Number(team.id) && r.steam_id === currentUser.steam_id)
+    : null;
+  const isCaptain = myMemberRow && myMemberRow.team_role === 'captain';
+  const isAssistant = myMemberRow && myMemberRow.team_role === 'assistant';
+  const isMember = Boolean(myMemberRow);
+  const canManage = isAdmin || isCaptain || isAssistant;
+
+  document.getElementById('teamProfileCrest').innerHTML = renderTeamCrestSVG(team.id, 'w-24 h-28');
+  document.getElementById('teamProfileRankBadge').textContent = rankIdx >= 0 ? `#${rankIdx + 1} I SERIETABELLEN` : 'EJ I TABELL';
+  document.getElementById('teamProfileRosterCount').textContent = `${teamPlayers.length} / 10 SPELARE`;
+  document.getElementById('teamProfileName').textContent = `${team.name} (${team.tag})`;
+  document.getElementById('teamProfileMeta').textContent = `Lagkapten: ${team.captain_name || 'Ej utsedd'}`;
+
+  document.getElementById('tpStatGP').textContent = st.gp;
+  document.getElementById('tpStatPTS').textContent = st.pts;
+  document.getElementById('tpStatDiff').textContent = diffStr;
+  document.getElementById('tpStatGoals').textContent = `${st.gf} - ${st.ga}`;
+
+  const actionsDiv = document.getElementById('teamProfileHeaderActions');
+  let actionButtonsHTML = '';
+  if (isMember && (!isCaptain || teamPlayers.length > 1)) {
+    actionButtonsHTML += `
+      <button onclick="leaveTeam(${team.id})" class="bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded transition">
+        Lämna laget
+      </button>
+    `;
+  }
+  if (isAdmin) {
+    actionButtonsHTML += `
+      <button onclick="adminHandleTeam(${team.id}, 'delete')" class="bg-white/10 hover:bg-rose-700 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded border border-white/20 transition">
+        Radera lag (Admin)
+      </button>
+    `;
+  }
+  actionsDiv.innerHTML = actionButtonsHTML;
+
+  const capPanel = document.getElementById('teamCaptainControlPanel');
+  const directBtn = document.getElementById('btnAdminDirectAddPlayer');
+  if (canManage) {
+    capPanel.classList.remove('hidden');
+    if (isAdmin) directBtn.classList.remove('hidden');
+    else directBtn.classList.add('hidden');
+
+    const freeAgents = allPlayers.filter(p => !p.teamId);
+    const faSelect = document.getElementById('captainFreeAgentSelect');
+    if (teamPlayers.length >= 10) {
+      faSelect.innerHTML = `<option value="">Laget är fullt (10 / 10 spelare)</option>`;
+    } else if (freeAgents.length === 0) {
+      faSelect.innerHTML = `<option value="">Inga lediga Free Agents registrerade just nu</option>`;
+    } else {
+      faSelect.innerHTML = freeAgents.map(fa =>
+        `<option value="${fa.steamId}">#${fa.number} ${fa.name} (${isGoaliePos(fa.position) ? 'Målvakt GK' : fa.position})</option>`
+      ).join('');
+    }
+  } else {
+    capPanel.classList.add('hidden');
+  }
+
+  const rosterGrid = document.getElementById('teamProfileRosterGrid');
+  if (teamPlayers.length === 0) {
+    rosterGrid.innerHTML = `<div class="col-span-2 bg-gray-50 border border-gray-200 rounded p-6 text-center text-xs text-gray-500">Inga spelare i laget ännu.</div>`;
+  } else {
+    rosterGrid.innerHTML
