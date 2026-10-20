@@ -5,15 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ELITSERIEN – Svenska Puckligan</title>
   
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;0,900;1,700;1,800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <!-- Din egen CSS -->
   <link rel="stylesheet" href="style.css" />
 
   <script>
@@ -34,9 +30,7 @@
 </head>
 <body class="min-h-screen flex flex-col selection:bg-shl-blue selection:text-white">
 
-  <!-- ===================================================================== -->
-  <!-- 1. TOP UTILITY BAR                                                    -->
-  <!-- ===================================================================== -->
+  <!-- 1. TOP UTILITY BAR -->
   <div class="bg-[#080b11] text-gray-300 text-xs border-b border-white/10">
     <div class="max-w-[1360px] mx-auto px-4 h-10 flex items-center justify-between gap-4">
       <div class="flex items-center gap-4 overflow-x-auto whitespace-nowrap">
@@ -55,9 +49,7 @@
     </div>
   </div>
 
-  <!-- ===================================================================== -->
-  <!-- 2. MAIN NAVIGATION BAR                                                -->
-  <!-- ===================================================================== -->
+  <!-- 2. MAIN NAVIGATION BAR -->
   <header class="bg-[#0e1420] text-white sticky top-0 z-40 shadow-lg border-b border-white/10">
     <div class="max-w-[1360px] mx-auto px-4 h-16 flex items-center justify-between gap-6">
       
@@ -88,7 +80,7 @@
         </nav>
       </div>
 
-      <!-- Right: Search & Steam Login -->
+      <!-- Right: Search, Inbox & Steam Login -->
       <div class="flex items-center gap-3">
         <div class="relative hidden sm:block">
           <input type="text" id="quickSearchInput" oninput="handleQuickSearch(this.value)" placeholder="Sök spelare/lag..." class="bg-white/10 text-sm text-white placeholder-gray-400 pl-8 pr-3 py-1.5 rounded border border-white/15 focus:outline-none focus:border-shl-lightBlue w-44 lg:w-56 transition"/>
@@ -96,11 +88,10 @@
           <div id="quickSearchResults" class="hidden absolute right-0 mt-1 w-72 bg-[#131c2e] border border-white/15 rounded-lg shadow-2xl py-2 z-50 text-sm"></div>
         </div>
 
-        <!-- DENNA VISAR STEAM-KNAPPEN OMEDELBART! -->
         <div id="headerAuthArea">
-           <a href="/api/auth?action=login" class="bg-[#171a21] hover:bg-[#2a475e] text-white text-xs font-bold px-3.5 py-2 rounded border border-white/20 flex items-center gap-2 transition shadow">
-             <i class="fa-brands fa-steam text-base"></i> Logga in med Steam
-           </a>
+          <a href="/api/auth?action=login" class="bg-[#171a21] hover:bg-[#2a475e] text-white text-xs font-bold px-3.5 py-2 rounded border border-white/20 flex items-center gap-2 transition shadow">
+            <i class="fa-brands fa-steam text-base"></i> Logga in med Steam
+          </a>
         </div>
 
         <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded bg-white/10 hover:bg-white/20 text-white"><i class="fa-solid fa-bars"></i></button>
@@ -118,9 +109,7 @@
     </div>
   </header>
 
-  <!-- ===================================================================== -->
-  <!-- 3. SCORE TICKER RIBBON (DÖLJS NU AUTOMATISKT OM DEN ÄR TOM)           -->
-  <!-- ===================================================================== -->
+  <!-- 3. SCORE TICKER RIBBON -->
   <div id="tickerWrapper" class="bg-[#0e1420] pb-2 pt-1 select-none border-b border-gray-200 hidden">
     <div class="max-w-[1220px] mx-auto px-2 sm:px-4">
       <div class="bg-[#f3f4f6] rounded-sm shadow-md flex items-stretch overflow-hidden border border-gray-300 h-[58px]">
@@ -135,19 +124,19 @@
     </div>
   </div>
 
-  <!-- ===================================================================== -->
-  <!-- MAIN DYNAMIC VIEW CONTAINER                                           -->
-  <!-- ===================================================================== -->
+  <!-- MAIN DYNAMIC VIEW CONTAINER -->
   <main class="flex-1 flex flex-col">
 
-    <!-- VIEW 1: START -->
+    <!-- =================================================================== -->
+    <!-- VIEW 1: START                                                       -->
+    <!-- =================================================================== -->
     <section id="view-home" class="flex-1">
       <div class="hero-arena-bg relative overflow-hidden border-b border-gray-200">
         <div class="max-w-[1220px] mx-auto px-6 py-10 md:py-12 flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
           <div class="max-w-xl text-white space-y-3 text-center md:text-left">
             <h1 class="font-shl text-5xl sm:text-6xl font-black uppercase tracking-tight leading-none drop-shadow">ELITSERIEN</h1>
             <p class="text-lg sm:text-xl font-bold text-gray-100">Svenska community-ligan i Puck</p>
-            <p class="text-sm text-gray-300 leading-relaxed max-w-lg">Logga in med ditt Steam-konto för att skapa och anpassa din Puck-karaktär, registrera ditt lag och följa tabell, spelschema och individuell matchstatistik.</p>
+            <p class="text-sm text-gray-300 leading-relaxed max-w-lg">Logga in med ditt Steam-konto för att skapa och anpassa din Puck-karaktär (Utespelare eller Målvakt), registrera ditt lag och följa tabell, spelschema och individuell matchstatistik.</p>
             <div class="pt-3 flex flex-wrap items-center justify-center md:justify-start gap-3">
               <button onclick="openMyProfile()" class="bg-[#649eff] hover:bg-[#4e8df5] text-white font-bold text-xs uppercase tracking-wider px-6 py-3.5 rounded-sm shadow-lg transition flex items-center gap-2">
                 <i class="fa-solid fa-user-pen"></i> Min Puck-Profil
@@ -235,7 +224,9 @@
       </div>
     </section>
 
-    <!-- VIEW 2: SPELARPROFIL & PUCK LOCKER ROOM -->
+    <!-- =================================================================== -->
+    <!-- VIEW 2: SPELARPROFIL & PUCK LOCKER ROOM                             -->
+    <!-- =================================================================== -->
     <section id="view-profile" class="hidden flex-1 bg-white">
       <div class="profile-hero-bg text-white relative overflow-hidden">
         <div class="max-w-[1160px] mx-auto px-4 sm:px-6 pt-8 pb-0 flex flex-col md:flex-row items-center md:items-end justify-center gap-6 md:gap-12 relative z-10">
@@ -248,15 +239,21 @@
           <div class="pb-10 text-center md:text-left space-y-3 max-w-lg flex-1">
             <div class="flex flex-wrap items-center justify-center md:justify-start gap-2">
               <span id="profileRoleBadge" class="bg-white/10 text-shl-lightBlue text-[11px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded border border-white/10">STEAM-VERIFIERAD</span>
+              <span id="profileTeamRoleBadge" class="hidden bg-emerald-500/20 text-emerald-300 text-[11px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded border border-emerald-400/30"></span>
               <span id="profileAdminBadge" class="hidden bg-amber-500/20 text-amber-300 text-[11px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded border border-amber-400/30"><i class="fa-solid fa-user-shield mr-1"></i> LIGA-ADMIN</span>
             </div>
             <h1 id="profilePlayerName" class="font-shl text-4xl sm:text-5xl font-black uppercase tracking-wide text-white leading-none">-</h1>
+            
+            <!-- KLICKBAR LÄNK TILL SPELARENS LAGPROFIL -->
             <div class="flex items-center justify-center md:justify-start gap-2.5 text-lg font-shl font-bold uppercase tracking-wider text-gray-200">
               <span id="profileNumberAndPos" class="text-white text-xl">#12 FORWARD</span>
               <span class="text-gray-500">|</span>
-              <div id="profileTeamCrest" class="w-6 h-6 inline-flex items-center justify-center"></div>
-              <span id="profileTeamName" class="text-white">FRIA AGENTER</span>
+              <button id="profileTeamLinkBtn" onclick="openProfilePlayerTeam()" class="inline-flex items-center gap-2 hover:text-shl-lightBlue transition group">
+                <span id="profileTeamCrest" class="w-6 h-6 inline-flex items-center justify-center"></span>
+                <span id="profileTeamName" class="text-white group-hover:underline">FRIA AGENTER</span>
+              </button>
             </div>
+
             <div class="pt-2 space-y-1.5 text-xs text-gray-300 font-medium">
               <p><span class="text-gray-400">SteamID64:</span> <span id="profileSteamId" class="font-mono text-white">-</span></p>
               <p><span class="text-gray-400">Klubbhand (Skjuter):</span> <span id="profileHandedness" class="text-white font-semibold">Left</span></p>
@@ -265,7 +262,7 @@
             </div>
             <div class="pt-2 flex flex-wrap items-center justify-center md:justify-start gap-2">
               <button id="btnOpenLockerRoom" onclick="toggleAvatarEditor()" class="hidden bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-sm transition items-center gap-2">
-                <i class="fa-solid fa-sliders"></i> Anpassa utrustning, skägg & tejp
+                <i class="fa-solid fa-sliders"></i> Anpassa gubbe (Utespelare / Målvakt)
               </button>
               <button onclick="openPlayerSelectorModal()" class="bg-white/5 hover:bg-white/15 border border-white/10 text-gray-300 text-xs font-semibold px-3.5 py-2 rounded-sm transition">
                 Byt visad spelare <i class="fa-solid fa-chevron-down ml-1"></i>
@@ -275,50 +272,103 @@
         </div>
       </div>
 
+      <!-- PUCK LOCKER ROOM -->
       <div id="avatarEditorDrawer" class="hidden bg-[#111827] text-white border-b border-white/15 shadow-2xl">
         <div class="max-w-[1160px] mx-auto px-4 sm:px-6 py-6">
           <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-5">
             <div class="flex items-center gap-2.5">
               <i class="fa-solid fa-wand-magic-sparkles text-shl-lightBlue"></i>
-              <h3 class="font-shl text-2xl font-extrabold uppercase tracking-wide">PUCK LOCKER ROOM</h3>
+              <h3 class="font-shl text-2xl font-extrabold uppercase tracking-wide">PUCK LOCKER ROOM – KARAKTÄR & MÅLVAKTSLÄGE</h3>
               <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded border border-emerald-500/30 font-medium">Sparas i Neon Postgres</span>
             </div>
             <button onclick="toggleAvatarEditor()" class="text-gray-400 hover:text-white text-sm font-bold flex items-center gap-1">Stäng <i class="fa-solid fa-xmark text-lg"></i></button>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-xs">
+            
+            <!-- Col 1: Spelarinfo & Utespelare vs Målvakt -->
             <div class="space-y-3 bg-white/5 p-4 rounded border border-white/10">
-              <h4 class="font-bold uppercase tracking-wider text-shl-lightBlue">1. Spelarinfo & Nummer</h4>
-              <div><label class="block text-gray-300 mb-1">Spelarnamn (Username)</label><input type="text" id="custName" oninput="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-3 py-1.5 text-white font-semibold" /></div>
-              <div class="grid grid-cols-2 gap-2">
-                <div><label class="block text-gray-300 mb-1">Tröjnummer (#)</label><input type="number" min="1" max="99" id="custNumber" oninput="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-3 py-1.5 text-white font-bold" /></div>
-                <div><label class="block text-gray-300 mb-1">Position (Role)</label><select id="custRole" onchange="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white"><option value="FORWARD">Forward</option><option value="CENTER">Center</option><option value="BACK">Back (Defense)</option><option value="MÅLVAKT">Målvakt (Goalie)</option></select></div>
+              <h4 class="font-bold uppercase tracking-wider text-shl-lightBlue">1. Spelartyp & Nummer</h4>
+              
+              <div>
+                <label class="block text-gray-300 mb-1">Välj Spelarmodell</label>
+                <div class="grid grid-cols-2 gap-1.5 bg-[#0b101b] p-1 rounded border border-white/15">
+                  <button type="button" id="btnTypeSkater" onclick="setPlayerType('skater')" class="py-1.5 rounded font-bold uppercase text-[11px] bg-shl-blue text-white transition">
+                    Utespelare
+                  </button>
+                  <button type="button" id="btnTypeGoalie" onclick="setPlayerType('goalie')" class="py-1.5 rounded font-bold uppercase text-[11px] text-gray-400 hover:text-white transition">
+                    Målvakt (GK)
+                  </button>
+                </div>
               </div>
-              <div><label class="block text-gray-300 mb-1">Klubbfattning</label><select id="custHand" onchange="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white"><option value="Left">Left (Vänsterskytt)</option><option value="Right">Right (Högerskytt)</option></select></div>
-            </div>
-            <div class="space-y-3 bg-white/5 p-4 rounded border border-white/10">
-              <h4 class="font-bold uppercase tracking-wider text-shl-lightBlue">2. Lagställ & Tröjfärger</h4>
-              <div><label class="block text-gray-300 mb-1">Tillhörande Elitserien-lag</label><select id="custTeamId" onchange="applyTeamPresetToAvatar(this.value)" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white font-semibold"></select></div>
-              <div class="grid grid-cols-2 gap-2 pt-1">
-                <div><label class="block text-gray-300 mb-1">Huvudfärg</label><input type="color" id="custJerseyPrimary" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" /></div>
-                <div><label class="block text-gray-300 mb-1">Midje-/Kragrand</label><input type="color" id="custJerseyStripe" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" /></div>
+
+              <div>
+                <label class="block text-gray-300 mb-1">Spelarnamn (Username)</label>
+                <input type="text" id="custName" oninput="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-3 py-1.5 text-white font-semibold" />
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-gray-300 mb-1">Tröjnummer (#)</label>
+                  <input type="number" min="1" max="99" id="custNumber" oninput="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-3 py-1.5 text-white font-bold" />
+                </div>
+                <div>
+                  <label class="block text-gray-300 mb-1">Position</label>
+                  <select id="custRole" onchange="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white">
+                    <option value="FORWARD">Forward</option>
+                    <option value="CENTER">Center</option>
+                    <option value="BACK">Back (Defense)</option>
+                    <option value="MÅLVAKT">Målvakt (GK)</option>
+                  </select>
+                </div>
               </div>
               <div>
-                <label class="block text-gray-300 mb-1">Visa tröjnummer på bröstet</label>
-                <label class="inline-flex items-center gap-2 cursor-pointer mt-1"><input type="checkbox" id="custShowChestNum" onchange="previewAvatarFromInputs()" checked class="rounded text-shl-blue" /><span class="text-gray-200">Visa nummer på torso-blocket</span></label>
+                <label class="block text-gray-300 mb-1">Klubbfattning</label>
+                <select id="custHand" onchange="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white">
+                  <option value="Left">Left (Vänster)</option>
+                  <option value="Right">Right (Höger)</option>
+                </select>
               </div>
             </div>
+
+            <!-- Col 2: Tröjfärger -->
+            <div class="space-y-3 bg-white/5 p-4 rounded border border-white/10">
+              <h4 class="font-bold uppercase tracking-wider text-shl-lightBlue">2. Tröjfärger & Ställ</h4>
+              <div class="grid grid-cols-2 gap-2 pt-1">
+                <div>
+                  <label class="block text-gray-300 mb-1">Huvudfärg Tröja</label>
+                  <input type="color" id="custJerseyPrimary" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" />
+                </div>
+                <div>
+                  <label class="block text-gray-300 mb-1">Midje-/Kragrand</label>
+                  <input type="color" id="custJerseyStripe" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" />
+                </div>
+              </div>
+              <div>
+                <label class="block text-gray-300 mb-1">Bröstnummer</label>
+                <label class="inline-flex items-center gap-2 cursor-pointer mt-1">
+                  <input type="checkbox" id="custShowChestNum" onchange="previewAvatarFromInputs()" checked class="rounded text-shl-blue" />
+                  <span class="text-gray-200">Visa nummer på torso-blocket</span>
+                </label>
+              </div>
+              <p class="text-[11px] text-gray-400 leading-relaxed pt-1">
+                Tips: Lagtillhörighet styrs via lagets kapten och din inkorg. När du går med i ett lag får du automatiskt lagets tröjfärger!
+              </p>
+            </div>
+
+            <!-- Col 3: Hjälm, Visir/Galler & Skägg -->
             <div class="space-y-3 bg-white/5 p-4 rounded border border-white/10">
               <h4 class="font-bold uppercase tracking-wider text-shl-lightBlue">3. Hjälm, Visir & Skägg</h4>
               <div class="grid grid-cols-2 gap-2">
                 <div><label class="block text-gray-300 mb-1">Hjälmfärg</label><input type="color" id="custHelmetColor" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" /></div>
                 <div><label class="block text-gray-300 mb-1">Hudton</label><input type="color" id="custSkinColor" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" /></div>
               </div>
-              <div><label class="block text-gray-300 mb-1">Visir-toning</label><select id="custVisor" onchange="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white"><option value="tinted">Mörkt röktonat</option><option value="mirror">Blå spegelglans</option><option value="gold">Guld Chrome</option><option value="clear">Klart genomskinligt</option></select></div>
+              <div><label class="block text-gray-300 mb-1">Visir (Galler på Målvakt)</label><select id="custVisor" onchange="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white"><option value="tinted">Mörkt röktonat</option><option value="mirror">Blå spegelglans</option><option value="gold">Guld Chrome</option><option value="clear">Klart genomskinligt</option></select></div>
               <div class="grid grid-cols-2 gap-2">
                 <div><label class="block text-gray-300 mb-1">Skägg</label><select id="custBeard" onchange="previewAvatarFromInputs()" class="w-full bg-[#0b101b] border border-white/20 rounded px-2 py-1.5 text-white"><option value="full">Slutspelsskägg</option><option value="mustache">Hockeymustasch</option><option value="goatee">Goatee</option><option value="none">Renrakad</option></select></div>
                 <div><label class="block text-gray-300 mb-1">Skägg-/Hårfärg</label><input type="color" id="custHairColor" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" /></div>
               </div>
             </div>
+
+            <!-- Col 4: Klubba & Tejp -->
             <div class="space-y-3 bg-white/5 p-4 rounded border border-white/10">
               <h4 class="font-bold uppercase tracking-wider text-shl-lightBlue">4. Klubba & Tejp</h4>
               <div class="grid grid-cols-2 gap-2">
@@ -326,12 +376,12 @@
                 <div><label class="block text-gray-300 mb-1">Bladtejp (Nedre)</label><input type="color" id="custBladeTape" oninput="previewAvatarFromInputs()" class="w-full h-8 rounded cursor-pointer bg-transparent border border-white/20" /></div>
               </div>
               <div>
-                <label class="block text-gray-300 mb-1">Snabbval Skafttejp</label>
+                <label class="block text-gray-300 mb-1">Snabbval Tejp</label>
                 <div class="flex items-center gap-1.5 pt-1">
+                  <button type="button" onclick="setQuickTape('#9ca3af', '#9ca3af')" class="w-6 h-6 rounded-full bg-gray-400 border border-white" title="Classic Goalie Grå"></button>
                   <button type="button" onclick="setQuickTape('#28b5e1', '#111111')" class="w-6 h-6 rounded-full bg-[#28b5e1] border border-white" title="Cyan"></button>
                   <button type="button" onclick="setQuickTape('#f43f5e', '#ffffff')" class="w-6 h-6 rounded-full bg-[#f43f5e] border border-white" title="Röd"></button>
                   <button type="button" onclick="setQuickTape('#10b981', '#111111')" class="w-6 h-6 rounded-full bg-[#10b981] border border-white" title="Grön"></button>
-                  <button type="button" onclick="setQuickTape('#f59e0b', '#111111')" class="w-6 h-6 rounded-full bg-[#f59e0b] border border-white" title="Guld"></button>
                   <button type="button" onclick="setQuickTape('#ffffff', '#ffffff')" class="w-6 h-6 rounded-full bg-white border border-gray-400" title="Vit"></button>
                 </div>
               </div>
@@ -365,7 +415,105 @@
       </div>
     </section>
 
-    <!-- VIEW 3: SPELSCHEMA -->
+    <!-- =================================================================== -->
+    <!-- VIEW 2B: HELSKÄRMS LAGPROFIL (NY!)                                  -->
+    <!-- =================================================================== -->
+    <section id="view-team-profile" class="hidden flex-1 bg-white">
+      <!-- Dark Arena Team Hero Header -->
+      <div class="profile-hero-bg text-white relative overflow-hidden border-b border-white/10">
+        <div class="max-w-[1160px] mx-auto px-4 sm:px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
+          <div class="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+            <div id="teamProfileCrest" class="w-28 h-32 flex items-center justify-center shrink-0"></div>
+            <div class="space-y-2">
+              <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                <span id="teamProfileRankBadge" class="bg-shl-blue/25 border border-shl-lightBlue/40 text-shl-lightBlue text-xs font-bold uppercase tracking-widest px-3 py-0.5 rounded">#- I TABELLEN</span>
+                <span id="teamProfileRosterCount" class="bg-white/10 text-gray-200 text-xs font-bold uppercase tracking-widest px-3 py-0.5 rounded">0 / 10 SPELARE</span>
+              </div>
+              <h1 id="teamProfileName" class="font-shl text-4xl sm:text-6xl font-black uppercase tracking-tight leading-none">-</h1>
+              <p id="teamProfileMeta" class="text-xs text-gray-300 font-medium">Lagkapten: -</p>
+            </div>
+          </div>
+
+          <!-- Action buttons for member / captain / admin -->
+          <div id="teamProfileHeaderActions" class="flex flex-wrap items-center gap-3"></div>
+        </div>
+      </div>
+
+      <!-- Team Stats Gradient Bar -->
+      <div class="shl-career-gradient text-white py-6 shadow-inner">
+        <div class="max-w-[1160px] mx-auto px-4">
+          <div class="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-white/20 text-center">
+            <div class="py-2"><div id="tpStatGP" class="font-shl text-3xl font-black">0</div><div class="text-xs text-white/80">Spelade matcher</div></div>
+            <div class="py-2"><div id="tpStatPTS" class="font-shl text-3xl font-black">0</div><div class="text-xs text-white/80">Poäng</div></div>
+            <div class="py-2"><div id="tpStatDiff" class="font-shl text-3xl font-black">0</div><div class="text-xs text-white/80">Målskillnad (+/-)</div></div>
+            <div class="py-2"><div id="tpStatGoals" class="font-shl text-3xl font-black">0 - 0</div><div class="text-xs text-white/80">Gjorda - Insläppta</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Captain / Assistant / Admin Management Box (Only shown if authorized) -->
+      <div id="teamCaptainControlPanel" class="hidden bg-slate-900 text-white border-b border-slate-800">
+        <div class="max-w-[1160px] mx-auto px-4 sm:px-6 py-6 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-3">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-crown text-amber-400"></i>
+              <h3 class="font-shl text-2xl font-extrabold uppercase tracking-wide">LAGKAPTEN & ROSTER-HANTERING (MAX 10 SPELARE)</h3>
+            </div>
+            <span class="text-xs text-gray-400">Endast Free Agents (spelare utan lag) kan bjudas in</span>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-end gap-3">
+            <div class="flex-1">
+              <label class="block text-xs font-bold uppercase text-gray-300 mb-1">Välj Free Agent att bjuda in till laget</label>
+              <select id="captainFreeAgentSelect" class="w-full bg-[#0b101b] border border-white/20 rounded px-3 py-2 text-sm text-white font-semibold"></select>
+            </div>
+            <button onclick="sendTeamInvite(false)" class="bg-[#4a8af4] hover:bg-blue-500 text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded shadow transition shrink-0">
+              <i class="fa-solid fa-paper-plane mr-1.5"></i> Skicka Laginbjudan (Inkorg)
+            </button>
+            <button id="btnAdminDirectAddPlayer" onclick="sendTeamInvite(true)" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded shadow transition shrink-0" title="Admin-genväg för att lägga in direkt utan att vänta på svar">
+              <i class="fa-solid fa-bolt mr-1"></i> Lägg in direkt (Admin)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Team Profile Content: Roster, Matches & Transfers -->
+      <div class="max-w-[1160px] mx-auto px-4 sm:px-6 py-10 space-y-10">
+        
+        <!-- 1. SPELARTRUPP (ROSTER) -->
+        <div class="space-y-4">
+          <div class="flex items-center gap-2.5 border-b border-gray-200 pb-2">
+            <span class="w-1.5 h-6 bg-[#649eff] rounded-sm"></span>
+            <h2 class="font-shl text-2xl font-extrabold uppercase text-slate-900">SPELARTRUPP (ROSTER)</h2>
+          </div>
+          <div id="teamProfileRosterGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+
+        <!-- 2. LAGETS MATCHER & TRANSFERHISTORIK (2 KOLUMNER) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div class="lg:col-span-7 space-y-4">
+            <div class="flex items-center gap-2.5 border-b border-gray-200 pb-2">
+              <span class="w-1.5 h-6 bg-[#649eff] rounded-sm"></span>
+              <h2 class="font-shl text-2xl font-extrabold uppercase text-slate-900">KOMMANDE & SPELADE MATCHER</h2>
+            </div>
+            <div id="teamProfileMatchesList" class="space-y-2.5"></div>
+          </div>
+
+          <div class="lg:col-span-5 space-y-4">
+            <div class="flex items-center gap-2.5 border-b border-gray-200 pb-2">
+              <span class="w-1.5 h-6 bg-[#649eff] rounded-sm"></span>
+              <h2 class="font-shl text-2xl font-extrabold uppercase text-slate-900">TRANSFERHISTORIK</h2>
+            </div>
+            <div id="teamProfileTransfersList" class="space-y-2"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- VIEW 3: SPELSCHEMA                                                  -->
+    <!-- =================================================================== -->
     <section id="view-schedule" class="hidden flex-1 max-w-[1220px] w-full mx-auto px-4 sm:px-6 py-10 space-y-6">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4">
         <div>
@@ -376,14 +524,16 @@
       <div id="fullScheduleContainer" class="space-y-3"></div>
     </section>
 
-    <!-- VIEW 4: TABELLEN -->
+    <!-- =================================================================== -->
+    <!-- VIEW 4: TABELLEN                                                    -->
+    <!-- =================================================================== -->
     <section id="view-standings" class="hidden flex-1 max-w-[1220px] w-full mx-auto px-4 sm:px-6 py-10 space-y-6">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4">
         <div>
           <span class="text-xs font-bold uppercase tracking-widest text-shl-blue">ELITSERIEN</span>
           <h1 class="font-shl text-4xl font-black uppercase text-slate-900">SERIETABELL</h1>
         </div>
-        <span class="text-xs text-gray-500 font-medium">Beräknas automatiskt utifrån godkända lag och spelade matcher</span>
+        <span class="text-xs text-gray-500 font-medium">Klicka på valfritt lag i tabellen för att öppna lagprofilen</span>
       </div>
       <div class="bg-white border border-gray-200 rounded-sm shadow-sm overflow-x-auto">
         <table class="w-full text-sm">
@@ -406,7 +556,9 @@
       </div>
     </section>
 
-    <!-- VIEW 5: STATISTIK -->
+    <!-- =================================================================== -->
+    <!-- VIEW 5: STATISTIK                                                   -->
+    <!-- =================================================================== -->
     <section id="view-stats" class="hidden flex-1 max-w-[1220px] w-full mx-auto px-4 sm:px-6 py-10 space-y-6">
       <div class="border-b border-gray-200 pb-4">
         <span class="text-xs font-bold uppercase tracking-widest text-shl-blue">SPELARDATABAS</span>
@@ -434,7 +586,9 @@
       </div>
     </section>
 
-    <!-- VIEW 6: LAGEN -->
+    <!-- =================================================================== -->
+    <!-- VIEW 6: LAGEN                                                       -->
+    <!-- =================================================================== -->
     <section id="view-teams" class="hidden flex-1 max-w-[1220px] w-full mx-auto px-4 sm:px-6 py-10 space-y-8">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4">
         <div>
@@ -448,18 +602,25 @@
       <div id="teamsGridContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"></div>
     </section>
 
-    <!-- VIEW 7: ADMINPANEL -->
+    <!-- =================================================================== -->
+    <!-- VIEW 7: ADMINPANEL                                                  -->
+    <!-- =================================================================== -->
     <section id="view-admin" class="hidden flex-1 bg-slate-50 py-10">
       <div class="max-w-[1220px] mx-auto px-4 sm:px-6 space-y-8">
         <div class="bg-[#0e1420] text-white p-6 rounded-sm shadow-lg border-l-4 border-amber-400 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
             <div class="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-widest"><i class="fa-solid fa-unlock-keyhole"></i> LIGA-ADMINISTRATION</div>
             <h1 class="font-shl text-3xl sm:text-4xl font-black uppercase mt-1">ELITSERIEN CONTROL CENTER</h1>
+            <p class="text-xs text-gray-300 mt-1">Hantera lagansökningar, skapa testlag, radera lag, tilldela Admin-roller och bokför matcher.</p>
           </div>
         </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
+          <!-- Vänster kolumn: Lagansökningar, Skapa/Ta bort lag & Spelare/Admin-roller -->
           <div class="lg:col-span-6 space-y-6">
+            
+            <!-- 1. Väntande Lagansökningar -->
             <div class="space-y-3">
               <div class="flex items-center justify-between">
                 <h2 class="font-shl text-2xl font-extrabold uppercase text-slate-900 flex items-center gap-2"><i class="fa-solid fa-inbox text-shl-blue"></i> VÄNTANDE LAGANSÖKNINGAR</h2>
@@ -467,6 +628,40 @@
               </div>
               <div id="adminApplicationsList" class="space-y-3"></div>
             </div>
+
+            <!-- 2. Skapa Testlag Direkt & Hantera Befintliga Lag -->
+            <div class="bg-white p-5 rounded-sm border border-gray-200 shadow-sm space-y-4">
+              <h3 class="font-shl text-xl font-extrabold uppercase text-slate-900">SKAPA LAG DIREKT / HANTERA AKTIVA LAG</h3>
+              <form onsubmit="adminCreateTeamDirect(event)" class="grid grid-cols-1 sm:grid-cols-4 gap-2 text-xs">
+                <input type="text" id="adminNewTeamName" required placeholder="Lagnamn (t.ex. Brynäs IF)" class="sm:col-span-2 border border-gray-300 rounded px-2.5 py-2" />
+                <input type="text" id="adminNewTeamTag" required maxlength="4" placeholder="Tagg (BIF)" class="border border-gray-300 rounded px-2.5 py-2 uppercase font-bold" />
+                <div class="flex items-center gap-1">
+                  <input type="color" id="adminNewTeamPrimary" value="#0284c7" class="w-1/2 h-9 border border-gray-300 rounded cursor-pointer" title="Primärfärg" />
+                  <input type="color" id="adminNewTeamSecondary" value="#fbbf24" class="w-1/2 h-9 border border-gray-300 rounded cursor-pointer" title="Sekundärfärg" />
+                </div>
+                <select id="adminNewTeamCaptain" class="sm:col-span-2 border border-gray-300 rounded px-2.5 py-2"></select>
+                <button type="submit" class="sm:col-span-2 bg-shl-blue hover:bg-blue-600 text-white font-bold uppercase tracking-wider py-2 rounded transition">
+                  + Skapa Godkänt Lag
+                </button>
+              </form>
+
+              <div class="border-t border-gray-100 pt-3">
+                <div class="text-xs font-bold uppercase text-gray-500 mb-2">Godkända lag i ligan (Klicka för att öppna eller ta bort)</div>
+                <div id="adminActiveTeamsList" class="space-y-2 max-h-60 overflow-y-auto"></div>
+              </div>
+            </div>
+
+            <!-- 3. Hantera Spelare & Ge Admin-behörighet -->
+            <div class="bg-white p-5 rounded-sm border border-gray-200 shadow-sm space-y-3">
+              <h3 class="font-shl text-xl font-extrabold uppercase text-slate-900">SPELARE & ADMIN-BEHÖRIGHETER</h3>
+              <div id="adminPlayersRoleList" class="divide-y divide-gray-100 max-h-64 overflow-y-auto text-xs"></div>
+            </div>
+
+          </div>
+
+          <!-- Höger kolumn: Schemalägg & Registrera Matchresultat -->
+          <div class="lg:col-span-6 space-y-6">
+            
             <div class="bg-white p-5 rounded-sm border border-gray-200 shadow-sm space-y-4">
               <h3 class="font-shl text-xl font-extrabold uppercase text-slate-900">SCHEMALÄGG KOMMANDE MATCH</h3>
               <div class="grid grid-cols-2 gap-3">
@@ -479,11 +674,9 @@
               </div>
               <button onclick="adminScheduleMatch()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider py-2.5 rounded-sm transition">Lägg till i Spelschemat</button>
             </div>
-          </div>
 
-          <div class="lg:col-span-6 space-y-4">
-            <h2 class="font-shl text-2xl font-extrabold uppercase text-slate-900 flex items-center gap-2"><i class="fa-solid fa-server text-emerald-600"></i> REGISTRERA MATCHRESULTAT</h2>
             <div class="bg-white p-5 rounded-sm border border-gray-200 shadow-sm space-y-4">
+              <h2 class="font-shl text-2xl font-extrabold uppercase text-slate-900 flex items-center gap-2"><i class="fa-solid fa-server text-emerald-600"></i> REGISTRERA MATCHRESULTAT</h2>
               <div class="grid grid-cols-2 gap-4">
                 <div><label class="block text-xs font-bold uppercase text-gray-600 mb-1">Hemmalag</label><select id="simHomeTeam" class="w-full border border-gray-300 rounded px-3 py-2 text-sm font-semibold"></select></div>
                 <div><label class="block text-xs font-bold uppercase text-gray-600 mb-1">Bortalag</label><select id="simAwayTeam" class="w-full border border-gray-300 rounded px-3 py-2 text-sm font-semibold"></select></div>
@@ -493,10 +686,20 @@
                 <div class="text-center pt-5"><label class="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-700 cursor-pointer"><input type="checkbox" id="simIsOvertime" class="rounded text-shl-blue" /> Övertid/Straffar</label></div>
                 <div><label class="block text-xs font-bold uppercase text-gray-600 mb-1">Mål Borta</label><input type="number" id="simAwayGoals" value="1" class="w-full border border-gray-300 rounded px-3 py-2 text-lg font-shl font-bold text-center" /></div>
               </div>
+              <div class="border-t border-gray-100 pt-3 space-y-2 text-xs">
+                <div class="font-bold uppercase text-gray-500">Valfri spelarstatistik i matchen</div>
+                <div class="grid grid-cols-3 gap-2">
+                  <select id="simStarPlayer" class="col-span-3 border border-gray-300 rounded px-2 py-1.5 font-semibold"></select>
+                  <div><label class="block text-gray-500">Mål</label><input type="number" id="simPlayerG" value="1" class="w-full border border-gray-300 rounded px-2 py-1" /></div>
+                  <div><label class="block text-gray-500">Assist</label><input type="number" id="simPlayerA" value="1" class="w-full border border-gray-300 rounded px-2 py-1" /></div>
+                  <div><label class="block text-gray-500">Skott km/h</label><input type="number" step="0.1" id="simPlayerShotKmh" value="140.0" class="w-full border border-gray-300 rounded px-2 py-1" /></div>
+                </div>
+              </div>
               <button onclick="submitMatchReportToDB()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider py-3 rounded-sm shadow transition flex items-center justify-center gap-2">
                 <i class="fa-solid fa-database"></i> Spara Matchresultat till Databasen
               </button>
             </div>
+
           </div>
         </div>
       </div>
@@ -504,7 +707,9 @@
 
   </main>
 
-  <!-- MODALER & NOTIFIKATIONER -->
+  <!-- ===================================================================== -->
+  <!-- MODALER (MATCHFAKTA, LAGANSÖKAN, INKORG, SPELARVÄLJARE)               -->
+  <!-- ===================================================================== -->
   <div id="matchDetailModal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-sm max-w-2xl w-full overflow-hidden shadow-2xl border border-gray-200">
       <div class="bg-[#0e1420] text-white px-6 py-4 flex items-center justify-between">
@@ -515,6 +720,7 @@
     </div>
   </div>
 
+  <!-- ANSÖK MED NYTT LAG MODAL -->
   <div id="teamApplicationModal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-sm max-w-lg w-full overflow-hidden shadow-2xl border border-gray-200">
       <div class="bg-[#0e1420] text-white px-6 py-4 flex items-center justify-between">
@@ -525,13 +731,13 @@
         <button onclick="closeTeamApplicationModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
       <form onsubmit="submitTeamApplication(event)" class="p-6 space-y-4 text-sm">
-        <div><label class="block text-xs font-bold uppercase text-gray-700 mb-1">Lagnamn</label><input type="text" id="appTeamName" required placeholder="T.ex. Enköping SK" class="w-full border border-gray-300 rounded px-3 py-2" /></div>
+        <div><label class="block text-xs font-bold uppercase text-gray-700 mb-1">Lagnamn</label><input type="text" id="appTeamName" required placeholder="T.ex. Linköping HC" class="w-full border border-gray-300 rounded px-3 py-2" /></div>
         <div class="grid grid-cols-3 gap-3">
-          <div><label class="block text-xs font-bold uppercase text-gray-700 mb-1">Förkortning (2-4)</label><input type="text" id="appTeamShort" required maxlength="4" placeholder="ESK" class="w-full border border-gray-300 rounded px-3 py-2 uppercase font-bold" /></div>
+          <div><label class="block text-xs font-bold uppercase text-gray-700 mb-1">Förkortning (2-4)</label><input type="text" id="appTeamShort" required maxlength="4" placeholder="LHC" class="w-full border border-gray-300 rounded px-3 py-2 uppercase font-bold" /></div>
           <div><label class="block text-xs font-bold uppercase text-gray-700 mb-1">Primärfärg</label><input type="color" id="appTeamColor" value="#0284c7" class="w-full h-10 border border-gray-300 rounded" /></div>
-          <div><label class="block text-xs font-bold uppercase text-gray-700 mb-1">Sekundärfärg</label><input type="color" id="appTeamSecondary" value="#ffffff" class="w-full h-10 border border-gray-300 rounded" /></div>
+          <div><label class="block text-xs font-bold uppercase text-gray-700 mb-1">Sekundärfärg</label><input type="color" id="appTeamSecondary" value="#e11d48" class="w-full h-10 border border-gray-300 rounded" /></div>
         </div>
-        <div><label class="block text-xs font-bold uppercase text-gray-700 mb-1">Trupp / Notering</label><textarea id="appTeamRoster" rows="2" class="w-full border border-gray-300 rounded px-3 py-2 text-xs"></textarea></div>
+        <div><label class="block text-xs font-bold uppercase text-gray-700 mb-1">Kommentar / Planerad trupp</label><textarea id="appTeamRoster" rows="2" placeholder="När ansökan godkänns blir du automatiskt Lagkapten och kan bjuda in Free Agents." class="w-full border border-gray-300 rounded px-3 py-2 text-xs"></textarea></div>
         <div class="pt-2 flex justify-end gap-2">
           <button type="button" onclick="closeTeamApplicationModal()" class="px-4 py-2 text-xs font-bold uppercase text-gray-600 hover:bg-gray-100 rounded">Avbryt</button>
           <button type="submit" class="bg-[#4a8af4] hover:bg-blue-600 text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded shadow">Skicka ansökan</button>
@@ -540,6 +746,21 @@
     </div>
   </div>
 
+  <!-- INKORG MODAL (FÖR LAGINBJUDNINGAR) -->
+  <div id="inboxModal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-sm max-w-md w-full overflow-hidden shadow-2xl">
+      <div class="bg-[#0e1420] text-white px-5 py-3.5 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-envelope text-shl-lightBlue"></i>
+          <h3 class="font-shl text-xl font-bold uppercase">INKORG – LAGINBJUDNINGAR</h3>
+        </div>
+        <button onclick="closeInboxModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="inboxListContainer" class="p-5 space-y-3 max-h-96 overflow-y-auto"></div>
+    </div>
+  </div>
+
+  <!-- VÄLJ SPELARPROFIL MODAL -->
   <div id="playerSelectorModal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-sm max-w-md w-full overflow-hidden shadow-2xl">
       <div class="bg-[#0e1420] text-white px-5 py-3.5 flex items-center justify-between">
@@ -547,19 +768,6 @@
         <button onclick="closePlayerSelectorModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div id="playerSelectorList" class="p-4 divide-y divide-gray-100 max-h-96 overflow-y-auto"></div>
-    </div>
-  </div>
-
-  <div id="privacyModal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-sm max-w-lg w-full overflow-hidden shadow-2xl">
-      <div class="bg-[#0e1420] text-white px-5 py-3.5 flex items-center justify-between">
-        <h3 class="font-shl text-xl font-bold uppercase">INTEGRITETSPOLICY (GDPR)</h3>
-        <button onclick="document.getElementById('privacyModal').classList.add('hidden')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div class="p-6 space-y-3 text-xs text-gray-700 leading-relaxed">
-        <p><strong>1. Uppgifter:</strong> Vi lagrar ditt SteamID64, visningsnamn, avatar och matchstatistik.</p>
-        <p><strong>2. Säkerhet:</strong> Steam sköter inloggningen, vi ser aldrig ditt lösenord.</p>
-      </div>
     </div>
   </div>
 
@@ -575,7 +783,6 @@
     </div>
   </footer>
 
-  <!-- LADDAR IN LOGIKEN PÅ SLUTET -->
   <script src="app.js"></script>
 </body>
 </html>
