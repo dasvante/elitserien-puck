@@ -525,7 +525,7 @@ module.exports = async function handler(req, res) {
       if (action === 'admin_generate_season') {
         if (!isAdmin) return res.status(403).json({ error: 'Endast Admin kan starta säsongen.' });
 
-        const approvedTeams = await sql`SELECT id, name, tag FROM teams WHERE status = 'approved' ORDER BY id ASC`;
+        const approvedTeams = await sql`SELECT id, name, tag FROM teams WHERE status IS NULL OR LOWER(status) = 'approved' ORDER BY id ASC`;
         if (approvedTeams.length < 2) {
           return res.status(400).json({ error: 'Det krävs minst 2 godkända lag för att generera en säsong.' });
         }
