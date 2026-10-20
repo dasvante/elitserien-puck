@@ -144,10 +144,10 @@ async function ensureSchema(sql) {
       ADD COLUMN IF NOT EXISTS assists INT DEFAULT 0,
       ADD COLUMN IF NOT EXISTS points INT DEFAULT 0,
       ADD COLUMN IF NOT EXISTS shots_on_goal INT DEFAULT 0,
-      ADD COLUMN IF NOT EXISTS top_shot_speed_kmh NUMERIC(5, 2) DEFAULT 0.00,
+      ADD COLUMN IF NOT EXISTS top_shot_speed_kmh NUMERIC(6, 2) DEFAULT 0.00,
       ADD COLUMN IF NOT EXISTS plus_minus INT DEFAULT 0,
-      ADD COLUMN IF NOT EXISTS possession_seconds NUMERIC(6, 2) DEFAULT 0.00,
-      ADD COLUMN IF NOT EXISTS time_on_ice_seconds NUMERIC(6, 2) DEFAULT 0.00,
+      ADD COLUMN IF NOT EXISTS possession_seconds NUMERIC(8, 2) DEFAULT 0.00,
+      ADD COLUMN IF NOT EXISTS time_on_ice_seconds NUMERIC(8, 2) DEFAULT 0.00,
       ADD COLUMN IF NOT EXISTS passes_completed INT DEFAULT 0,
       ADD COLUMN IF NOT EXISTS passes_attempted INT DEFAULT 0,
       ADD COLUMN IF NOT EXISTS saves INT DEFAULT 0,
@@ -974,81 +974,160 @@ module.exports = async function handler(req, res) {
         return res.status(200).json({ ok: true, matchId });
       }
 
-      // 19B. C# SERVER-MOD ELLER ADMIN: LIVE-UPPDATERING ELLER SLUTRESULTAT
+      // 19B. C# SERVER-MOD ELLER ADMIN: LIVE-UPPDATERING ELLER SLUTRESULTAT (KRASCHSÄKRAD)
       if (action === 'server_match_report' || action === 'server_match_live_update') {
-        const knownPlayers = await sql`SELECT steam_id, username, team_id FROM players`;
-        const playerTeamMap = new Map();
-        const usernameToPlayerMap = new Map();
-        for (const p of knownPlayers) {
-          playerTeamMap.set(String(p.steam_id), p.team_id ? Number(p.team_id) : null);
-          if (p.username) {
-            usernameToPlayerMap.set(String(p.username).toLowerCase(), {
-              steamId: String(p.steam_id),
-              teamId: p.team_id ? Number(p.team_id) : null
-            });
+        const isAuthSrv = isServerAuthorized(req);
+        if (!isAuthSrv && !isAdmin) {
+          return res.status(403).json({ error: 'Obehörigt anrop. Kontrollera SERVER_API_KEY i Vercel.' });
+        }
+
+        const isFinalReport = (action === 'server_match_report');
+        let matchId = body.matchId ? parseInt(body.matchId, 10) : null;
+        let homeTeamId = body.homeTeamId ? parseInt(body.homeTeamId, 10) : null;
+        let awayTeamId = body.awayTeamId ? parseInt(body.awayTeamId, 10) : null;
+
+        if (body.matchCode) {
+          const code = String(body.matchCode).trim().toUpperCase();
+          const mRows = await sql`SELECT * FROM matches WHERE UPPER(match_code) = ${code} LIMIT 1`;
+          if (!mRows[0]) {
+            return res.status(404).json({ error: `Ingen match hittades med matchkod ${code}.` });
+          }
+          matchId = mRows[0].id;
+          homeTeamId = mRows[0].home_team_id;
+          awayTeamId = mRows[0].away_team_id;
+        } else if (matchId) {
+          const mRows = await sql`SELECT * FROM matches WHERE id = ${matchId} LIMIT 1`;
+          if (mRows[0]) {
+            homeTeamId = mRows[0].home_team_id;
+            awayTeamId = mRows[0].away_team_id;
           }
         }
 
-        if (Array.isArray(body.playerStats)) {
-          await sql`DELETE FROM player_match_stats WHERE match_id = ${matchId}`;
+        const homeScore = Math.max(0, parseInt(body.homeScore, 10) || 0);
+        const awayScore = Math.max(0, parseInt(body.awayScore, 10) || 0);
+        const isOvertime = Boolean(body.isOvertime);
+        const isShootout = Boolean(body.isShootout);
+        const homeShots = Math.max(0, parseInt(body.homeShots, 10) || 0);
+        const awayShots = Math.max(0, parseInt(body.awayShots, 10) || 0);
+        const serverIp = String(body.serverIp || 'ELITSERIEN Server').slice(0, 64);
+        const newStatus = isFinalReport ? 'completed' : 'live';
 
-          for (const ps of body.playerStats) {
-            let sId = String(ps.steamId || '').trim();
-            const uName = String(ps.username || sId || 'Spelare').trim();
-            if (!sId) continue;
+        if (matchId) {
+          await sql`
+            UPDATE matches SET
+              home_score = ${homeScore},
+              away_score = ${awayScore},
+              is_overtime = ${isOvertime},
+              is_shootout = ${isShootout},
+              home_shots = ${homeShots},
+              away_shots = ${awayShots},
+              status = ${newStatus},
+              played_at = COALESCE(played_at, CURRENT_TIMESTAMP),
+              rematch_requested_by_team_id = NULL,
+              rematch_reason = NULL
+            WHERE id = ${matchId}
+          `;
+        } else {
+          const inserted = await sql`
+            INSERT INTO matches (
+              home_team_id, away_team_id, home_score, away_score,
+              is_overtime, is_shootout, home_shots, away_shots,
+              match_code, server_ip, status, played_at
+            ) VALUES (
+              ${homeTeamId}, ${awayTeamId}, ${homeScore}, ${awayScore},
+              ${isOvertime}, ${isShootout}, ${homeShots}, ${awayShots},
+              ${generateMatchCode()}, ${serverIp}, ${newStatus}, CURRENT_TIMESTAMP
+            ) RETURNING id
+          `;
+          matchId = inserted[0].id;
+        }
 
-            // Om modden skickade visningsnamn istället för SteamID, matcha mot känd spelare
-            if (!playerTeamMap.has(sId) && usernameToPlayerMap.has(sId.toLowerCase())) {
-              sId = usernameToPlayerMap.get(sId.toLowerCase()).steamId;
-            } else if (!playerTeamMap.has(sId) && usernameToPlayerMap.has(uName.toLowerCase())) {
-              sId = usernameToPlayerMap.get(uName.toLowerCase()).steamId;
+        // Spara spelarstatistik med eget skyddsnät per spelare så att matchresultatet aldrig kan fallera
+        try {
+          const knownPlayers = await sql`SELECT steam_id, username, team_id FROM players`;
+          const playerTeamMap = new Map();
+          const usernameToPlayerMap = new Map();
+          for (const p of knownPlayers) {
+            playerTeamMap.set(String(p.steam_id), p.team_id ? Number(p.team_id) : null);
+            if (p.username) {
+              usernameToPlayerMap.set(String(p.username).toLowerCase(), {
+                steamId: String(p.steam_id),
+                teamId: p.team_id ? Number(p.team_id) : null
+              });
             }
-
-            const pTeamId = ps.teamId
-              ? parseInt(ps.teamId, 10)
-              : (playerTeamMap.get(sId) || homeTeamId);
-
-            // Om spelaren inte finns i players-tabellen ännu, skapa spelaren så att inga stats går förlorade
-            if (!playerTeamMap.has(sId)) {
-              await sql`
-                INSERT INTO players (steam_id, username, team_id, role)
-                VALUES (${sId}, ${uName.slice(0, 64)}, ${pTeamId}, 'player')
-                ON CONFLICT (steam_id) DO NOTHING
-              `;
-              playerTeamMap.set(sId, pTeamId);
-            }
-
-            const g = parseInt(ps.goals, 10) || 0;
-            const a = parseInt(ps.assists, 10) || 0;
-            const tp = g + a;
-            const sog = parseInt(ps.shotsOnGoal, 10) || 0;
-            const topSpeed = parseFloat(ps.topShotSpeedKmh) || 0;
-            const pm = parseInt(ps.plusMinus, 10) || 0;
-            const poss = parseFloat(ps.possessionSeconds) || 0;
-            const toi = parseFloat(ps.timeOnIceSeconds) || 0;
-            const passComp = parseInt(ps.passesCompleted, 10) || 0;
-            const passAtt = parseInt(ps.passesAttempted, 10) || 0;
-            const saves = parseInt(ps.saves, 10) || 0;
-            const sa = parseInt(ps.shotsAgainst, 10) || 0;
-            const ga = parseInt(ps.goalsAgainst, 10) || 0;
-            const svPct = sa > 0 ? ((saves / sa) * 100).toFixed(2) : 0;
-
-            await sql`
-              INSERT INTO player_match_stats (
-                match_id, steam_id, team_id, goals, assists, points,
-                shots_on_goal, top_shot_speed_kmh, plus_minus,
-                possession_seconds, time_on_ice_seconds,
-                passes_completed, passes_attempted,
-                saves, shots_against, goals_against, save_percentage
-              ) VALUES (
-                ${matchId}, ${sId}, ${pTeamId}, ${g}, ${a}, ${tp},
-                ${sog}, ${topSpeed}, ${pm},
-                ${poss}, ${toi},
-                ${passComp}, ${passAtt},
-                ${saves}, ${sa}, ${ga}, ${svPct}
-              )
-            `;
           }
+
+          if (Array.isArray(body.playerStats)) {
+            await sql`DELETE FROM player_match_stats WHERE match_id = ${matchId}`;
+
+            for (const ps of body.playerStats) {
+              try {
+                let sId = String(ps.steamId || '').trim().slice(0, 32);
+                const uName = String(ps.username || sId || 'Spelare').trim().slice(0, 64);
+                if (!sId) continue;
+
+                if (!playerTeamMap.has(sId) && usernameToPlayerMap.has(sId.toLowerCase())) {
+                  sId = usernameToPlayerMap.get(sId.toLowerCase()).steamId;
+                } else if (!playerTeamMap.has(sId) && usernameToPlayerMap.has(uName.toLowerCase())) {
+                  sId = usernameToPlayerMap.get(uName.toLowerCase()).steamId;
+                }
+
+                const dbTeamId = playerTeamMap.get(sId);
+                let pTeamId = (dbTeamId === Number(homeTeamId) || dbTeamId === Number(awayTeamId))
+                  ? dbTeamId
+                  : (ps.teamId ? parseInt(ps.teamId, 10) : Number(homeTeamId));
+                if (pTeamId !== Number(homeTeamId) && pTeamId !== Number(awayTeamId)) {
+                  pTeamId = Number(homeTeamId);
+                }
+
+                if (!playerTeamMap.has(sId)) {
+                  await sql`
+                    INSERT INTO players (steam_id, username, team_id, role)
+                    VALUES (${sId}, ${uName}, ${pTeamId}, 'player')
+                    ON CONFLICT (steam_id) DO NOTHING
+                  `;
+                  playerTeamMap.set(sId, pTeamId);
+                }
+
+                const g = Math.max(0, parseInt(ps.goals, 10) || 0);
+                const a = Math.max(0, parseInt(ps.assists, 10) || 0);
+                const tp = g + a;
+                const sog = Math.max(0, parseInt(ps.shotsOnGoal, 10) || 0);
+                const rawSpeed = parseFloat(ps.topShotSpeedKmh) || 0;
+                const topSpeed = Math.min(250, Math.max(0, Number.isFinite(rawSpeed) ? rawSpeed : 0));
+                const pm = parseInt(ps.plusMinus, 10) || 0;
+                const rawPoss = parseFloat(ps.possessionSeconds) || 0;
+                const poss = Math.min(9999, Math.max(0, Number.isFinite(rawPoss) ? rawPoss : 0));
+                const toi = Math.min(9999, Math.max(0, parseFloat(ps.timeOnIceSeconds) || 0));
+                const passComp = Math.max(0, parseInt(ps.passesCompleted, 10) || 0);
+                const passAtt = Math.max(passComp, parseInt(ps.passesAttempted, 10) || 0);
+                const saves = Math.max(0, parseInt(ps.saves, 10) || 0);
+                const sa = Math.max(0, parseInt(ps.shotsAgainst, 10) || 0);
+                const ga = Math.max(0, parseInt(ps.goalsAgainst, 10) || 0);
+                const svPct = sa > 0 ? Math.min(100, Number(((saves / sa) * 100).toFixed(2))) : 0;
+
+                await sql`
+                  INSERT INTO player_match_stats (
+                    match_id, steam_id, team_id, goals, assists, points,
+                    shots_on_goal, top_shot_speed_kmh, plus_minus,
+                    possession_seconds, time_on_ice_seconds,
+                    passes_completed, passes_attempted,
+                    saves, shots_against, goals_against, save_percentage
+                  ) VALUES (
+                    ${matchId}, ${sId}, ${pTeamId}, ${g}, ${a}, ${tp},
+                    ${sog}, ${topSpeed}, ${pm},
+                    ${poss}, ${toi},
+                    ${passComp}, ${passAtt},
+                    ${saves}, ${sa}, ${ga}, ${svPct}
+                  )
+                `;
+              } catch (singlePlayerErr) {
+                console.error('Player stat insert skipped for row:', singlePlayerErr.message);
+              }
+            }
+          }
+        } catch (statsBlockErr) {
+          console.error('Player stats block error (match result still saved):', statsBlockErr.message);
         }
 
         return res.status(200).json({ ok: true, matchId });
