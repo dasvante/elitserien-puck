@@ -1043,46 +1043,103 @@ module.exports = async function handler(req, res) {
         }
 
         // Spara spelarstatistik med absolut säkraste matchning mot steam_id
+        // Spara spelarstatistik med matchning på både SteamID och Username
+        try {
+          await sql`
+            ALTER TABLE player_match_stats
+              ALTER COLUMN top_shot_speed_kmh TYPE NUMERIC(8, 2),
+              ALTER COLUMN possession_seconds TYPE NUMERIC(8, 2),
+              ALTER COLUMN time_on_ice_seconds TYPE NUMERIC(8, 2)
+          `;
+        } catch (_) {}
+
         try {
           const knownPlayers = await sql`SELECT steam_id, username, team_id FROM players`;
-          const playerSet = new Set(knownPlayers.map(p => String(p.steam_id)));
+          const playerBySteamId = new Map();
+          const playerByUsername = new Map();
 
-          if (Array.isArray(body.playerStats)) {
+          for (const p of knownPlayers) {
+            const sid = String(p.steam_id).trim();
+            playerBySteamId.set(sid, p);
+            if (p.username) {
+              playerByUsername.set(String(p.username).trim().toLowerCase(), p);
+            }
+          }
+
+          if (Array.isArray(body.playerStats) && body.playerStats.length > 0) {
             await sql`DELETE FROM player_match_stats WHERE match_id = ${matchId}`;
 
+            // Slå ihop eventuella dubbletter för samma spelare innan vi sparar
+            const mergedStats = new Map();
+
             for (const ps of body.playerStats) {
+              let rawSid = String(ps.steamId || '').trim();
+              const uName = String(ps.username || rawSid || 'Spelare').trim().slice(0, 64);
+
+              // 1. Försök hitta spelaren via exakt SteamID
+              let matchedPlayer = playerBySteamId.get(rawSid);
+
+              // 2. Om rawSid inte fanns, matcha via spelarens visningsnamn (t.ex. "sidde")
+              if (!matchedPlayer && uName) {
+                matchedPlayer = playerByUsername.get(uName.toLowerCase());
+              }
+              if (!matchedPlayer && rawSid) {
+                matchedPlayer = playerByUsername.get(rawSid.toLowerCase());
+              }
+
+              const finalSteamId = matchedPlayer ? String(matchedPlayer.steam_id) : rawSid;
+              if (!finalSteamId) continue;
+
+              const prev = mergedStats.get(finalSteamId) || {
+                steamId: finalSteamId,
+                username: matchedPlayer?.username || uName,
+                teamId: matchedPlayer?.team_id || ps.teamId || homeTeamId,
+                goals: 0,
+                assists: 0,
+                shotsOnGoal: 0,
+                topShotSpeedKmh: 0,
+                passesCompleted: 0,
+                passesAttempted: 0,
+                possessionSeconds: 0
+              };
+
+              prev.goals = Math.max(prev.goals, parseInt(ps.goals, 10) || 0);
+              prev.assists = Math.max(prev.assists, parseInt(ps.assists, 10) || 0);
+              prev.shotsOnGoal = Math.max(prev.shotsOnGoal, parseInt(ps.shotsOnGoal, 10) || 0);
+              prev.topShotSpeedKmh = Math.max(prev.topShotSpeedKmh, parseFloat(ps.topShotSpeedKmh) || 0);
+              prev.passesCompleted = Math.max(prev.passesCompleted, parseInt(ps.passesCompleted, 10) || 0);
+              prev.passesAttempted = Math.max(prev.passesAttempted, parseInt(ps.passesAttempted, 10) || 0);
+              prev.possessionSeconds = Math.max(prev.possessionSeconds, parseFloat(ps.possessionSeconds) || 0);
+
+              mergedStats.set(finalSteamId, prev);
+            }
+
+            for (const ps of mergedStats.values()) {
               try {
-                let sId = String(ps.steamId || '').trim();
-                const uName = String(ps.username || sId || 'Spelare').trim().slice(0, 64);
-                if (!sId || sId.length < 10) continue;
+                const sId = ps.steamId;
+                const uName = ps.username;
+                const rawTeamId = parseInt(ps.teamId, 10) || Number(homeTeamId);
+                const pTeamId = (rawTeamId === Number(homeTeamId) || rawTeamId === Number(awayTeamId))
+                  ? rawTeamId
+                  : Number(homeTeamId);
 
-                const dbTeamId = ps.teamId ? parseInt(ps.teamId, 10) : Number(homeTeamId);
-                const pTeamId = (dbTeamId === Number(homeTeamId) || dbTeamId === Number(awayTeamId)) ? dbTeamId : Number(homeTeamId);
-
-                // Om spelaren inte finns registrerad sedan tidigare, skapa spelaren direkt i databasen
-                if (!playerSet.has(sId)) {
+                if (!playerBySteamId.has(sId)) {
                   await sql`
                     INSERT INTO players (steam_id, username, team_id, role)
                     VALUES (${sId}, ${uName}, ${pTeamId}, 'player')
-                    ON CONFLICT (steam_id) DO UPDATE SET team_id = EXCLUDED.team_id
+                    ON CONFLICT (steam_id) DO NOTHING
                   `;
-                  playerSet.add(sId);
+                  playerBySteamId.set(sId, { steam_id: sId, username: uName, team_id: pTeamId });
                 }
 
-                const g = Math.max(0, parseInt(ps.goals, 10) || 0);
-                const a = Math.max(0, parseInt(ps.assists, 10) || 0);
+                const g = Math.max(0, ps.goals);
+                const a = Math.max(0, ps.assists);
                 const tp = g + a;
-                const sog = Math.max(0, parseInt(ps.shotsOnGoal, 10) || 0);
-                const topSpeed = Math.min(250, Math.max(0, parseFloat(ps.topShotSpeedKmh) || 0));
-                const pm = parseInt(ps.plusMinus, 10) || 0;
-                const poss = Math.min(9999, Math.max(0, parseFloat(ps.possessionSeconds) || 0));
-                const toi = Math.min(9999, Math.max(0, parseFloat(ps.timeOnIceSeconds) || 0));
-                const passComp = Math.max(0, parseInt(ps.passesCompleted, 10) || 0);
-                const passAtt = Math.max(passComp, parseInt(ps.passesAttempted, 10) || 0);
-                const saves = Math.max(0, parseInt(ps.saves, 10) || 0);
-                const sa = Math.max(0, parseInt(ps.shotsAgainst, 10) || 0);
-                const ga = Math.max(0, parseInt(ps.goalsAgainst, 10) || 0);
-                const svPct = sa > 0 ? Math.min(100, Number(((saves / sa) * 100).toFixed(2))) : 0;
+                const sog = Math.max(0, ps.shotsOnGoal);
+                const topSpeed = Math.min(250, Math.max(0, Number(ps.topShotSpeedKmh.toFixed(1))));
+                const poss = Math.min(9999, Math.max(0, Number(ps.possessionSeconds.toFixed(1))));
+                const passComp = Math.max(0, ps.passesCompleted);
+                const passAtt = Math.max(passComp, ps.passesAttempted);
 
                 await sql`
                   INSERT INTO player_match_stats (
@@ -1093,10 +1150,10 @@ module.exports = async function handler(req, res) {
                     saves, shots_against, goals_against, save_percentage
                   ) VALUES (
                     ${matchId}, ${sId}, ${pTeamId}, ${g}, ${a}, ${tp},
-                    ${sog}, ${topSpeed}, ${pm},
-                    ${poss}, ${toi},
+                    ${sog}, ${topSpeed}, 0,
+                    ${poss}, 0,
                     ${passComp}, ${passAtt},
-                    ${saves}, ${sa}, ${ga}, ${svPct}
+                    0, 0, 0, 0
                   )
                 `;
               } catch (singleRowErr) {
