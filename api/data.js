@@ -159,6 +159,16 @@ async function ensureSchema(sql) {
       save_percentage NUMERIC(5, 2) DEFAULT 0.00
     )
   `;
+
+  // Tvingar Postgres att expandera kolumnerna ifall tabellen redan skapades med för låg limit
+  try {
+    await sql`
+      ALTER TABLE player_match_stats
+        ALTER COLUMN top_shot_speed_kmh TYPE NUMERIC(8, 2),
+        ALTER COLUMN possession_seconds TYPE NUMERIC(8, 2),
+        ALTER COLUMN time_on_ice_seconds TYPE NUMERIC(8, 2)
+    `;
+  } catch (_) {}
 }
 
 module.exports = async function handler(req, res) {
@@ -1046,8 +1056,6 @@ module.exports = async function handler(req, res) {
           matchId = inserted[0].id;
         }
 
-        // Spara spelarstatistik med absolut säkraste matchning mot steam_id
-        // Spara spelarstatistik med matchning på både SteamID och Username---------------------------------------------------------------------------
         // Spara spelarstatistik och rapportera tillbaka exakt antal sparade spelare till C#-modden
         let savedPlayersCount = 0;
         const sqlErrors = [];
@@ -1184,7 +1192,7 @@ module.exports = async function handler(req, res) {
           receivedPlayersCount: Array.isArray(body.playerStats) ? body.playerStats.length : 0,
           sqlErrors
         });
-      //----------------------------------
+      }
 
       return res.status(400).json({ error: 'Okänd action.' });
     }
