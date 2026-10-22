@@ -138,22 +138,26 @@ async function ensureSchema(sql) {
       ADD COLUMN IF NOT EXISTS rematch_reason TEXT
   `;
   await sql`
-    ALTER TABLE player_match_stats
-      ADD COLUMN IF NOT EXISTS team_id INT,
-      ADD COLUMN IF NOT EXISTS goals INT DEFAULT 0,
-      ADD COLUMN IF NOT EXISTS assists INT DEFAULT 0,
-      ADD COLUMN IF NOT EXISTS points INT DEFAULT 0,
-      ADD COLUMN IF NOT EXISTS shots_on_goal INT DEFAULT 0,
-      ADD COLUMN IF NOT EXISTS top_shot_speed_kmh NUMERIC(6, 2) DEFAULT 0.00,
-      ADD COLUMN IF NOT EXISTS plus_minus INT DEFAULT 0,
-      ADD COLUMN IF NOT EXISTS possession_seconds NUMERIC(8, 2) DEFAULT 0.00,
-      ADD COLUMN IF NOT EXISTS time_on_ice_seconds NUMERIC(8, 2) DEFAULT 0.00,
-      ADD COLUMN IF NOT EXISTS passes_completed INT DEFAULT 0,
-      ADD COLUMN IF NOT EXISTS passes_attempted INT DEFAULT 0,
-      ADD COLUMN IF NOT EXISTS saves INT DEFAULT 0,
-      ADD COLUMN IF NOT EXISTS shots_against INT DEFAULT 0,
-      ADD COLUMN IF NOT EXISTS goals_against INT DEFAULT 0,
-      ADD COLUMN IF NOT EXISTS save_percentage NUMERIC(5, 2) DEFAULT 0.00
+    CREATE TABLE IF NOT EXISTS player_match_stats (
+      id SERIAL PRIMARY KEY,
+      match_id INT REFERENCES matches(id) ON DELETE CASCADE,
+      steam_id VARCHAR(64),
+      team_id INT,
+      goals INT DEFAULT 0,
+      assists INT DEFAULT 0,
+      points INT DEFAULT 0,
+      shots_on_goal INT DEFAULT 0,
+      top_shot_speed_kmh NUMERIC(8, 2) DEFAULT 0.00,
+      plus_minus INT DEFAULT 0,
+      possession_seconds NUMERIC(8, 2) DEFAULT 0.00,
+      time_on_ice_seconds NUMERIC(8, 2) DEFAULT 0.00,
+      passes_completed INT DEFAULT 0,
+      passes_attempted INT DEFAULT 0,
+      saves INT DEFAULT 0,
+      shots_against INT DEFAULT 0,
+      goals_against INT DEFAULT 0,
+      save_percentage NUMERIC(5, 2) DEFAULT 0.00
+    )
   `;
 }
 
@@ -1043,15 +1047,10 @@ module.exports = async function handler(req, res) {
         }
 
         // Spara spelarstatistik med absolut säkraste matchning mot steam_id
-        // Spara spelarstatistik med matchning på både SteamID och Username
-        try {
-          await sql`
-            ALTER TABLE player_match_stats
-              ALTER COLUMN top_shot_speed_kmh TYPE NUMERIC(8, 2),
-              ALTER COLUMN possession_seconds TYPE NUMERIC(8, 2),
-              ALTER COLUMN time_on_ice_seconds TYPE NUMERIC(8, 2)
-          `;
-        } catch (_) {}
+        // Spara spelarstatistik med matchning på både SteamID och Username---------------------------------------------------------------------------
+        // Spara spelarstatistik och rapportera tillbaka exakt antal sparade spelare till C#-modden
+        let savedPlayersCount = 0;
+        const sqlErrors = [];
 
         try {
           const knownPlayers = await sql`SELECT steam_id, username, team_id FROM players`;
@@ -1069,30 +1068,41 @@ module.exports = async function handler(req, res) {
           if (Array.isArray(body.playerStats) && body.playerStats.length > 0) {
             await sql`DELETE FROM player_match_stats WHERE match_id = ${matchId}`;
 
-            // Slå ihop eventuella dubbletter för samma spelare innan vi sparar
             const mergedStats = new Map();
 
             for (const ps of body.playerStats) {
-              let rawSid = String(ps.steamId || '').trim();
-              const uName = String(ps.username || rawSid || 'Spelare').trim().slice(0, 64);
+              const rawSid = String(ps.steamId || '').trim();
+              const rawName = String(ps.username || rawSid || '').trim();
+              const cleanName = rawName.replace(/^#\d+\s*/, '').trim();
 
-              // 1. Försök hitta spelaren via exakt SteamID
+              // 1. Matcha mot exakt SteamID
               let matchedPlayer = playerBySteamId.get(rawSid);
 
-              // 2. Om rawSid inte fanns, matcha via spelarens visningsnamn (t.ex. "sidde")
-              if (!matchedPlayer && uName) {
-                matchedPlayer = playerByUsername.get(uName.toLowerCase());
+              // 2. Matcha mot exakt användarnamn (case-insensitive)
+              if (!matchedPlayer && cleanName) {
+                matchedPlayer = playerByUsername.get(cleanName.toLowerCase());
               }
               if (!matchedPlayer && rawSid) {
                 matchedPlayer = playerByUsername.get(rawSid.toLowerCase());
               }
 
-              const finalSteamId = matchedPlayer ? String(matchedPlayer.steam_id) : rawSid;
+              // 3. Om namnet i spelet innehåller eller innehålls av namnet på hemsidan (t.ex. taggar)
+              if (!matchedPlayer && cleanName.length >= 2) {
+                const lowerClean = cleanName.toLowerCase();
+                for (const [uKey, pObj] of playerByUsername.entries()) {
+                  if (uKey === lowerClean || uKey.includes(lowerClean) || lowerClean.includes(uKey)) {
+                    matchedPlayer = pObj;
+                    break;
+                  }
+                }
+              }
+
+              const finalSteamId = matchedPlayer ? String(matchedPlayer.steam_id).trim() : rawSid;
               if (!finalSteamId) continue;
 
               const prev = mergedStats.get(finalSteamId) || {
                 steamId: finalSteamId,
-                username: matchedPlayer?.username || uName,
+                username: matchedPlayer?.username || cleanName || finalSteamId,
                 teamId: matchedPlayer?.team_id || ps.teamId || homeTeamId,
                 goals: 0,
                 assists: 0,
@@ -1116,8 +1126,8 @@ module.exports = async function handler(req, res) {
 
             for (const ps of mergedStats.values()) {
               try {
-                const sId = ps.steamId;
-                const uName = ps.username;
+                const sId = String(ps.steamId).trim();
+                const uName = String(ps.username || sId).slice(0, 64);
                 const rawTeamId = parseInt(ps.teamId, 10) || Number(homeTeamId);
                 const pTeamId = (rawTeamId === Number(homeTeamId) || rawTeamId === Number(awayTeamId))
                   ? rawTeamId
@@ -1136,37 +1146,45 @@ module.exports = async function handler(req, res) {
                 const a = Math.max(0, ps.assists);
                 const tp = g + a;
                 const sog = Math.max(0, ps.shotsOnGoal);
-                const topSpeed = Math.min(250, Math.max(0, Number(ps.topShotSpeedKmh.toFixed(1))));
-                const poss = Math.min(9999, Math.max(0, Number(ps.possessionSeconds.toFixed(1))));
+                const topSpeed = Math.min(250, Math.max(0, Number((ps.topShotSpeedKmh || 0).toFixed(1))));
+                const poss = Math.min(9999, Math.max(0, Number((ps.possessionSeconds || 0).toFixed(1))));
                 const passComp = Math.max(0, ps.passesCompleted);
                 const passAtt = Math.max(passComp, ps.passesAttempted);
 
+                // Minimal och helt felsäker INSERT med endast de kolumner som hemsidan läser
                 await sql`
                   INSERT INTO player_match_stats (
                     match_id, steam_id, team_id, goals, assists, points,
-                    shots_on_goal, top_shot_speed_kmh, plus_minus,
-                    possession_seconds, time_on_ice_seconds,
-                    passes_completed, passes_attempted,
-                    saves, shots_against, goals_against, save_percentage
+                    shots_on_goal, top_shot_speed_kmh, possession_seconds,
+                    passes_completed, passes_attempted
                   ) VALUES (
                     ${matchId}, ${sId}, ${pTeamId}, ${g}, ${a}, ${tp},
-                    ${sog}, ${topSpeed}, 0,
-                    ${poss}, 0,
-                    ${passComp}, ${passAtt},
-                    0, 0, 0, 0
+                    ${sog}, ${topSpeed}, ${poss},
+                    ${passComp}, ${passAtt}
                   )
                 `;
+                savedPlayersCount++;
               } catch (singleRowErr) {
-                console.error('Kunde inte spara stat för enskild spelare:', singleRowErr.message);
+                console.error('Row insert error:', singleRowErr.message);
+                sqlErrors.push(`${ps.username}: ${singleRowErr.message}`);
               }
             }
+          } else {
+            sqlErrors.push('playerStats-listan från servern var tom');
           }
         } catch (statsBlockErr) {
-          console.error('Fel vid sparande av spelarstatistik:', statsBlockErr.message);
+          console.error('Stats block error:', statsBlockErr.message);
+          sqlErrors.push(statsBlockErr.message);
         }
 
-        return res.status(200).json({ ok: true, matchId });
-      }
+        return res.status(200).json({
+          ok: true,
+          matchId,
+          savedPlayersCount,
+          receivedPlayersCount: Array.isArray(body.playerStats) ? body.playerStats.length : 0,
+          sqlErrors
+        });
+      //----------------------------------
 
       return res.status(400).json({ error: 'Okänd action.' });
     }
