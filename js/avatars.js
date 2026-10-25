@@ -45,7 +45,6 @@ function renderPuckCharacterSVG(player) {
     : '';
   const stickTransform = player?.handedness === 'Right' ? 'transform="translate(310, 0) scale(-1, 1)"' : '';
 
-  // MÅLVAKTSMODELL (GK)
   if (isGK) {
     return `
       <svg viewBox="0 0 320 340" class="w-full h-full drop-shadow-[0_18px_28px_rgba(0,0,0,0.75)]">
@@ -95,9 +94,6 @@ function renderPuckCharacterSVG(player) {
           <line x1="109" y1="177" x2="125" y2="161" stroke="#18181b" stroke-width="2" />
           <line x1="176" y1="252" x2="194" y2="234" stroke="#18181b" stroke-width="2" />
           <line x1="182" y1="258" x2="200" y2="240" stroke="#18181b" stroke-width="3" />
-          <g transform="translate(152, 212) rotate(43)">
-            <text x="0" y="0" text-anchor="middle" font-family="'Barlow Condensed', sans-serif" font-weight="900" font-style="italic" font-size="18" letter-spacing="2" fill="#18181b">CLASSIC</text>
-          </g>
           <polygon points="192,268 210,250 232,264 218,284" fill="#c69f6d" />
           <polygon points="218,284 228,262 304,284 294,312" fill="#c69f6d" />
           <polygon points="220,283 230,262 294,281 284,309" fill="${av.bladeTape}" />
@@ -106,7 +102,6 @@ function renderPuckCharacterSVG(player) {
     `;
   }
 
-  // UTESPELARMODELL (DEFAULT)
   let visorFill = 'rgba(20, 18, 18, 0.78)';
   let visorShine = 'rgba(255, 255, 255, 0.25)';
   if (av.visor === 'mirror') {
@@ -167,7 +162,7 @@ function renderPuckCharacterSVG(player) {
         <polygon points="298,125 311,137 242,192 230,180" fill="${av.shaftTape}" />
         <polygon points="296,120 314,135 307,142 290,127" fill="${av.shaftTape}" filter="brightness(1.1)" />
         <polygon points="108,284 114,296 22,324 16,301 24,292" fill="#090b10" stroke="#1e293b" stroke-width="1" />
-        <polygon points="82,290 87,304 34,320 30,298" fill="${av.bladeTape}" />
+        <polygon points="86,293 116,298 22,324 16,301 24,292" fill="${av.bladeTape}" />
         <g transform="translate(46, 308)">
           <path d="M0,8 L0,20 A24,8 0 0,0 48,20 L48,8 Z" fill="#090b0e" />
           <ellipse cx="24" cy="8" rx="24" ry="8" fill="#1e242d" stroke="#cbd5e1" stroke-width="1" />
