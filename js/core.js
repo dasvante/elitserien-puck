@@ -56,6 +56,11 @@ function normalizePlayer(p) {
   const passComp = p.passes_completed || 0;
   const passAcc = passAtt > 0 ? Math.round((passComp / passAtt) * 100) : 0;
 
+  const saves = p.saves || 0;
+  const goalsAgainst = p.goals_against || 0;
+  const shotsAgainst = Math.max(p.shots_against || 0, saves + goalsAgainst);
+  const savePct = shotsAgainst > 0 ? Number(((saves / shotsAgainst) * 100).toFixed(1)) : 0;
+
   return {
     steamId: p.steam_id,
     name: p.username || 'Spelare',
@@ -70,6 +75,12 @@ function normalizePlayer(p) {
     g: p.g || 0,
     a: p.a || 0,
     tp: p.tp || 0,
+    wins: p.wins || 0,
+    saves: saves,
+    shotsAgainst: shotsAgainst,
+    goalsAgainst: goalsAgainst,
+    savePct: savePct,
+    shutouts: p.shutouts || 0,
     plusMinus: p.plus_minus || 0,
     hardestShot: Number(p.hardest_shot || 0),
     passAccuracy: passAcc,
