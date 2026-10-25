@@ -259,10 +259,28 @@ module.exports = async function handler(req, res) {
           COALESCE(SUM(pms.passes_completed), 0)::int AS passes_completed,
           COALESCE(SUM(pms.passes_attempted), 0)::int AS passes_attempted,
           COALESCE(SUM(pms.saves), 0)::int AS saves,
-          COALESCE(SUM(pms.shots_against), 0)::int AS shots_against
+          COALESCE(SUM(pms.shots_against), 0)::int AS shots_against,
+          COALESCE(SUM(pms.goals_against), 0)::int AS goals_against,
+          COALESCE(SUM(
+            CASE 
+              WHEN m.status = 'completed' AND (
+                (pms.team_id = m.home_team_id AND m.home_score > m.away_score) OR
+                (pms.team_id = m.away_team_id AND m.away_score > m.home_score)
+              ) THEN 1 ELSE 0 
+            END
+          ), 0)::int AS wins,
+          COALESCE(SUM(
+            CASE 
+              WHEN m.status = 'completed' AND (
+                (pms.team_id = m.home_team_id AND m.away_score = 0) OR
+                (pms.team_id = m.away_team_id AND m.home_score = 0)
+              ) THEN 1 ELSE 0 
+            END
+          ), 0)::int AS shutouts
         FROM players p
         LEFT JOIN team_members tm ON p.steam_id = tm.steam_id AND p.team_id = tm.team_id
         LEFT JOIN player_match_stats pms ON p.steam_id = pms.steam_id
+        LEFT JOIN matches m ON pms.match_id = m.id
         GROUP BY p.steam_id, tm.team_role
         ORDER BY tp DESC, g DESC, p.username ASC
       `;
