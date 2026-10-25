@@ -1125,7 +1125,7 @@ module.exports = async function handler(req, res) {
 
               const finalSteamId = matchedPlayer ? String(matchedPlayer.steam_id).trim() : rawSid;
               if (!finalSteamId) continue;
-
+//-----------------------------------------
               const prev = mergedStats.get(finalSteamId) || {
                 steamId: finalSteamId,
                 username: matchedPlayer?.username || cleanName || finalSteamId,
@@ -1136,7 +1136,10 @@ module.exports = async function handler(req, res) {
                 topShotSpeedKmh: 0,
                 passesCompleted: 0,
                 passesAttempted: 0,
-                possessionSeconds: 0
+                possessionSeconds: 0,
+                saves: 0,
+                shotsAgainst: 0,
+                goalsAgainst: 0
               };
 
               prev.goals = Math.max(prev.goals, parseInt(ps.goals, 10) || 0);
@@ -1146,6 +1149,9 @@ module.exports = async function handler(req, res) {
               prev.passesCompleted = Math.max(prev.passesCompleted, parseInt(ps.passesCompleted, 10) || 0);
               prev.passesAttempted = Math.max(prev.passesAttempted, parseInt(ps.passesAttempted, 10) || 0);
               prev.possessionSeconds = Math.max(prev.possessionSeconds, parseFloat(ps.possessionSeconds) || 0);
+              prev.saves = Math.max(prev.saves, parseInt(ps.saves, 10) || 0);
+              prev.shotsAgainst = Math.max(prev.shotsAgainst, parseInt(ps.shotsAgainst, 10) || 0);
+              prev.goalsAgainst = Math.max(prev.goalsAgainst, parseInt(ps.goalsAgainst, 10) || 0);
 
               mergedStats.set(finalSteamId, prev);
             }
@@ -1176,20 +1182,26 @@ module.exports = async function handler(req, res) {
                 const poss = Math.min(9999, Math.max(0, Number((ps.possessionSeconds || 0).toFixed(1))));
                 const passComp = Math.max(0, ps.passesCompleted);
                 const passAtt = Math.max(passComp, ps.passesAttempted);
+                const svs = Math.max(0, ps.saves);
+                const ga = Math.max(0, ps.goalsAgainst);
+                const sa = Math.max(svs + ga, ps.shotsAgainst);
+                const svPct = sa > 0 ? Number(((svs / sa) * 100).toFixed(2)) : 0;
 
-                // Minimal och helt felsäker INSERT med endast de kolumner som hemsidan läser
                 await sql`
                   INSERT INTO player_match_stats (
                     match_id, steam_id, team_id, goals, assists, points,
                     shots_on_goal, top_shot_speed_kmh, possession_seconds,
-                    passes_completed, passes_attempted
+                    passes_completed, passes_attempted,
+                    saves, shots_against, goals_against, save_percentage
                   ) VALUES (
                     ${matchId}, ${sId}, ${pTeamId}, ${g}, ${a}, ${tp},
                     ${sog}, ${topSpeed}, ${poss},
-                    ${passComp}, ${passAtt}
+                    ${passComp}, ${passAtt},
+                    ${svs}, ${sa}, ${ga}, ${svPct}
                   )
                 `;
                 savedPlayersCount++;
+                //--------------------------------------------------------------
               } catch (singleRowErr) {
                 console.error('Row insert error:', singleRowErr.message);
                 sqlErrors.push(`${ps.username}: ${singleRowErr.message}`);
