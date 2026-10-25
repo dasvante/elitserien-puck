@@ -197,6 +197,10 @@ function renderHeaderAuthArea() {
       if (mobileAdmin) mobileAdmin.classList.add('hidden');
     }
 
+    const roleBadge = isAdmin
+      ? '<span class="text-[10px] bg-amber-400 text-slate-950 font-extrabold px-1.5 py-0.2 rounded uppercase">ADMIN</span>'
+      : ('<span class="text-[10px] text-emerald-400 font-mono">#' + me.number + '</span>');
+
     const inviteBadge = myInvites.length > 0
       ? ('<span class="absolute -top-1 -right-1 bg-rose-600 text-white text-[10px] font-bold px-1.5 rounded-full animate-pulse">' + myInvites.length + '</span>')
       : '';
@@ -204,13 +208,16 @@ function renderHeaderAuthArea() {
     const charSvg = typeof renderPuckCharacterSVG === 'function' ? renderPuckCharacterSVG(me) : '';
 
     container.innerHTML = [
-      '<div class="flex items-center gap-3">',
+      '<div class="flex items-center gap-2">',
         '<button type="button" onclick="openInboxModal()" class="relative p-2 rounded bg-white/5 hover:bg-white/15 border border-white/15 text-gray-200 hover:text-white transition" title="Inkorg (Laginbjudningar)">',
           '<i class="fa-solid fa-envelope text-sm"></i>' + inviteBadge,
         '</button>',
-        // BARA ikonen (gubben) klickbar - ingen text!
-        '<button type="button" onclick="openPlayerProfile(\'' + me.steamId + '\')" class="w-8 h-8 rounded bg-slate-800 border border-white/15 hover:border-shl-lightBlue transition overflow-hidden flex items-center justify-center shadow" title="Min Spelarprofil">',
-          charSvg,
+        '<button type="button" onclick="openPlayerProfile(\'' + me.steamId + '\')" class="flex items-center gap-2.5 bg-white/5 hover:bg-white/15 border border-white/15 px-3 py-1 rounded transition">',
+          '<div class="w-7 h-8 rounded bg-slate-800 overflow-hidden flex items-center justify-center">' + charSvg + '</div>',
+          '<div class="text-left leading-tight hidden sm:block">',
+            '<div class="text-xs font-bold text-white flex items-center gap-1.5">' + me.name + ' ' + roleBadge + '</div>',
+            '<div class="text-[10px] text-gray-400">Min Profil</div>',
+          '</div>',
         '</button>',
         '<a href="/api/auth?action=logout" title="Logga ut" class="p-2 rounded bg-white/5 hover:bg-rose-600/30 border border-white/10 text-gray-300 hover:text-white text-xs transition">',
           '<i class="fa-solid fa-right-from-bracket"></i>',
